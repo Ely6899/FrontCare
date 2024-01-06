@@ -16,4 +16,6 @@
     <string name="register_donation_location_only_if_donor">Donation location(Only if donor)</string>
     <string name="register_button_register">Register</string>
     <string name="login_login">Login</string>
+    <string name="log_in_welcome">Logging in as %s</string>
+    <string name="profile_picture_select">Profile Picture</string>
 </resources>

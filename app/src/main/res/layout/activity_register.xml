@@ -24,12 +24,11 @@
     </TextView>
 
 
-
     <RadioGroup
         android:id="@+id/radioGrpSelectType"
         android:layout_width="match_parent"
         android:layout_height="wrap_content"
-        android:layout_marginTop="60dp"
+        android:layout_marginTop="40dp"
 
         android:orientation="horizontal"
         app:layout_constraintEnd_toEndOf="parent"
@@ -42,8 +41,8 @@
             android:layout_height="wrap_content"
             android:layout_weight="1"
             android:text="@string/soldier"
-            android:textSize="20sp"
             android:textColor="@color/black"
+            android:textSize="20sp"
             tools:layout_editor_absoluteX="95dp"
             tools:layout_editor_absouteY="120dp" />
 
@@ -52,19 +51,32 @@
             android:layout_height="wrap_content"
             android:layout_weight="1"
             android:text="@string/donor"
-            android:textSize="20sp"
             android:textColor="@color/black"
+            android:textSize="20sp"
             tools:layout_editor_absoluteX="95dp"
             tools:layout_editor_absoluteY="120dp" />
 
     </RadioGroup>
+
+    <ImageButton
+        android:id="@+id/imgBtnPfp"
+        android:layout_width="150dp"
+        android:layout_height="150dp"
+        android:contentDescription="@string/profile_picture_select"
+        android:src="@mipmap/ic_launcher_round"
+        app:layout_constraintBottom_toTopOf="@+id/etFirstName"
+        app:layout_constraintEnd_toEndOf="parent"
+        app:layout_constraintHorizontal_bias="0.498"
+        app:layout_constraintStart_toStartOf="parent"
+        app:layout_constraintTop_toBottomOf="@+id/radioGrpSelectType"
+        app:layout_constraintVertical_bias="0.0" />
 
     <EditText
         android:id="@+id/etFirstName"
         android:layout_width="match_parent"
         android:layout_height="wrap_content"
 
-        android:layout_marginTop="88dp"
+        android:layout_marginTop="156dp"
         android:autofillHints="name"
         android:hint="@string/register_first_name"
         android:inputType="textPersonName"

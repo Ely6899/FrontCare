@@ -3,7 +3,6 @@ package com.example.frontcareproject
 import android.content.Intent
 import androidx.appcompat.app.AppCompatActivity
 import android.os.Bundle
-import android.view.View
 import android.widget.Button
 
 class MainActivity : AppCompatActivity() {
@@ -19,10 +18,14 @@ class MainActivity : AppCompatActivity() {
         val registerIntent = Intent(this, RegisterActivity::class.java)
 
         soldierLoginButton.setOnClickListener {
+
+            //Used for passing data to the next activity
+            logInIntent.putExtra("token", "soldier")
             startActivity(logInIntent)
         }
 
         donorLoginButton.setOnClickListener {
+            logInIntent.putExtra("token", "donor")
             startActivity(logInIntent)
         }
 
