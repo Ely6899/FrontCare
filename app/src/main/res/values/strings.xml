@@ -1,0 +1,19 @@
+<resources>
+    <string name="app_name">FrontCareProject</string>
+    <string name="MainTitle">Welcome to FrontCare</string>
+    <string name="LogInDescriptionText">Log in as</string>
+    <string name="RegisterButtonText">No account? Register here</string>
+    <string name="SoldierLogInButton">Soldier</string>
+    <string name="DonorLogInButton">Donor</string>
+    <string name="soldier">Soldier</string>
+    <string name="donor">Donor</string>
+    <string name="register_title">Register Here</string>
+    <string name="register_first_name">First Name</string>
+    <string name="register_last_name">Last Name</string>
+    <string name="register_email">Email</string>
+    <string name="register_username">UserName</string>
+    <string name="register_password">Password</string>
+    <string name="register_donation_location_only_if_donor">Donation location(Only if donor)</string>
+    <string name="register_button_register">Register</string>
+    <string name="login_login">Login</string>
+</resources>
