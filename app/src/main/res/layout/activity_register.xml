@@ -37,6 +37,7 @@
         app:layout_constraintTop_toBottomOf="@+id/tvRegisterTitle">
 
         <RadioButton
+            android:id="@+id/radioSoldier"
             android:layout_width="match_parent"
             android:layout_height="wrap_content"
             android:layout_weight="1"
@@ -47,6 +48,7 @@
             tools:layout_editor_absouteY="120dp" />
 
         <RadioButton
+            android:id="@+id/radioDonor"
             android:layout_width="match_parent"
             android:layout_height="wrap_content"
             android:layout_weight="1"
@@ -170,6 +172,7 @@
     </EditText>
 
     <Button
+        android:id="@+id/btnRegister"
         android:layout_width="match_parent"
         android:layout_height="wrap_content"
         android:layout_marginTop="44dp"

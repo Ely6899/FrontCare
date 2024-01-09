@@ -1,0 +1,142 @@
+<?xml version="1.0" encoding="utf-8"?>
+<androidx.constraintlayout.widget.ConstraintLayout xmlns:android="http://schemas.android.com/apk/res/android"
+    xmlns:app="http://schemas.android.com/apk/res-auto"
+    xmlns:tools="http://schemas.android.com/tools"
+    android:layout_width="match_parent"
+    android:layout_height="match_parent"
+    android:background="@color/design_default_color_on_primary"
+    tools:context=".SoldierProfile">
+
+    <TextView
+        android:id="@+id/SoldierProfileTitle"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+
+        android:layout_marginStart="124dp"
+        android:layout_marginTop="4dp"
+        android:text="@string/profile_title"
+        android:textAlignment="center"
+        android:textSize="30sp"
+        app:layout_constraintStart_toStartOf="parent"
+        app:layout_constraintTop_toTopOf="parent" />
+
+    <ImageView
+        android:id="@+id/imageView"
+        android:layout_width="150dp"
+        android:layout_height="150dp"
+        android:layout_marginTop="16dp"
+        android:contentDescription="@string/profile_picture_select"
+        app:layout_constraintEnd_toEndOf="parent"
+        app:layout_constraintHorizontal_bias="0.498"
+        app:layout_constraintStart_toStartOf="parent"
+        app:layout_constraintTop_toBottomOf="@+id/SoldierProfileTitle" />
+
+    <TableLayout
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+
+        android:layout_marginTop="20dp"
+        android:stretchColumns="1"
+        app:layout_constraintTop_toBottomOf="@+id/imageView"
+        tools:layout_editor_absoluteX="0dp">
+
+        <TableRow
+            android:id="@+id/SoldierFirstNameRow"
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+
+            android:layout_marginBottom="10dp">
+
+            <TextView
+                android:id="@+id/tvSoldierProfileFirstName"
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+
+                android:text="@string/register_first_name"
+                android:textSize="25sp"
+                android:textColor="@color/black"
+                >
+
+            </TextView>
+
+            <TextView
+                android:id="@+id/ShowSoldierProfileFirstName"
+                android:layout_height="wrap_content"
+
+                android:text=""
+                android:textColor="@color/black"
+                android:textAlignment="center"
+                android:textSize="25sp">
+
+            </TextView>
+
+        </TableRow>
+
+        <TableRow
+            android:id="@+id/SoldierLastNameRow"
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:layout_marginBottom="10dp">
+
+            <TextView
+                android:id="@+id/tvSoldierProfileLastName"
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+
+                android:text="@string/register_last_name"
+                android:textSize="25sp"
+                android:textColor="@color/black"
+                >
+
+            </TextView>
+
+            <TextView
+                android:id="@+id/ShowSoldierProfileLastName"
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+
+                android:text=""
+                android:textSize="25sp"
+                android:textColor="@color/black"
+                android:textAlignment="center"
+                >
+
+            </TextView>
+
+        </TableRow>
+
+        <TableRow
+            android:id="@+id/SoldierEmailRow"
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content">
+
+            <TextView
+                android:id="@+id/tvSoldierProfileEmail"
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+
+                android:text="@string/register_email"
+                android:textSize="25sp"
+                android:textColor="@color/black"
+                >
+
+            </TextView>
+
+            <TextView
+                android:id="@+id/ShowSoldierProfileEmail"
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+
+                android:text=""
+                android:textSize="25sp"
+                android:textColor="@color/black"
+                android:textAlignment="center">
+
+            </TextView>
+
+
+        </TableRow>
+    </TableLayout>
+
+
+</androidx.constraintlayout.widget.ConstraintLayout>
