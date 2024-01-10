@@ -28,7 +28,7 @@
         android:id="@+id/radioGrpSelectType"
         android:layout_width="match_parent"
         android:layout_height="wrap_content"
-        android:layout_marginTop="40dp"
+        android:layout_marginTop="10dp"
 
         android:orientation="horizontal"
         app:layout_constraintEnd_toEndOf="parent"
@@ -78,7 +78,7 @@
         android:layout_width="match_parent"
         android:layout_height="wrap_content"
 
-        android:layout_marginTop="156dp"
+        android:layout_marginTop="148dp"
         android:autofillHints="name"
         android:hint="@string/register_first_name"
         android:inputType="textPersonName"
@@ -161,7 +161,7 @@
         android:layout_height="wrap_content"
 
         android:autofillHints="Donation Location"
-        android:hint="@string/register_donation_location_only_if_donor"
+        android:hint="@string/register_location"
         android:inputType="text"
         android:textAlignment="center"
         android:textColor="@color/black"
@@ -175,7 +175,7 @@
         android:id="@+id/btnRegister"
         android:layout_width="match_parent"
         android:layout_height="wrap_content"
-        android:layout_marginTop="44dp"
+        android:layout_marginTop="76dp"
 
         android:text="@string/register_button_register"
         android:textSize="25sp"

@@ -5,11 +5,13 @@ import android.widget.TextView
 import androidx.appcompat.app.AppCompatActivity
 
 class LoginActivity : AppCompatActivity() {
+    private lateinit var typeText: TextView
+
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
         setContentView(R.layout.activity_login)
 
-        val typeText = findViewById<TextView>(R.id.tvLoginType)
+        typeText = findViewById(R.id.tvLoginType)
 
         val extras = intent.extras
         if (extras != null) {
