@@ -23,6 +23,8 @@ class MainActivity : AppCompatActivity() {
         donorLoginButton = findViewById(R.id.btnLogInDonor)
 
         logInIntent = Intent(this, LoginActivity::class.java)
+        registerIntent = Intent(this, RegisterActivity::class.java)
+
 
         soldierLoginButton.setOnClickListener {
 
@@ -38,7 +40,6 @@ class MainActivity : AppCompatActivity() {
 
         // Connects to register screen
         registerButton.setOnClickListener {
-            registerIntent = Intent(this, RegisterActivity::class.java)
             startActivity(registerIntent)
         }
     }

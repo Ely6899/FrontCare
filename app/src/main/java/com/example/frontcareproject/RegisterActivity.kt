@@ -2,7 +2,6 @@ package com.example.frontcareproject
 
 import android.content.Intent
 import android.os.Bundle
-import android.provider.MediaStore
 import android.view.View
 import android.widget.Button
 import android.widget.EditText
@@ -17,22 +16,21 @@ import com.example.frontcareproject.databinding.ActivityRegisterBinding
 class RegisterActivity : AppCompatActivity() {
 
     //Used for picture selection
-//    private lateinit var binding:ActivityRegisterBinding
-//    private val galleryLauncher = registerForActivityResult(ActivityResultContracts.GetContent()){
-//        val galleryUri = it
-//        try{
-//            binding.imgBtnPfp.setImageURI(galleryUri)
-//        }catch(e:Exception){
-//            e.printStackTrace()
-//        }
-//
-//    }
+    private lateinit var binding:ActivityRegisterBinding
+    private val galleryLauncher = registerForActivityResult(ActivityResultContracts.GetContent()){
+        val galleryUri = it
+        try{
+            binding.imgBtnPfp.setImageURI(galleryUri)
+        }catch(e:Exception){
+            e.printStackTrace()
+        }
+
+    }
 
     //RadioGroup of type we select on register
     private lateinit var selectType: RadioGroup
 
     //Form filling variables
-    private lateinit var pfpSelect: Button
     private lateinit var registerButton: Button
     private lateinit var etFirstName: EditText
     private lateinit var etLastName: EditText
@@ -52,14 +50,13 @@ class RegisterActivity : AppCompatActivity() {
         setContentView(R.layout.activity_register)
 
         //Picture selection
-//        binding= ActivityRegisterBinding.inflate(layoutInflater)
-//        setContentView(binding.root)
-//        binding.imgBtnPfp.setOnClickListener {
-//            galleryLauncher.launch("image/*")
-//        }
+        binding= ActivityRegisterBinding.inflate(layoutInflater)
+        setContentView(binding.root)
+        binding.imgBtnPfp.setOnClickListener {
+            galleryLauncher.launch("image/*")
+        }
 
         //Used for selecting profile picture
-        pfpSelect = findViewById(R.id.imgBtnPfp)
 
         //Used for extracting data of edit texts.
         registerButton = findViewById(R.id.btnRegister)
@@ -72,7 +69,7 @@ class RegisterActivity : AppCompatActivity() {
 
         selectType = findViewById(R.id.radioGrpSelectType)
 
-        selectType.setOnCheckedChangeListener { group, checkedId ->
+        selectType.setOnCheckedChangeListener { _, checkedId ->
             if (checkedId == R.id.radioSoldier){
                 etLocation.isEnabled = false
                 etLocation.visibility = View.INVISIBLE

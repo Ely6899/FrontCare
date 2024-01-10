@@ -5,8 +5,6 @@ import android.os.Bundle
 import android.view.View
 import android.widget.TableRow
 import android.widget.TextView
-import androidx.core.view.get
-import androidx.core.view.isVisible
 
 class Profile : AppCompatActivity() {
     private lateinit var firstNameData: TextView
