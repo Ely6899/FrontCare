@@ -72,4 +72,5 @@ dependencies {
     implementation("io.ktor:ktor-jackson:1.6.4")
     implementation("ch.qos.logback:logback-classic:1.2.6")
     implementation("ch.qos.logback:logback-core:1.2.6")
+    implementation("mysql:mysql-connector-java:8.0.23")
 }

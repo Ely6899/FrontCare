@@ -80,6 +80,6 @@ class LoginActivity : AppCompatActivity() {
     private fun handleServerResponse(response: String) {
         // Handle the received message from the server
         // For example, update UI elements with the received message
-        println("Received message zibi bibi from server: $response")
+        println("Received message from server: $response")
     }
 }
