@@ -21,7 +21,7 @@ import java.sql.PreparedStatement
 import java.sql.ResultSet
 
 // Entry point of the server application
-val mysql_url = "jdbc:mysql://localhost:3306/frontcare_db" // Replace with your MySQL database URL
+val mysql_url = "jdbc:mysql://localhost:3306/frontcare" // Replace with your MySQL database URL
 val mysql_user = "root" //
 val mysql_password = "root" // change to YOUR password
 
