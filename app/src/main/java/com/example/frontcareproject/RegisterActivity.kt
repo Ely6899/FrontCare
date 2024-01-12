@@ -11,6 +11,11 @@ import android.widget.Toast
 import androidx.activity.result.contract.ActivityResultContracts
 import androidx.appcompat.app.AppCompatActivity
 import com.example.frontcareproject.databinding.ActivityRegisterBinding
+import java.io.BufferedReader
+import java.io.IOException
+import java.io.InputStreamReader
+import java.net.HttpURLConnection
+import java.net.URL
 
 
 class RegisterActivity : AppCompatActivity() {
@@ -38,6 +43,7 @@ class RegisterActivity : AppCompatActivity() {
     private lateinit var etUserName: EditText
     private lateinit var etPassword: EditText
     private lateinit var etLocation: EditText
+    private lateinit var serverAns: String
 
     // Will carry filled data to next activity
     private lateinit var dataBundle: Bundle
@@ -66,6 +72,7 @@ class RegisterActivity : AppCompatActivity() {
         etUserName = findViewById(R.id.etUserName)
         etPassword = findViewById(R.id.etPassword)
         etLocation = findViewById(R.id.etDonationLocation)
+        serverAns = ""
 
         selectType = findViewById(R.id.radioGrpSelectType)
 
@@ -88,22 +95,83 @@ class RegisterActivity : AppCompatActivity() {
             }else{
                 val selectedType = findViewById<RadioButton>(selectType.checkedRadioButtonId)
 
-                profileIntent = Intent(this, Profile::class.java)
+//                profileIntent = Intent(this, Profile::class.java)
+//
+//                dataBundle = Bundle()
+//                dataBundle.putString("Profile Type", selectedType.text.toString())
+//                dataBundle.putString("First Name", etFirstName.text.toString())
+//                dataBundle.putString("Last Name", etLastName.text.toString())
+//                dataBundle.putString("Email", etEmail.text.toString())
+//                if (selectType.checkedRadioButtonId == R.id.radioDonor)
+//                    dataBundle.putString("Location", etLocation.text.toString())
+//
+//
+//                profileIntent.putExtras(dataBundle)
+//                startActivity(profileIntent)
 
-                dataBundle = Bundle()
-                dataBundle.putString("Profile Type", selectedType.text.toString())
-                dataBundle.putString("First Name", etFirstName.text.toString())
-                dataBundle.putString("Last Name", etLastName.text.toString())
-                dataBundle.putString("Email", etEmail.text.toString())
-                if (selectType.checkedRadioButtonId == R.id.radioDonor)
-                    dataBundle.putString("Location", etLocation.text.toString())
+                Thread {
+                    try {
+                        val serverUrl = "http://10.0.2.2:8080/api/register"
+                        val url = URL(serverUrl)
+                        val connection = url.openConnection() as HttpURLConnection
+                        connection.requestMethod = "POST"
+                        connection.setRequestProperty("Content-Type", "application/json")
+                        connection.doOutput = true
 
+                        // Construct the JSON payload with register credentials
+                        val userType = selectedType.text.toString()
+                        val firstName = etFirstName.text.toString()
+                        val lastName = etLastName.text.toString()
+                        val email = etEmail.text.toString()
+                        val password = etPassword.text.toString()
+                        val userName = etLastName.text.toString()
+                        val location = etLocation.text.toString()
+                        val jsonInputString = """
+                            {"userType": "$userType", 
+                            "firstName": "$firstName",
+                            "lastName": "$lastName",
+                            "email": "$email",
+                            "password": "$password",
+                            "userName": "$userName",
+                            "location": "$location"}
+                            """.trimIndent()
 
-                profileIntent.putExtras(dataBundle)
-                startActivity(profileIntent)
+                        // Send JSON as the request body
+                        val outputStream = connection.outputStream
+                        outputStream.write(jsonInputString.toByteArray(Charsets.UTF_8))
+                        outputStream.close()
+
+                        // Get the response
+                        val inputStream = connection.inputStream
+                        val reader = BufferedReader(InputStreamReader(inputStream))
+                        serverAns = reader.readLine()
+
+                        runOnUiThread {
+                            handleServerResponse(serverAns)
+                        }
+
+                        reader.close()
+                        connection.disconnect()
+
+                    } catch (e: IOException) {
+                        e.printStackTrace()
+                    }
+                }.start()
             }
         }
+    }
+    private fun handleServerResponse(response: String) {
+        // Handle the received message from the server
+        // For example, update UI elements with the received message
+        println("Received message from server: $response")
 
-
+        if (response == "Done") {
+            Toast.makeText(this, "Registration complete", Toast.LENGTH_SHORT).show()
+            //startActivity(Intent(this, Profile::class.java))
+        }
+        else{
+            Toast.makeText(this, "Registration failed", Toast.LENGTH_SHORT).show()
+        }
+        //println("Received message from server: $response")
     }
 }

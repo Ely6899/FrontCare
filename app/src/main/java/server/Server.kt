@@ -15,15 +15,19 @@ import io.ktor.routing.post
 import io.ktor.routing.routing
 import io.ktor.server.engine.embeddedServer
 import io.ktor.server.netty.Netty
+import utils.GlobalVar
 import java.sql.Connection
 import java.sql.DriverManager
 import java.sql.PreparedStatement
 import java.sql.ResultSet
+import org.json.JSONArray
+import org.json.JSONObject
 
 // Entry point of the server application
 val mysql_url = "jdbc:mysql://localhost:3306/frontcare"
 val mysql_user = "root" //
 val mysql_password = "root" // change to YOUR password
+val userId = GlobalVar.userId
 
 fun main() {
     // Start an embedded Netty server on port 8080 and configure it with the defined module
@@ -56,6 +60,29 @@ fun getAllUsers(): List<Map<String, Any>> {
     }
 }
 
+fun getUserProfile(userId: String?): Map<String, Any> {
+    DriverManager.getConnection(mysql_url, mysql_user, mysql_password).use { connection ->
+        connection.prepareStatement("SELECT userid, email FROM users WHERE userid = ?").use { statement ->
+            // Set the value for the parameter in the prepared statement
+            statement.setString(1, userId)
+
+            statement.executeQuery().use { resultSet ->
+                return if (resultSet.next()) {
+                    val rowMap = mutableMapOf<String, Any>()
+                    rowMap["userid"] = resultSet.getInt("userid")
+                    rowMap["email"] = resultSet.getString("email")
+                    rowMap
+                } else {
+                    // If no result is found, return an empty map or handle it as needed
+                    emptyMap()
+                }
+            }
+        }
+    }
+}
+
+
+
 fun authenticateUser(email: String?, password: String?): Int? {
 
     var connection: Connection? = null
@@ -80,6 +107,49 @@ fun authenticateUser(email: String?, password: String?): Int? {
     return userId
 }
 
+/*
+    TODO: ELY FIX YOUR FUNC YOU PUNK
+ */
+fun newEntryToDatabase(data: Map<String, String>): Int? {
+    var connection: Connection? = null
+    var userId: Int? = null
+
+    try {
+        Class.forName("com.mysql.cj.jdbc.Driver")
+        connection = DriverManager.getConnection(mysql_url, mysql_user, mysql_password)
+
+        val statement: PreparedStatement = connection.prepareStatement("" +
+                "INSERT INTO users_register_debug " +
+                "(userType, firstName, lastName, email, password, userName, location)\n" +
+                "VALUES (?, ?, ?, ?, ?, ?, ?);")
+
+
+        statement.setString(1, data["userType"])
+        statement.setString(2, data["firstName"])
+        statement.setString(3, data["lastName"])
+        statement.setString(4, data["email"])
+        statement.setString(5, data["password"])
+        statement.setString(6, data["userName"])
+        statement.setString(7, data["location"])
+//        var count = 1
+//        //Iterating through all values in data to insert them in the statement
+//        data.forEach{
+//            statement.setString(count++, it.value)
+//        }
+
+
+        val resultSet: ResultSet = statement.executeQuery()
+
+        if (resultSet.next()) {
+            userId = resultSet.getInt("userid")
+        }
+
+    } finally {
+        connection?.close()
+    }
+
+    return userId
+}
 
 // Define the Ktor application module
 fun Application.module() {
@@ -104,7 +174,7 @@ fun Application.module() {
         post("/api/login") {
             try {
                 // Receive the JSON payload from the request and deserialize it to a Map<String, String>
-                val request = call.receive<Map<String, String>>()
+                val request = call.receive<Map<String, String>>() // maybe change to Map<String, Any>
 
                 // Extract email and password from the received payload
                 val email = request["email"]
@@ -112,16 +182,40 @@ fun Application.module() {
 
                 val userId = authenticateUser(email, password)
 
-                // Perform your authentication logic here (dummy logic for demonstration purposes)
                 val responseMessage = if (userId != null) {
-                    "Login successful. User ID: $userId"
+                    mapOf("message" to "Login successful", "userId" to userId)
                 } else {
-                    "Invalid email or password"
+                    mapOf("message" to "Invalid email or password")
+                }
+
+                // Respond with a message in JSON format
+                call.respond(responseMessage)
+
+            } catch (e: Exception) {
+                // Handle exceptions related to request format and respond with BadRequest status
+                call.respond(HttpStatusCode.BadRequest, "Invalid request format")
+            }
+        }
+/*
+    TODO: ELY FIX YOUR FUNC YOU PUNK
+ */
+        post ("/api/register"){
+            try {
+                // Receive the JSON payload from the request and deserialize it to a Map<String, String>
+                val request = call.receive<Map<String, String>>()
+
+                val userId = newEntryToDatabase(request)
+
+                val responseMessage = if (userId != null) {
+                    "Done"
+                } else {
+                    "Failed registration"
                 }
 
                 // Respond with a message in JSON format
                 call.respond(mapOf("message" to responseMessage))
-            } catch (e: Exception) {
+
+            } catch (e: Exception){
                 // Handle exceptions related to request format and respond with BadRequest status
                 call.respond(HttpStatusCode.BadRequest, "Invalid request format")
             }
@@ -137,6 +231,22 @@ fun Application.module() {
             } catch (e: Exception) {
                 // Handle exceptions related to database query and respond with InternalServerError status
                 call.respond(HttpStatusCode.InternalServerError, "Error fetching users from the database")
+            }
+        }
+
+        get("/api/profile/{userId}") {
+            try {
+                // Retrieve the userId from the path parameters
+                val userId = call.parameters["userId"]
+
+                // Fetch user profile data from the database based on userId
+                val profileData = getUserProfile(userId)
+
+                // Respond with the user profile data in JSON format
+                call.respond(profileData)
+            } catch (e: Exception) {
+                // Handle exceptions related to the database query and respond with InternalServerError status
+                call.respond(HttpStatusCode.InternalServerError, "Error fetching user profile from the database")
             }
         }
 

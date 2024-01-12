@@ -19,4 +19,6 @@
     <string name="log_in_welcome">Logging in as %s</string>
     <string name="profile_picture_select">Profile Picture</string>
     <string name="profile_title">Your Profile</string>
+    <string name="login_failed_message">Login failed:\nEmail or password are incorrect</string>
+
 </resources>

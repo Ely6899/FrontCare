@@ -1,6 +1,7 @@
 plugins {
     id("com.android.application")
     id("org.jetbrains.kotlin.android")
+
 }
 
 android {
@@ -73,4 +74,5 @@ dependencies {
     implementation("ch.qos.logback:logback-classic:1.2.6")
     implementation("ch.qos.logback:logback-core:1.2.6")
     implementation("mysql:mysql-connector-java:8.0.23")
+    implementation("org.jetbrains.kotlinx:kotlinx-serialization-json:1.3.0")
 }
