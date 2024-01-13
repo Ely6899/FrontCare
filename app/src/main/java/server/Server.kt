@@ -117,7 +117,7 @@ fun authenticateUser(username: String?, password: String?): Int? {
 /*
     TODO: ELY FIX YOUR FUNC YOU PUNK
  */
-fun user_registration(data: Map<String, String>): Int? {
+fun userRegistration(data: Map<String, String>): Int? {
     // Extract email and password from the received payload
     val userType = data["userType"]
     val firstName = data["firstName"]
@@ -226,7 +226,7 @@ TODO : RAZ - ADD USERTYPE TO THE RETURN JSON
                 val request = call.receive<Map<String, String>>() // maybe change to Map<String, Any>
                 println(request)
 
-                val userId = user_registration(request)
+                val userId = userRegistration(request)
 
                 val responseMessage = if (userId != null) {
                     mapOf("message" to "INSERT successfully", "userId" to userId)
