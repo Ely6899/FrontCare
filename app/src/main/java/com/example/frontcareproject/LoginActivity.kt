@@ -49,7 +49,7 @@ class LoginActivity : AppCompatActivity() {
                 try {
 
                      //if you are using your phone instead of emulator you need to change the ip
-                    val url = URL("http://10.0.2.2:8080/api/login")
+                    val url = URL("http://${GlobalVar.serverIP}:8080/api/login")
                     val connection = url.openConnection() as HttpURLConnection
                     connection.requestMethod = "POST"
                     connection.setRequestProperty("Content-Type", "application/json")
@@ -100,6 +100,9 @@ class LoginActivity : AppCompatActivity() {
 
             if (message == "Login successful" && userId.isNotEmpty()) {
 
+                /*
+                TODO: RAZ - UPDATE USERTYPE GLOBAL VAR
+                 */
                 GlobalVar.userId = userId // set userid to global var
 
                 // Navigate to the ProfileActivity

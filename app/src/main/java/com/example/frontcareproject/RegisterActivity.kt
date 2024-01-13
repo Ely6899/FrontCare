@@ -11,6 +11,7 @@ import android.widget.Toast
 import androidx.activity.result.contract.ActivityResultContracts
 import androidx.appcompat.app.AppCompatActivity
 import com.example.frontcareproject.databinding.ActivityRegisterBinding
+import utils.GlobalVar
 import java.io.BufferedReader
 import java.io.IOException
 import java.io.InputStreamReader
@@ -111,7 +112,8 @@ class RegisterActivity : AppCompatActivity() {
 
                 Thread {
                     try {
-                        val serverUrl = "http://10.0.2.2:8080/api/register"
+
+                        val serverUrl = "http://${GlobalVar.serverIP}:8080/api/register"
                         val url = URL(serverUrl)
                         val connection = url.openConnection() as HttpURLConnection
                         connection.requestMethod = "POST"

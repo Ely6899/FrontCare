@@ -110,7 +110,7 @@ fun authenticateUser(email: String?, password: String?): Int? {
 /*
     TODO: ELY FIX YOUR FUNC YOU PUNK
  */
-fun newEntryToDatabase(data: Map<String, String>): Int? {
+fun user_registration(userType: String?, firstName: String?, lastName: String?, email: String?, password: String?, userName: String?, location: String?): Int? {
     var connection: Connection? = null
     var userId: Int? = null
 
@@ -118,32 +118,26 @@ fun newEntryToDatabase(data: Map<String, String>): Int? {
         Class.forName("com.mysql.cj.jdbc.Driver")
         connection = DriverManager.getConnection(mysql_url, mysql_user, mysql_password)
 
-        val statement: PreparedStatement = connection.prepareStatement("" +
-                "INSERT INTO users_register_debug " +
-                "(userType, firstName, lastName, email, password, userName, location)\n" +
-                "VALUES (?, ?, ?, ?, ?, ?, ?);")
+        val statement: PreparedStatement = connection.prepareStatement("INSERT INTO users_register_debug (userType, firstName, lastName, email, password, userName, location) VALUES (?, ?, ?, ?, ?, ?, ?)")
+        statement.setString(1, userType)
+        statement.setString(2, firstName)
+        statement.setString(3, lastName)
+        statement.setString(4, email)
+        statement.setString(5, password)
+        statement.setString(6, userName)
+        statement.setString(7, location)
 
+        // Use executeUpdate for INSERT operations
+        val rowsAffected = statement.executeUpdate()
 
-        statement.setString(1, data["userType"])
-        statement.setString(2, data["firstName"])
-        statement.setString(3, data["lastName"])
-        statement.setString(4, data["email"])
-        statement.setString(5, data["password"])
-        statement.setString(6, data["userName"])
-        statement.setString(7, data["location"])
-//        var count = 1
-//        //Iterating through all values in data to insert them in the statement
-//        data.forEach{
-//            statement.setString(count++, it.value)
-//        }
-
-
-        val resultSet: ResultSet = statement.executeQuery()
-
-        if (resultSet.next()) {
-            userId = resultSet.getInt("userid")
+        // Check if any rows were affected
+        if (rowsAffected > 0) {
+            // Retrieve the generated keys if needed
+            val generatedKeys = statement.generatedKeys
+            if (generatedKeys.next()) {
+                userId = generatedKeys.getInt(1)
+            }
         }
-
     } finally {
         connection?.close()
     }
@@ -202,20 +196,31 @@ fun Application.module() {
         post ("/api/register"){
             try {
                 // Receive the JSON payload from the request and deserialize it to a Map<String, String>
-                val request = call.receive<Map<String, String>>()
+                val request = call.receive<Map<String, String>>() // maybe change to Map<String, Any>
 
-                val userId = newEntryToDatabase(request)
+                // Extract email and password from the received payload
+                val userType = request["userType"]
+                val firstName = request["firstName"]
+                val lastName = request["lastName"]
+                val email = request["email"]
+                val password = request["password"]
+                val userName = request["userName"]
+                val location = request["location"]
+
+                println(request)
+
+                val userId = user_registration(userType, firstName,lastName,email,password,userName,location)
 
                 val responseMessage = if (userId != null) {
-                    "Done"
+                    mapOf("message" to "insert successfully", "userId" to userId)
                 } else {
-                    "Failed registration"
+                    mapOf("message" to "Failed to INSERT")
                 }
 
                 // Respond with a message in JSON format
-                call.respond(mapOf("message" to responseMessage))
+                call.respond(responseMessage)
 
-            } catch (e: Exception){
+            } catch (e: Exception) {
                 // Handle exceptions related to request format and respond with BadRequest status
                 call.respond(HttpStatusCode.BadRequest, "Invalid request format")
             }

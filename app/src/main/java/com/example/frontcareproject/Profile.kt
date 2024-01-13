@@ -51,13 +51,11 @@ class Profile : AppCompatActivity() {
 
     }
 
-
-
     private fun fetchProfileData() {
         Thread  {
             try {
                 val userId = GlobalVar.userId // Replace with your logic to get the user ID
-                val url = URL("http://10.0.2.2:8080/api/profile/$userId")
+                val url = URL("http://${GlobalVar.serverIP}:8080/api/profile/$userId")
                 val connection = url.openConnection() as HttpURLConnection
                 connection.requestMethod = "GET"
                 connection.setRequestProperty("Content-Type", "application/json")
