@@ -10,7 +10,9 @@ import android.widget.RadioGroup
 import android.widget.Toast
 import androidx.activity.result.contract.ActivityResultContracts
 import androidx.appcompat.app.AppCompatActivity
+import androidx.core.content.ContextCompat
 import com.example.frontcareproject.databinding.ActivityRegisterBinding
+import org.json.JSONObject
 import utils.GlobalVar
 import java.io.BufferedReader
 import java.io.IOException
@@ -22,12 +24,12 @@ import java.net.URL
 class RegisterActivity : AppCompatActivity() {
 
     //Used for picture selection
-    private lateinit var binding:ActivityRegisterBinding
-    private val galleryLauncher = registerForActivityResult(ActivityResultContracts.GetContent()){
+    private lateinit var binding: ActivityRegisterBinding
+    private val galleryLauncher = registerForActivityResult(ActivityResultContracts.GetContent()) {
         val galleryUri = it
-        try{
+        try {
             binding.imgBtnPfp.setImageURI(galleryUri)
-        }catch(e:Exception){
+        } catch (e: Exception) {
             e.printStackTrace()
         }
 
@@ -57,7 +59,7 @@ class RegisterActivity : AppCompatActivity() {
         setContentView(R.layout.activity_register)
 
         //Picture selection
-        binding= ActivityRegisterBinding.inflate(layoutInflater)
+        binding = ActivityRegisterBinding.inflate(layoutInflater)
         setContentView(binding.root)
         binding.imgBtnPfp.setOnClickListener {
             galleryLauncher.launch("image/*")
@@ -78,22 +80,24 @@ class RegisterActivity : AppCompatActivity() {
         selectType = findViewById(R.id.radioGrpSelectType)
 
         selectType.setOnCheckedChangeListener { _, checkedId ->
-            if (checkedId == R.id.radioSoldier){
+            if (checkedId == R.id.radioSoldier) {
                 etLocation.isEnabled = false
                 etLocation.visibility = View.INVISIBLE
             }
-            if(checkedId == R.id.radioDonor){
+            if (checkedId == R.id.radioDonor) {
                 etLocation.isEnabled = true
                 etLocation.visibility = View.VISIBLE
             }
         }
 
-        registerButton.setOnClickListener{
-            if (selectType.checkedRadioButtonId == -1){
-                Toast.makeText(this,"Select user type for registration!",
-                    Toast.LENGTH_SHORT)
+        registerButton.setOnClickListener {
+            if (selectType.checkedRadioButtonId == -1) {
+                Toast.makeText(
+                    this, "Select user type for registration!",
+                    Toast.LENGTH_SHORT
+                )
                     .show()
-            }else{
+            } else {
                 val selectedType = findViewById<RadioButton>(selectType.checkedRadioButtonId)
 
 //                profileIntent = Intent(this, Profile::class.java)
@@ -121,12 +125,17 @@ class RegisterActivity : AppCompatActivity() {
                         connection.doOutput = true
 
                         // Construct the JSON payload with register credentials
-                        val userType = selectedType.text.toString()
+                        var userType = selectedType.text.toString()
+                        if (userType == "Donor") {
+                            userType = "0"
+                        } else {
+                            userType = "1"
+                        }
                         val firstName = etFirstName.text.toString()
                         val lastName = etLastName.text.toString()
                         val email = etEmail.text.toString()
                         val password = etPassword.text.toString()
-                        val userName = etLastName.text.toString()
+                        val userName = etUserName.text.toString()
                         val location = etLocation.text.toString()
                         val jsonInputString = """
                             {"userType": "$userType", 
@@ -162,18 +171,46 @@ class RegisterActivity : AppCompatActivity() {
             }
         }
     }
-    private fun handleServerResponse(response: String) {
-        // Handle the received message from the server
-        // For example, update UI elements with the received message
-        println("Received message from server: $response")
 
-        if (response == "Done") {
-            Toast.makeText(this, "Registration complete", Toast.LENGTH_SHORT).show()
-            //startActivity(Intent(this, Profile::class.java))
+    private fun handleServerResponse(response: String) {
+        try {
+            // Parse the JSON response
+            val jsonResponse = JSONObject(response)
+
+            // Check if the response indicates a successful login
+
+            //optString is used ,This method returns an empty string if the key is not found.
+            val message = jsonResponse.optString("message")
+            val userId = jsonResponse.optString("userId")
+
+            if (message == "INSERT successfully" && userId.isNotEmpty()) {
+
+                /*
+                TODO: ELY - UPDATE USERTYPE GLOBAL VAR
+                 */
+                GlobalVar.userId = userId // set userid to global var
+
+                // Navigate to the ProfileActivity
+                val intent = Intent(this@RegisterActivity, Profile::class.java)
+                startActivity(intent)
+
+                // Finish the LoginActivity to prevent going back on back press
+                finish()
+
+            } else {
+                // Handle other cases or display an error message
+                //Toast.makeText(this, "Login failed", Toast.LENGTH_SHORT).show()
+                /*
+                TODO: ELY - CHECK IF ELSE HERE IS NEEDED
+                 */
+
+
+            }
+        } catch (e: Exception) {
+            // Handle the case where parsing the JSON fails
+            // For example, show a Toast message or log an error
+            // Toast.makeText(this, "Failed to parse server response", Toast.LENGTH_SHORT).show()
+            println("Failed to parse server response. Error: ${e.message}")
         }
-        else{
-            Toast.makeText(this, "Registration failed", Toast.LENGTH_SHORT).show()
-        }
-        //println("Received message from server: $response")
     }
 }

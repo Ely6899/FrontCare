@@ -22,12 +22,15 @@ import java.sql.PreparedStatement
 import java.sql.ResultSet
 import org.json.JSONArray
 import org.json.JSONObject
-
 // Entry point of the server application
 val mysql_url = "jdbc:mysql://localhost:3306/frontcare"
 val mysql_user = "root" //
 val mysql_password = "root" // change to YOUR password
 val userId = GlobalVar.userId
+
+/*
+TODO: RAZ - DOCUMENT ALL FUNCS
+ */
 
 fun main() {
     // Start an embedded Netty server on port 8080 and configure it with the defined module
@@ -84,8 +87,6 @@ fun getUserProfile(userId: String?): Map<String, Any> {
     }
 }
 
-
-
 fun authenticateUser(username: String?, password: String?): Int? {
 
     var connection: Connection? = null
@@ -116,7 +117,18 @@ fun authenticateUser(username: String?, password: String?): Int? {
 /*
     TODO: ELY FIX YOUR FUNC YOU PUNK
  */
-fun user_registration(userType: String?, firstName: String?, lastName: String?, email: String?, password: String?, userName: String?, location: String?): Int? {
+fun user_registration(data: Map<String, String>): Int? {
+    // Extract email and password from the received payload
+    val userType = data["userType"]
+    val firstName = data["firstName"]
+    val lastName = data["lastName"]
+    val email = data["email"]
+    val password = data["password"]
+    val username = data["userName"]
+    val location = data["location"]
+    // val phone = data["phone"]
+    val phone="0501234567"
+
     var connection: Connection? = null
     var userId: Int? = null
 
@@ -124,31 +136,38 @@ fun user_registration(userType: String?, firstName: String?, lastName: String?, 
         Class.forName("com.mysql.cj.jdbc.Driver")
         connection = DriverManager.getConnection(mysql_url, mysql_user, mysql_password)
 
-        val statement: PreparedStatement = connection.prepareStatement("INSERT INTO users_register_debug (userType, firstName, lastName, email, password, userName, location) VALUES (?, ?, ?, ?, ?, ?, ?)")
-        statement.setString(1, userType)
+        val statement: PreparedStatement = connection.prepareStatement(
+            "INSERT INTO users (is_soldier, firstName, lastName, username, password, location, email_address,phone_number) VALUES (?, ?, ?, ?, ?, ?, ?, ?)",
+            PreparedStatement.RETURN_GENERATED_KEYS
+        )
+
+        statement.setInt(1, userType?.toInt() ?: 0)
         statement.setString(2, firstName)
         statement.setString(3, lastName)
-        statement.setString(4, email)
+        statement.setString(4, username)
         statement.setString(5, password)
-        statement.setString(6, userName)
-        statement.setString(7, location)
+        statement.setString(6, location)
+        statement.setString(7, email)
+        statement.setString(8, phone)
 
-        // Use executeUpdate for INSERT operations
-        val rowsAffected = statement.executeUpdate()
+        // Execute the insert statement
+        val affectedRows = statement.executeUpdate()
 
-        // Check if any rows were affected
-        if (rowsAffected > 0) {
-            // Retrieve the generated keys if needed
-            val generatedKeys = statement.generatedKeys
+        if (affectedRows > 0) {
+            // Retrieve the generated user ID
+            val generatedKeys: ResultSet = statement.getGeneratedKeys()
             if (generatedKeys.next()) {
                 userId = generatedKeys.getInt(1)
             }
         }
+    } catch (e: Exception) {
+        e.printStackTrace()
     } finally {
         connection?.close()
     }
 
     return userId
+
 }
 
 // Define the Ktor application module
@@ -205,22 +224,12 @@ TODO : RAZ - ADD USERTYPE TO THE RETURN JSON
             try {
                 // Receive the JSON payload from the request and deserialize it to a Map<String, String>
                 val request = call.receive<Map<String, String>>() // maybe change to Map<String, Any>
-
-                // Extract email and password from the received payload
-                val userType = request["userType"]
-                val firstName = request["firstName"]
-                val lastName = request["lastName"]
-                val email = request["email"]
-                val password = request["password"]
-                val userName = request["userName"]
-                val location = request["location"]
-
                 println(request)
 
-                val userId = user_registration(userType, firstName,lastName,email,password,userName,location)
+                val userId = user_registration(request)
 
                 val responseMessage = if (userId != null) {
-                    mapOf("message" to "insert successfully", "userId" to userId)
+                    mapOf("message" to "INSERT successfully", "userId" to userId)
                 } else {
                     mapOf("message" to "Failed to INSERT")
                 }
