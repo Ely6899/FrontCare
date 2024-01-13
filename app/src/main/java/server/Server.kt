@@ -62,15 +62,18 @@ fun getAllUsers(): List<Map<String, Any>> {
 
 fun getUserProfile(userId: String?): Map<String, Any> {
     DriverManager.getConnection(mysql_url, mysql_user, mysql_password).use { connection ->
-        connection.prepareStatement("SELECT userid, email FROM users WHERE userid = ?").use { statement ->
+        connection.prepareStatement("SELECT firstname,lastname,location,email_address,phone_number FROM users WHERE user_id = ?").use { statement ->
             // Set the value for the parameter in the prepared statement
             statement.setString(1, userId)
 
             statement.executeQuery().use { resultSet ->
                 return if (resultSet.next()) {
                     val rowMap = mutableMapOf<String, Any>()
-                    rowMap["userid"] = resultSet.getInt("userid")
-                    rowMap["email"] = resultSet.getString("email")
+                    rowMap["firstname"] = resultSet.getString("firstname")
+                    rowMap["lastname"] = resultSet.getString("lastname")
+                    rowMap["location"] = resultSet.getString("location")
+                    rowMap["email_address"] = resultSet.getString("email_address")
+                    rowMap["phone_number"] = resultSet.getString("phone_number")
                     rowMap
                 } else {
                     // If no result is found, return an empty map or handle it as needed
@@ -83,7 +86,7 @@ fun getUserProfile(userId: String?): Map<String, Any> {
 
 
 
-fun authenticateUser(email: String?, password: String?): Int? {
+fun authenticateUser(username: String?, password: String?): Int? {
 
     var connection: Connection? = null
     var userId: Int? = null
@@ -92,13 +95,16 @@ fun authenticateUser(email: String?, password: String?): Int? {
         Class.forName("com.mysql.cj.jdbc.Driver")
         connection = DriverManager.getConnection(mysql_url, mysql_user, mysql_password)
 
-        val statement: PreparedStatement = connection.prepareStatement("SELECT userid FROM users WHERE email = ? AND password = ?")
-        statement.setString(1, email)
+        val statement: PreparedStatement = connection.prepareStatement("SELECT user_id FROM users WHERE username = ? AND password = ?")
+        /*
+        TODO: RAZ - USE MD5 TO PASSWORD
+         */
+        statement.setString(1, username)
         statement.setString(2, password)
         val resultSet: ResultSet = statement.executeQuery()
 
         if (resultSet.next()) {
-            userId = resultSet.getInt("userid")
+            userId = resultSet.getInt("user_id")
         }
     } finally {
         connection?.close()
@@ -171,15 +177,17 @@ fun Application.module() {
                 val request = call.receive<Map<String, String>>() // maybe change to Map<String, Any>
 
                 // Extract email and password from the received payload
-                val email = request["email"]
+                val username = request["username"]
                 val password = request["password"]
 
-                val userId = authenticateUser(email, password)
-
+                val userId = authenticateUser(username, password)
+/*
+TODO : RAZ - ADD USERTYPE TO THE RETURN JSON
+ */
                 val responseMessage = if (userId != null) {
                     mapOf("message" to "Login successful", "userId" to userId)
                 } else {
-                    mapOf("message" to "Invalid email or password")
+                    mapOf("message" to "Invalid username or password")
                 }
 
                 // Respond with a message in JSON format
@@ -243,9 +251,10 @@ fun Application.module() {
             try {
                 // Retrieve the userId from the path parameters
                 val userId = call.parameters["userId"]
-
+                println(userId)
                 // Fetch user profile data from the database based on userId
                 val profileData = getUserProfile(userId)
+                println(profileData)
 
                 // Respond with the user profile data in JSON format
                 call.respond(profileData)

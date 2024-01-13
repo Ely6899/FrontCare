@@ -94,12 +94,27 @@ class Profile : AppCompatActivity() {
             // Check if the response indicates a successful login
 
             //optString is used ,This method returns an empty string if the key is not found.
-            val userId = jsonResponse.optString("userid")
-            val email = jsonResponse.optString("email")
+            val firstname = jsonResponse.optString("firstname")
+            val lastname = jsonResponse.optString("lastname")
+            val location = jsonResponse.optString("location")
+            val email_address = jsonResponse.optString("email_address")
+            val phone_number = jsonResponse.optString("phone_number")
 
-            if (userId.isNotEmpty() && email.isNotEmpty()) {
-                firstNameData.text = userId
-                emailData.text = email
+
+            if (firstname.isNotEmpty() && lastname.isNotEmpty() && email_address.isNotEmpty() && phone_number.isNotEmpty()) {
+                if(location.isNotEmpty())
+                {//donor
+                    firstNameData.text = firstname
+                    lastNameData.text = lastname
+                    emailData.text = email_address
+                    locationData.text = location
+                }
+                else{
+                    //soldier
+                    firstNameData.text = firstname
+                    lastNameData.text = lastname
+                    emailData.text = email_address
+                }
 
             } else {
                 // Handle other cases or display an error message

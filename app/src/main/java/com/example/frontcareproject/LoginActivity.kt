@@ -25,7 +25,7 @@ class LoginActivity : AppCompatActivity() {
      */
     private lateinit var typeText: TextView
     private lateinit var tverrormsg: TextView
-    private lateinit var etEmail : EditText
+    private lateinit var etUserName : EditText
     private lateinit var etPassword : EditText
     private lateinit var loginBtn: Button
     private lateinit var serverAns: String
@@ -36,13 +36,10 @@ class LoginActivity : AppCompatActivity() {
         setContentView(R.layout.activity_login)
 
         typeText = findViewById(R.id.tvLoginType)
-        etEmail = findViewById(R.id.etLoginEmail)
+        etUserName = findViewById(R.id.etLoginUserName)
         etPassword = findViewById(R.id.etLoginPassword)
         loginBtn = findViewById(R.id.btnLogin)
         tverrormsg = findViewById(R.id.tvErrorMsg)
-
-        serverAns = ""
-
 
         loginBtn.setOnClickListener {
             Thread {
@@ -56,9 +53,9 @@ class LoginActivity : AppCompatActivity() {
                     connection.doOutput = true
 
                     // Construct the JSON payload with email and password
-                    val email = etEmail.text.toString()
+                    val username = etUserName.text.toString()
                     val password = etPassword.text.toString()
-                    val jsonInputString = """{"email": "$email", "password": "$password"}"""
+                    val jsonInputString = """{"username": "$username", "password": "$password"}"""
 
                     // Send JSON as the request body
                     val outputStream = connection.outputStream
@@ -68,7 +65,7 @@ class LoginActivity : AppCompatActivity() {
                     // Get the response
                     val inputStream = connection.inputStream
                     val reader = BufferedReader(InputStreamReader(inputStream))
-                    serverAns = reader.readLine()
+                    val serverAns = reader.readLine()
 
                     runOnUiThread {
                         handleServerResponse(serverAns)
