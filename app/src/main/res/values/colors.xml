@@ -3,4 +3,6 @@
     <color name="black">#FF000000</color>
     <color name="white">#FFFFFFFF</color>
     <color name="red">#FF0000</color>
+    <color name="tablesBackgroundColor">#D3D3D3</color>
+    <color name="tablesOutlineColor">#000000</color>
 </resources>
