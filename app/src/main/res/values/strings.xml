@@ -22,4 +22,11 @@
     <string name="login_failed_message">Login failed:\nEmail or password are incorrect</string>
     <string name="register_phone">Phone</string>
 
+    <string-array name="locations_array">
+        <item>North</item>
+        <item>Center</item>
+        <item>South</item>
+    </string-array>
+
+
 </resources>
