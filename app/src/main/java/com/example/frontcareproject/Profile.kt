@@ -25,6 +25,8 @@ class Profile : AppCompatActivity() {
     private lateinit var emailData: TextView
     private lateinit var locationRow: TableRow
     private lateinit var locationData: TextView
+    private lateinit var phoneNumber: TextView
+
     //Maor's addition to a redirect button:
     private lateinit var redirectBtnS: Button
     private lateinit var redirectBtnD: Button
@@ -39,6 +41,7 @@ class Profile : AppCompatActivity() {
         emailData = findViewById(R.id.ShowProfileEmail)
         locationRow = findViewById(R.id.LocationRow)
         locationData = findViewById(R.id.ShowProfileLocation)
+        phoneNumber = findViewById(R.id.ShowPhoneNumber)
 
 //        val data = intent.extras
 //        if (data != null){
@@ -115,6 +118,7 @@ class Profile : AppCompatActivity() {
             // Check if the response indicates a successful login
 
             //optString is used ,This method returns an empty string if the key is not found.
+            val is_soldier = jsonResponse.optString("is_soldier")
             val firstname = jsonResponse.optString("firstname")
             val lastname = jsonResponse.optString("lastname")
             val location = jsonResponse.optString("location")
@@ -123,18 +127,23 @@ class Profile : AppCompatActivity() {
 
 
             if (firstname.isNotEmpty() && lastname.isNotEmpty() && email_address.isNotEmpty() && phone_number.isNotEmpty()) {
-                if(location.isNotEmpty())
+                if(is_soldier == "0")
                 {//donor
                     firstNameData.text = firstname
                     lastNameData.text = lastname
                     emailData.text = email_address
                     locationData.text = location
+                    phoneNumber.text = phone_number
                 }
                 else{
                     //soldier
                     firstNameData.text = firstname
                     lastNameData.text = lastname
                     emailData.text = email_address
+                    phoneNumber.text = phone_number
+                    val profileLocationTextView = findViewById<TextView>(R.id.ProfileLocation)
+                    profileLocationTextView.visibility = View.GONE // hide location field
+
                 }
 
             } else {

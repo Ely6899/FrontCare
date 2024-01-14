@@ -135,6 +135,36 @@
         </TableRow>
 
         <TableRow
+            android:id="@+id/PhoneRow"
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content">
+
+            <TextView
+                android:id="@+id/PhoneNumber"
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+
+                android:text="@string/register_phone"
+                android:textColor="@color/black"
+                android:textSize="25sp">
+
+            </TextView>
+
+            <TextView
+                android:id="@+id/ShowPhoneNumber"
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+
+                android:text=""
+                android:textAlignment="center"
+                android:textColor="@color/black"
+                android:textSize="25sp">
+
+            </TextView>
+
+        </TableRow>
+
+        <TableRow
             android:id="@+id/LocationRow"
             android:layout_width="match_parent"
             android:layout_height="wrap_content">
@@ -163,6 +193,7 @@
             </TextView>
 
         </TableRow>
+
     </TableLayout>
 
     <!-- Maor: temporary button for redirecting to SoldiersRequestsPage for testing -->

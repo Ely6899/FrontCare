@@ -20,6 +20,8 @@ import java.sql.Connection
 import java.sql.DriverManager
 import java.sql.PreparedStatement
 import java.sql.ResultSet
+import java.math.BigInteger
+import java.security.MessageDigest
 import org.json.JSONArray
 import org.json.JSONObject
 // Entry point of the server application
@@ -63,15 +65,31 @@ fun getAllUsers(): List<Map<String, Any>> {
     }
 }
 
+fun hashMD5(password: String): String {
+    val md = MessageDigest.getInstance("MD5")
+    val byteArray = md.digest(password.toByteArray())
+
+    // Convert the byte array to a hexadecimal string
+    val number = BigInteger(1, byteArray)
+    var hashedPassword = number.toString(16)
+
+    // Pad the hexadecimal string with leading zeros if needed
+    while (hashedPassword.length < 32) {
+        hashedPassword = "0$hashedPassword"
+    }
+
+    return hashedPassword
+}
 fun getUserProfile(userId: String?): Map<String, Any> {
     DriverManager.getConnection(mysql_url, mysql_user, mysql_password).use { connection ->
-        connection.prepareStatement("SELECT firstname,lastname,location,email_address,phone_number FROM users WHERE user_id = ?").use { statement ->
+        connection.prepareStatement("SELECT is_soldier,firstname,lastname,location,email_address,phone_number FROM users WHERE user_id = ?").use { statement ->
             // Set the value for the parameter in the prepared statement
             statement.setString(1, userId)
 
             statement.executeQuery().use { resultSet ->
                 return if (resultSet.next()) {
                     val rowMap = mutableMapOf<String, Any>()
+                    rowMap["is_soldier"] = resultSet.getInt("is_soldier")
                     rowMap["firstname"] = resultSet.getString("firstname")
                     rowMap["lastname"] = resultSet.getString("lastname")
                     rowMap["location"] = resultSet.getString("location")
@@ -97,11 +115,10 @@ fun authenticateUser(username: String?, password: String?): Int? {
         connection = DriverManager.getConnection(mysql_url, mysql_user, mysql_password)
 
         val statement: PreparedStatement = connection.prepareStatement("SELECT user_id FROM users WHERE username = ? AND password = ?")
-        /*
-        TODO: RAZ - USE MD5 TO PASSWORD
-         */
+
+        val hashPassword = hashMD5(password.toString())
         statement.setString(1, username)
-        statement.setString(2, password)
+        statement.setString(2, hashPassword)
         val resultSet: ResultSet = statement.executeQuery()
 
         if (resultSet.next()) {
@@ -122,9 +139,16 @@ fun userRegistration(data: Map<String, String>): Int? {
     val email = data["email"]
     val password = data["password"]
     val username = data["userName"]
-    val location = data["location"]
+    var location = data["location"]
     val phone = data["phone"]
 
+    val hashPassword = hashMD5(password.toString())
+
+    //checks if usertype is soldier ,if true we dont fill location
+    if(userType == "1")
+    {
+        location = "null"
+    }
     var connection: Connection? = null
     var userId: Int? = null
 
@@ -141,7 +165,7 @@ fun userRegistration(data: Map<String, String>): Int? {
         statement.setString(2, firstName)
         statement.setString(3, lastName)
         statement.setString(4, username)
-        statement.setString(5, password)
+        statement.setString(5, hashPassword)
         statement.setString(6, location)
         statement.setString(7, email)
         statement.setString(8, phone)
@@ -265,6 +289,51 @@ fun getDonorsEvents(): List<Map<String, Any>> {
     return resultList
 }
 
+fun updateUserInformation(data: Map<String, String>): Boolean {
+    val userId = data["userId"]
+    val phoneNumber = data["phoneNumber"]
+    val email = data["email_address"]
+    val userName = data["userName"]
+    val rawPassword = data["password"]
+    var location = data["location"]
+
+    // Hash the password using MD5
+    val hashPassword = hashMD5(rawPassword.toString())
+
+    val sql = """
+        UPDATE users
+        SET phone_number = ?,
+            email_address = ?,
+            username = ?,
+            password = ?,
+            location = ?
+        WHERE user_id = ?;
+    """.trimIndent()
+
+    var connection: Connection? = null
+
+    try {
+        connection = DriverManager.getConnection(mysql_url, mysql_user, mysql_password)
+        val statement = connection.prepareStatement(sql)
+
+        statement.setString(1, phoneNumber)
+        statement.setString(2, email)
+        statement.setString(3, userName)
+        statement.setString(4, hashPassword)
+        statement.setString(5, location)
+        statement.setInt(6, userId?.toInt() ?: 0)
+
+        val rowsAffected = statement.executeUpdate()
+        return rowsAffected > 0
+
+    } catch (e: Exception) {
+        e.printStackTrace()
+    } finally {
+        connection?.close()
+    }
+
+    return false
+}
 // Define the Ktor application module
 fun Application.module() {
     // Install the ContentNegotiation feature with Jackson as the JSON serializer/deserializer
@@ -325,6 +394,27 @@ TODO : RAZ - ADD USERTYPE TO THE RETURN JSON
                     mapOf("message" to "register successfully", "userId" to userId)
                 } else {
                     mapOf("message" to "Failed to register")
+                }
+
+                // Respond with a message in JSON format
+                call.respond(responseMessage)
+
+            } catch (e: Exception) {
+                // Handle exceptions related to request format and respond with BadRequest status
+                call.respond(HttpStatusCode.BadRequest, "Invalid request format")
+            }
+        }
+
+        post ("/api/updateProfile"){
+            try {
+                // Receive the JSON payload from the request and deserialize it to a Map<String, String>
+                val request = call.receive<Map<String, String>>() // maybe change to Map<String, Any>
+                val isUpdated = updateUserInformation(request) // True - Update successfully else False
+
+                val responseMessage = if (isUpdated) {
+                    mapOf("message" to "Update successfully")
+                } else {
+                    mapOf("message" to "Failed to Update")
                 }
 
                 // Respond with a message in JSON format

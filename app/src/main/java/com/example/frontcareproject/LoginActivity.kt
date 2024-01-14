@@ -112,7 +112,7 @@ class LoginActivity : AppCompatActivity() {
             } else {
                 // Handle other cases or display an error message
 
-                //Toast.makeText(this, "Login failed", Toast.LENGTH_SHORT).show()
+                Toast.makeText(this, "Login failed", Toast.LENGTH_SHORT).show()
                 tverrormsg.text =  getString(R.string.login_failed_message)
                 tverrormsg.setTextColor(ContextCompat.getColor(this, R.color.red))
 

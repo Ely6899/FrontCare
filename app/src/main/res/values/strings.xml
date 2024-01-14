@@ -11,7 +11,7 @@
     <string name="register_first_name">First Name</string>
     <string name="register_last_name">Last Name</string>
     <string name="register_email">Email</string>
-    <string name="register_username">UserName</string>
+    <string name="register_username">Username</string>
     <string name="register_password">Password</string>
     <string name="register_location">Location</string>
     <string name="register_button_register">Register</string>
@@ -20,7 +20,7 @@
     <string name="profile_picture_select">Profile Picture</string>
     <string name="profile_title">Your Profile</string>
     <string name="login_failed_message">Login failed:\nEmail or password are incorrect</string>
-    <string name="register_phone">Phone</string>
+    <string name="register_phone">Phone Number</string>
 
     <string-array name="locations_array">
         <item>North</item>
