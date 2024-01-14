@@ -6,42 +6,17 @@ import android.widget.TableRow
 import android.widget.TextView
 import androidx.appcompat.app.AppCompatActivity
 import org.json.JSONArray
+import utils.GlobalVar
+import java.io.BufferedReader
+import java.io.IOException
+import java.io.InputStreamReader
+import java.net.HttpURLConnection
+import java.net.URL
 
 class SoldiersRequestsPage : AppCompatActivity() {
 
     //vars:
     private lateinit var donationsTable: TableLayout
-
-    // Sample JSON data
-    private val jsonData = """
-        [
-            {
-                "request_id": 1,
-                "firstname": "JohnDoe",
-                "product_name": "ProductA",
-                "quantity": 3,
-                "pickup_location": "LocationA",
-                "request_date": "2024-01-15"
-            },
-            {
-                "request_id": 1,
-                "firstname": "JohnDoe",
-                "product_name": "ProductB",
-                "quantity": 2,
-                "pickup_location": "LocationA",
-                "request_date": "2024-01-15"
-            },
-            {
-                "request_id": 2,
-                "firstname": "JaneDoe",
-                "product_name": "ProductC",
-                "quantity": 1,
-                "pickup_location": "LocationB",
-                "request_date": "2024-01-16"
-            }
-            // ... more rows if there are additional requests with different products
-        ]
-    """.trimIndent()
 
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
@@ -50,10 +25,39 @@ class SoldiersRequestsPage : AppCompatActivity() {
         // Find the TableLayout
         donationsTable = findViewById(R.id.donationsTable)
 
-        // Parse JSON data
-        val jsonArray = JSONArray(jsonData)
+        // Make API GET request
+        Thread {
+            try {
+                val url = URL("http://${GlobalVar.serverIP}:8080/api/soldiersRequests")
+                val connection = url.openConnection() as HttpURLConnection
+                connection.requestMethod = "GET"
+                connection.setRequestProperty("Content-Type", "application/json")
+                connection.connect()
 
-        // Example: Iterate over JSON array and add rows to the table
+                // Read the response
+                val inputStream = connection.inputStream
+                val reader = BufferedReader(InputStreamReader(inputStream))
+                val serverResponse = reader.readText()
+
+                runOnUiThread {
+                    handleSoldiersRequestsResponse(serverResponse)
+                }
+
+                reader.close()
+                connection.disconnect()
+
+            } catch (e: IOException) {
+                // Handle the exception, e.g., show an error message
+                e.printStackTrace()
+            }
+        }.start()
+    }
+
+    private fun handleSoldiersRequestsResponse(response: String) {
+        // Parse the JSON response
+        val jsonArray = JSONArray(response)
+
+        // Iterate over JSON array and add rows to the table
         for (i in 0 until jsonArray.length()) {
             val jsonObject = jsonArray.getJSONObject(i)
             addRowToTable(
