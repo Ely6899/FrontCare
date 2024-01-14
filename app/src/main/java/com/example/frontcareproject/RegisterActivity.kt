@@ -3,10 +3,14 @@ package com.example.frontcareproject
 import android.content.Intent
 import android.os.Bundle
 import android.view.View
+import android.widget.AdapterView
+import android.widget.AdapterView.OnItemSelectedListener
+import android.widget.ArrayAdapter
 import android.widget.Button
 import android.widget.EditText
 import android.widget.RadioButton
 import android.widget.RadioGroup
+import android.widget.Spinner
 import android.widget.Toast
 import androidx.activity.result.contract.ActivityResultContracts
 import androidx.appcompat.app.AppCompatActivity
@@ -20,7 +24,7 @@ import java.net.HttpURLConnection
 import java.net.URL
 
 
-class RegisterActivity : AppCompatActivity() {
+class RegisterActivity : AppCompatActivity(){
 
     //Used for picture selection
     private lateinit var binding: ActivityRegisterBinding
@@ -44,9 +48,10 @@ class RegisterActivity : AppCompatActivity() {
     private lateinit var etEmail: EditText
     private lateinit var etUserName: EditText
     private lateinit var etPassword: EditText
-    private lateinit var etLocation: EditText
+    //private lateinit var etLocation: EditText
     private lateinit var etPhone: EditText
     private lateinit var serverAns: String
+    private lateinit var spinnerLocation: Spinner
 
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
@@ -68,19 +73,31 @@ class RegisterActivity : AppCompatActivity() {
         etEmail = findViewById(R.id.etEmail)
         etUserName = findViewById(R.id.etUserName)
         etPassword = findViewById(R.id.etPassword)
-        etLocation = findViewById(R.id.etDonationLocation)
         etPhone = findViewById(R.id.etPhone)
-
         selectType = findViewById(R.id.radioGrpSelectType)
+
+        //Enable location spinner
+        spinnerLocation = findViewById(R.id.spinnerLocationSelect)
+        // Create an ArrayAdapter using the string array and a default spinner layout.
+        ArrayAdapter.createFromResource(
+            this,
+            R.array.locations_array,
+            android.R.layout.simple_spinner_item
+        ).also { adapter ->
+            // Specify the layout to use when the list of choices appears.
+            adapter.setDropDownViewResource(android.R.layout.simple_spinner_dropdown_item)
+            // Apply the adapter to the spinner.
+            spinnerLocation.adapter = adapter
+        }
 
         selectType.setOnCheckedChangeListener { _, checkedId ->
             if (checkedId == R.id.radioSoldier) {
-                etLocation.isEnabled = false
-                etLocation.visibility = View.INVISIBLE
+                spinnerLocation.isEnabled = false
+                spinnerLocation.visibility = View.INVISIBLE
             }
             if (checkedId == R.id.radioDonor) {
-                etLocation.isEnabled = true
-                etLocation.visibility = View.VISIBLE
+                spinnerLocation.isEnabled = true
+                spinnerLocation.visibility = View.VISIBLE
             }
         }
 
@@ -116,7 +133,7 @@ class RegisterActivity : AppCompatActivity() {
                         val email = etEmail.text.toString()
                         val password = etPassword.text.toString()
                         val userName = etUserName.text.toString()
-                        val location = etLocation.text.toString()
+                        val location = spinnerLocation.selectedItem.toString()
                         val phone = etPhone.text.toString()
                         val jsonInputString = """
                             {"userType": "$userType", 
