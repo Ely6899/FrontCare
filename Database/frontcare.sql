@@ -32,7 +32,7 @@ CREATE TABLE `donation_events` (
   `event_address` varchar(45) NOT NULL,
   `remaining_spot` int unsigned NOT NULL,
   PRIMARY KEY (`event_id`)
-) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_0900_ai_ci;
+) ENGINE=InnoDB AUTO_INCREMENT=3 DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_0900_ai_ci;
 /*!40101 SET character_set_client = @saved_cs_client */;
 
 --
@@ -41,6 +41,7 @@ CREATE TABLE `donation_events` (
 
 LOCK TABLES `donation_events` WRITE;
 /*!40000 ALTER TABLE `donation_events` DISABLE KEYS */;
+INSERT INTO `donation_events` VALUES (1,2,'2024-02-01','Center','Tel Aviv',100),(2,3,'2024-01-25','North','Haifa',80);
 /*!40000 ALTER TABLE `donation_events` ENABLE KEYS */;
 UNLOCK TABLES;
 
@@ -63,6 +64,7 @@ CREATE TABLE `event_details` (
 
 LOCK TABLES `event_details` WRITE;
 /*!40000 ALTER TABLE `event_details` DISABLE KEYS */;
+INSERT INTO `event_details` VALUES (1,2),(1,3),(1,7),(1,6),(2,5);
 /*!40000 ALTER TABLE `event_details` ENABLE KEYS */;
 UNLOCK TABLES;
 
@@ -99,7 +101,7 @@ CREATE TABLE `products` (
   `product_id` int unsigned NOT NULL AUTO_INCREMENT,
   `product_name` varchar(45) NOT NULL,
   PRIMARY KEY (`product_id`)
-) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_0900_ai_ci;
+) ENGINE=InnoDB AUTO_INCREMENT=9 DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_0900_ai_ci;
 /*!40101 SET character_set_client = @saved_cs_client */;
 
 --
@@ -108,6 +110,7 @@ CREATE TABLE `products` (
 
 LOCK TABLES `products` WRITE;
 /*!40000 ALTER TABLE `products` DISABLE KEYS */;
+INSERT INTO `products` VALUES (1,'wipes'),(2,'clothes'),(3,'batteries'),(4,'vests'),(5,'headlight'),(6,'flashlight'),(7,'gloves'),(8,'charger');
 /*!40000 ALTER TABLE `products` ENABLE KEYS */;
 UNLOCK TABLES;
 
@@ -131,6 +134,7 @@ CREATE TABLE `request_details` (
 
 LOCK TABLES `request_details` WRITE;
 /*!40000 ALTER TABLE `request_details` DISABLE KEYS */;
+INSERT INTO `request_details` VALUES (1,1,3),(1,2,2),(1,3,1),(2,5,10);
 /*!40000 ALTER TABLE `request_details` ENABLE KEYS */;
 UNLOCK TABLES;
 
@@ -148,9 +152,9 @@ CREATE TABLE `soldier_requests` (
   `pickup_location` varchar(45) NOT NULL,
   `request_date` date NOT NULL,
   `close_date` date DEFAULT NULL,
-  `status` int unsigned NOT NULL,
+  `status` varchar(45) NOT NULL,
   PRIMARY KEY (`request_id`)
-) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_0900_ai_ci;
+) ENGINE=InnoDB AUTO_INCREMENT=3 DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_0900_ai_ci;
 /*!40101 SET character_set_client = @saved_cs_client */;
 
 --
@@ -159,6 +163,7 @@ CREATE TABLE `soldier_requests` (
 
 LOCK TABLES `soldier_requests` WRITE;
 /*!40000 ALTER TABLE `soldier_requests` DISABLE KEYS */;
+INSERT INTO `soldier_requests` VALUES (1,1,2,'center','2022-12-01',NULL,'open'),(2,4,3,'North','2022-12-01',NULL,'open');
 /*!40000 ALTER TABLE `soldier_requests` ENABLE KEYS */;
 UNLOCK TABLES;
 
@@ -181,7 +186,7 @@ CREATE TABLE `users` (
   `phone_number` varchar(45) NOT NULL,
   PRIMARY KEY (`user_id`),
   UNIQUE KEY `username_UNIQUE` (`username`)
-) ENGINE=InnoDB AUTO_INCREMENT=4 DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_0900_ai_ci;
+) ENGINE=InnoDB AUTO_INCREMENT=5 DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_0900_ai_ci;
 /*!40101 SET character_set_client = @saved_cs_client */;
 
 --
@@ -190,7 +195,7 @@ CREATE TABLE `users` (
 
 LOCK TABLES `users` WRITE;
 /*!40000 ALTER TABLE `users` DISABLE KEYS */;
-INSERT INTO `users` VALUES (1,1,'raz','saad','test','test','center','raz@raz.com','0501234567'),(2,0,'ely','koz','koz','ely','center','ely@koz.com','0501234567'),(3,0,'maor','or','maor','maor','south','maor@or.com','0501234567');
+INSERT INTO `users` VALUES (1,1,'raz','saad','test','test','center','raz@raz.com','0501234567'),(2,0,'ely','koz','koz','ely','center','ely@koz.com','0501234567'),(3,0,'maor','or','maor','maor','south','maor@or.com','0501234567'),(4,1,'idan','high','idan','idan','North','idan@idan.com','0501234567');
 /*!40000 ALTER TABLE `users` ENABLE KEYS */;
 UNLOCK TABLES;
 /*!40103 SET TIME_ZONE=@OLD_TIME_ZONE */;
@@ -203,4 +208,4 @@ UNLOCK TABLES;
 /*!40101 SET COLLATION_CONNECTION=@OLD_COLLATION_CONNECTION */;
 /*!40111 SET SQL_NOTES=@OLD_SQL_NOTES */;
 
--- Dump completed on 2024-01-13 22:29:03
+-- Dump completed on 2024-01-14 20:43:49
