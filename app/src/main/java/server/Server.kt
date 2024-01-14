@@ -93,7 +93,7 @@ fun authenticateUser(username: String?, password: String?): Int? {
     var userId: Int? = null
 
     try {
-        Class.forName("com.mysql.cj.jdbc.Driver")
+
         connection = DriverManager.getConnection(mysql_url, mysql_user, mysql_password)
 
         val statement: PreparedStatement = connection.prepareStatement("SELECT user_id FROM users WHERE username = ? AND password = ?")
@@ -166,6 +166,105 @@ fun userRegistration(data: Map<String, String>): Int? {
 
 }
 
+fun getSoldiersRequests(): List<Map<String, Any>> {
+    val resultList = mutableListOf<Map<String, Any>>()
+
+    try {
+        // Establish the database connection
+        DriverManager.getConnection(mysql_url, mysql_user, mysql_password).use { connection ->
+            val sqlQuery = """
+                SELECT
+                    soldier_requests.request_id,
+                    users.firstname,
+                    products.product_name,
+                    request_details.quantity,
+                    soldier_requests.pickup_location,
+                    soldier_requests.request_date
+                FROM
+                    frontcare.request_details
+                JOIN
+                    frontcare.products ON products.product_id = request_details.product_id
+                JOIN
+                    frontcare.soldier_requests ON soldier_requests.request_id = request_details.request_id
+                JOIN
+                    frontcare.users ON soldier_requests.soldier_id = users.user_id;
+            """.trimIndent()
+
+            // Create a prepared statement
+            val statement: PreparedStatement = connection.prepareStatement(sqlQuery)
+
+            // Execute the query
+            val resultSet: ResultSet = statement.executeQuery()
+
+            // Process the result set and populate the list of maps
+            while (resultSet.next()) {
+                val rowMap = mutableMapOf<String, Any>()
+                rowMap["request_id"] = resultSet.getInt("request_id")
+                rowMap["firstname"] = resultSet.getString("firstname")
+                rowMap["product_name"] = resultSet.getString("product_name")
+                rowMap["quantity"] = resultSet.getInt("quantity")
+                rowMap["pickup_location"] = resultSet.getString("pickup_location")
+                rowMap["request_date"] = resultSet.getString("request_date")
+                resultList.add(rowMap)
+            }
+        }
+    } catch (e: Exception) {
+        // Handle exceptions, e.g., log or throw custom exception
+        e.printStackTrace()
+    }
+
+    return resultList
+}
+
+fun getDonorsEvents(): List<Map<String, Any>> {
+    val resultList = mutableListOf<Map<String, Any>>()
+
+    try {
+        // Establish the database connection
+        DriverManager.getConnection(mysql_url, mysql_user, mysql_password).use { connection ->
+            val sqlQuery = """
+                SELECT
+                    donation_events.event_id,
+                    donation_events.event_date,
+                    donation_events.event_location,
+                    donation_events.event_address,
+                    donation_events.remaining_spot,
+                    products.product_name
+                FROM
+                    frontcare.donation_events
+                JOIN
+                    frontcare.event_details ON  donation_events.event_id = event_details.event_id
+                JOIN
+                    frontcare.products ON products.product_id = event_details.product_id;
+
+            """.trimIndent()
+
+            // Create a prepared statement
+            val statement: PreparedStatement = connection.prepareStatement(sqlQuery)
+
+            // Execute the query
+            val resultSet: ResultSet = statement.executeQuery()
+
+            // Process the result set and populate the list of maps
+            while (resultSet.next()) {
+                val rowMap = mutableMapOf<String, Any>()
+                rowMap["event_id"] = resultSet.getInt("event_id")
+                rowMap["event_date"] = resultSet.getString("event_date")
+                rowMap["event_location"] = resultSet.getString("event_location")
+                rowMap["event_address"] = resultSet.getString("event_address")
+                rowMap["remaining_spot"] = resultSet.getInt("remaining_spot")
+                rowMap["product_name"] = resultSet.getString("product_name")
+                resultList.add(rowMap)
+            }
+        }
+    } catch (e: Exception) {
+        // Handle exceptions, e.g., log or throw custom exception
+        e.printStackTrace()
+    }
+
+    return resultList
+}
+
 // Define the Ktor application module
 fun Application.module() {
     // Install the ContentNegotiation feature with Jackson as the JSON serializer/deserializer
@@ -213,21 +312,19 @@ TODO : RAZ - ADD USERTYPE TO THE RETURN JSON
                 call.respond(HttpStatusCode.BadRequest, "Invalid request format")
             }
         }
-/*
-    TODO: ELY FIX YOUR FUNC YOU PUNK
- */
+
         post ("/api/register"){
             try {
                 // Receive the JSON payload from the request and deserialize it to a Map<String, String>
                 val request = call.receive<Map<String, String>>() // maybe change to Map<String, Any>
-                println(request)
+
 
                 val userId = userRegistration(request)
 
                 val responseMessage = if (userId != null) {
-                    mapOf("message" to "INSERT successfully", "userId" to userId)
+                    mapOf("message" to "register successfully", "userId" to userId)
                 } else {
-                    mapOf("message" to "Failed to INSERT")
+                    mapOf("message" to "Failed to register")
                 }
 
                 // Respond with a message in JSON format
@@ -238,7 +335,9 @@ TODO : RAZ - ADD USERTYPE TO THE RETURN JSON
                 call.respond(HttpStatusCode.BadRequest, "Invalid request format")
             }
         }
-
+            /*
+           TODO:  WE NEED TO DELETE THIS API AND HIS FUNC WHEN WE FINISH , ITS ONLY FOR TESTS
+             */
         get("/api/users") {
             try {
                 // Fetch all users from the database
@@ -256,7 +355,7 @@ TODO : RAZ - ADD USERTYPE TO THE RETURN JSON
             try {
                 // Retrieve the userId from the path parameters
                 val userId = call.parameters["userId"]
-                println(userId)
+
                 // Fetch user profile data from the database based on userId
                 val profileData = getUserProfile(userId)
                 println(profileData)
@@ -266,6 +365,29 @@ TODO : RAZ - ADD USERTYPE TO THE RETURN JSON
             } catch (e: Exception) {
                 // Handle exceptions related to the database query and respond with InternalServerError status
                 call.respond(HttpStatusCode.InternalServerError, "Error fetching user profile from the database")
+            }
+        }
+
+        get("/api/soldiersRequests") {
+            try {
+
+                val requestsData = getSoldiersRequests()
+                call.respond(requestsData)
+
+            } catch (e: Exception) {
+                // Handle exceptions related to the database query and respond with InternalServerError status
+                call.respond(HttpStatusCode.InternalServerError, "Error fetching soldiers requests from the database")
+            }
+        }
+
+        get("/api/donorsEvents") {
+            try {
+                val eventsData = getDonorsEvents()
+                call.respond(eventsData)
+
+            } catch (e: Exception) {
+                // Handle exceptions related to the database query and respond with InternalServerError status
+                call.respond(HttpStatusCode.InternalServerError, "Error fetching donors events from the database")
             }
         }
 
