@@ -32,9 +32,10 @@
         app:layout_constraintTop_toBottomOf="@+id/SoldierProfileTitle" />
 
     <TableLayout
+        android:id="@+id/tableLayout"
         android:layout_width="match_parent"
-        android:layout_height="wrap_content"
 
+        android:layout_height="wrap_content"
         android:layout_marginTop="20dp"
         android:stretchColumns="1"
         app:layout_constraintTop_toBottomOf="@+id/imageView"
@@ -53,9 +54,8 @@
                 android:layout_height="wrap_content"
 
                 android:text="@string/register_first_name"
-                android:textSize="25sp"
                 android:textColor="@color/black"
-                >
+                android:textSize="25sp">
 
             </TextView>
 
@@ -64,8 +64,8 @@
                 android:layout_height="wrap_content"
 
                 android:text=""
-                android:textColor="@color/black"
                 android:textAlignment="center"
+                android:textColor="@color/black"
                 android:textSize="25sp">
 
             </TextView>
@@ -84,9 +84,8 @@
                 android:layout_height="wrap_content"
 
                 android:text="@string/register_last_name"
-                android:textSize="25sp"
                 android:textColor="@color/black"
-                >
+                android:textSize="25sp">
 
             </TextView>
 
@@ -96,10 +95,9 @@
                 android:layout_height="wrap_content"
 
                 android:text=""
-                android:textSize="25sp"
-                android:textColor="@color/black"
                 android:textAlignment="center"
-                >
+                android:textColor="@color/black"
+                android:textSize="25sp">
 
             </TextView>
 
@@ -109,8 +107,7 @@
             android:id="@+id/EmailRow"
             android:layout_width="match_parent"
             android:layout_height="wrap_content"
-            android:layout_marginBottom="10dp"
-            >
+            android:layout_marginBottom="10dp">
 
             <TextView
                 android:id="@+id/tvProfileEmail"
@@ -118,9 +115,8 @@
                 android:layout_height="wrap_content"
 
                 android:text="@string/register_email"
-                android:textSize="25sp"
                 android:textColor="@color/black"
-                >
+                android:textSize="25sp">
 
             </TextView>
 
@@ -130,9 +126,9 @@
                 android:layout_height="wrap_content"
 
                 android:text=""
-                android:textSize="25sp"
+                android:textAlignment="center"
                 android:textColor="@color/black"
-                android:textAlignment="center">
+                android:textSize="25sp">
 
             </TextView>
 
@@ -149,9 +145,8 @@
                 android:layout_height="wrap_content"
 
                 android:text="@string/register_location"
-                android:textSize="25sp"
                 android:textColor="@color/black"
-                >
+                android:textSize="25sp">
 
             </TextView>
 
@@ -161,14 +156,36 @@
                 android:layout_height="wrap_content"
 
                 android:text=""
-                android:textSize="25sp"
+                android:textAlignment="center"
                 android:textColor="@color/black"
-                android:textAlignment="center">
+                android:textSize="25sp">
 
             </TextView>
 
         </TableRow>
     </TableLayout>
+
+    <!-- Maor: temporary button for redirecting to SoldiersRequestsPage for testing -->
+    <Button
+        android:id="@+id/btnSoldiersRequests"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:layout_marginTop="112dp"
+        android:text="Go to Soldiers Requests Page"
+        app:layout_constraintEnd_toEndOf="parent"
+        app:layout_constraintHorizontal_bias="0.5"
+        app:layout_constraintStart_toStartOf="parent"
+        app:layout_constraintTop_toBottomOf="@+id/tableLayout" />
+
+    <Button
+        android:id="@+id/btnDonorsList"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:layout_marginTop="32dp"
+        android:text="Go to DonorList Page"
+        app:layout_constraintEnd_toEndOf="parent"
+        app:layout_constraintStart_toStartOf="parent"
+        app:layout_constraintTop_toBottomOf="@+id/btnSoldiersRequests" />
 
 
 </androidx.constraintlayout.widget.ConstraintLayout>
