@@ -186,7 +186,7 @@ CREATE TABLE `users` (
   `phone_number` varchar(45) NOT NULL,
   PRIMARY KEY (`user_id`),
   UNIQUE KEY `username_UNIQUE` (`username`)
-) ENGINE=InnoDB AUTO_INCREMENT=5 DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_0900_ai_ci;
+) ENGINE=InnoDB AUTO_INCREMENT=13 DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_0900_ai_ci;
 /*!40101 SET character_set_client = @saved_cs_client */;
 
 --
@@ -195,7 +195,7 @@ CREATE TABLE `users` (
 
 LOCK TABLES `users` WRITE;
 /*!40000 ALTER TABLE `users` DISABLE KEYS */;
-INSERT INTO `users` VALUES (1,1,'raz','saad','test','test','center','raz@raz.com','0501234567'),(2,0,'ely','koz','koz','ely','center','ely@koz.com','0501234567'),(3,0,'maor','or','maor','maor','south','maor@or.com','0501234567'),(4,1,'idan','high','idan','idan','North','idan@idan.com','0501234567');
+INSERT INTO `users` VALUES (1,1,'raz','saad','test','098f6bcd4621d373cade4e832627b4f6','null','raz@saad.com','0501234567'),(2,0,'ely','koz','koz','487f3ba54ebe6bd564f333870902437d','center','ely@koz.com','0501234567'),(3,0,'maor','or','maor','d47ff6ca32247954e3553f6fa1ef9f7a','south','maor@or.com','0501234567'),(4,1,'idan','high','idan','a9b52e6b3d8c1198fcb74fea21a6191a','null','idan@idan.com','0501234567'),(5,1,'test','test','bla','128ecf542a35ac5270a87dc740918404','null','test','0501234568'),(6,0,'itizk','bitizk','itizk','3d584f19e85c5dce3bf3e240d9db885c','South','itizk@bitizk.com','0501234123');
 /*!40000 ALTER TABLE `users` ENABLE KEYS */;
 UNLOCK TABLES;
 /*!40103 SET TIME_ZONE=@OLD_TIME_ZONE */;
@@ -208,4 +208,4 @@ UNLOCK TABLES;
 /*!40101 SET COLLATION_CONNECTION=@OLD_COLLATION_CONNECTION */;
 /*!40111 SET SQL_NOTES=@OLD_SQL_NOTES */;
 
--- Dump completed on 2024-01-14 20:43:49
+-- Dump completed on 2024-01-14 22:29:25
