@@ -182,7 +182,7 @@ class RegisterActivity : AppCompatActivity(){
             val message = jsonResponse.optString("message")
             val userId = jsonResponse.optString("userId")
 
-            if (message == "INSERT successfully" && userId.isNotEmpty()) {
+            if (message == "register successfully" && userId.isNotEmpty()) {
                 GlobalVar.userId = userId // set userid to global var
                 GlobalVar.userType = userType.toInt() // set user type to global var
 
