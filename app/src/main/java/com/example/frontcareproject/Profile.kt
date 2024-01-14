@@ -4,6 +4,7 @@ import android.content.Intent
 import androidx.appcompat.app.AppCompatActivity
 import android.os.Bundle
 import android.view.View
+import android.widget.Button
 import android.widget.TableRow
 import android.widget.TextView
 import androidx.core.content.ContextCompat
@@ -24,6 +25,10 @@ class Profile : AppCompatActivity() {
     private lateinit var emailData: TextView
     private lateinit var locationRow: TableRow
     private lateinit var locationData: TextView
+    //Maor's addition to a redirect button:
+    private lateinit var redirectBtnS: Button
+    private lateinit var redirectBtnD: Button
+
 
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
@@ -48,6 +53,22 @@ class Profile : AppCompatActivity() {
 //        }
 
         fetchProfileData()
+
+        //Maor's addition to custom redirecting buttons:
+        redirectBtnS = findViewById(R.id.btnSoldiersRequests)
+        redirectBtnS.setOnClickListener()
+        {
+            // Navigate to the SoldiersRequestsPage
+            val intent = Intent(this@Profile, SoldiersRequestsPage::class.java)
+            startActivity(intent)
+        }
+        redirectBtnD = findViewById(R.id.btnDonorsList)
+        redirectBtnD.setOnClickListener()
+        {
+            // Navigate to the SoldiersRequestsPage
+            val intent = Intent(this@Profile, DonorsEventsPage::class.java)
+            startActivity(intent)
+        }
 
     }
 
