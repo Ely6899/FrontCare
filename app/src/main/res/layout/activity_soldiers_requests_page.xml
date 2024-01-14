@@ -15,22 +15,67 @@
         android:text="Choose a donation:"
         android:textColor="@android:color/black"
         android:textSize="18sp"
-        app:layout_constraintTop_toTopOf="parent"
-        app:layout_constraintBottom_toTopOf="@+id/donationsTable"
-        app:layout_constraintStart_toStartOf="parent"
-        app:layout_constraintEnd_toEndOf="parent" />
-
-    <TableLayout
-        android:id="@+id/donationsTable"
-        android:layout_width="300dp"
-        android:layout_height="75dp"
-        android:layout_marginTop="16dp"
-        android:stretchColumns="0,1,2"
-        app:layout_constraintTop_toBottomOf="@+id/SoldiersRequestsPageTitle"
-        app:layout_constraintStart_toStartOf="parent"
+        app:layout_constraintBottom_toTopOf="@+id/horizontalScrollView"
         app:layout_constraintEnd_toEndOf="parent"
-        android:background="@color/tablesBackgroundColor"> <!-- Set background color -->
+        app:layout_constraintStart_toStartOf="parent"
+        app:layout_constraintTop_toTopOf="parent" />
 
-    </TableLayout>
+    <HorizontalScrollView
+        android:id="@+id/horizontalScrollView"
+        android:layout_width="0dp"
+        android:layout_height="0dp"
+        app:layout_constraintBottom_toBottomOf="parent"
+        app:layout_constraintEnd_toEndOf="parent"
+        app:layout_constraintStart_toStartOf="parent"
+        app:layout_constraintTop_toBottomOf="@+id/SoldiersRequestsPageTitle">
+
+        <TableLayout
+            android:id="@+id/donationsTable"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:layout_marginTop="15dp"
+            android:background="@color/tablesBackgroundColor"
+            android:stretchColumns="0,1,2,3,4">
+
+            <!-- Header row -->
+            <TableRow>
+
+                <TextView
+                    android:background="@drawable/tables_outline"
+                    android:gravity="center"
+                    android:padding="8dp"
+                    android:text="Request ID" />
+
+                <TextView
+                    android:background="@drawable/tables_outline"
+                    android:gravity="center"
+                    android:padding="8dp"
+                    android:text="First Name" />
+
+                <TextView
+                    android:background="@drawable/tables_outline"
+                    android:gravity="center"
+                    android:padding="8dp"
+                    android:text="Products" />
+
+                <TextView
+                    android:background="@drawable/tables_outline"
+                    android:gravity="center"
+                    android:padding="8dp"
+                    android:text="Pickup Location" />
+
+                <TextView
+                    android:background="@drawable/tables_outline"
+                    android:gravity="center"
+                    android:padding="8dp"
+                    android:text="Request Date" />
+
+            </TableRow>
+
+            <!-- Data rows will be added dynamically -->
+
+        </TableLayout>
+
+    </HorizontalScrollView>
 
 </androidx.constraintlayout.widget.ConstraintLayout>
