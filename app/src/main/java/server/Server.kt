@@ -114,9 +114,6 @@ fun authenticateUser(username: String?, password: String?): Int? {
     return userId
 }
 
-/*
-    TODO: ELY FIX YOUR FUNC YOU PUNK
- */
 fun userRegistration(data: Map<String, String>): Int? {
     // Extract email and password from the received payload
     val userType = data["userType"]
@@ -126,8 +123,7 @@ fun userRegistration(data: Map<String, String>): Int? {
     val password = data["password"]
     val username = data["userName"]
     val location = data["location"]
-    // val phone = data["phone"]
-    val phone="0501234567"
+    val phone = data["phone"]
 
     var connection: Connection? = null
     var userId: Int? = null

@@ -10,7 +10,6 @@ import android.widget.RadioGroup
 import android.widget.Toast
 import androidx.activity.result.contract.ActivityResultContracts
 import androidx.appcompat.app.AppCompatActivity
-import androidx.core.content.ContextCompat
 import com.example.frontcareproject.databinding.ActivityRegisterBinding
 import org.json.JSONObject
 import utils.GlobalVar
@@ -46,13 +45,8 @@ class RegisterActivity : AppCompatActivity() {
     private lateinit var etUserName: EditText
     private lateinit var etPassword: EditText
     private lateinit var etLocation: EditText
+    private lateinit var etPhone: EditText
     private lateinit var serverAns: String
-
-    // Will carry filled data to next activity
-    private lateinit var dataBundle: Bundle
-
-    // Declare intent for entering profile
-    private lateinit var profileIntent: Intent
 
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
@@ -75,7 +69,7 @@ class RegisterActivity : AppCompatActivity() {
         etUserName = findViewById(R.id.etUserName)
         etPassword = findViewById(R.id.etPassword)
         etLocation = findViewById(R.id.etDonationLocation)
-        serverAns = ""
+        etPhone = findViewById(R.id.etPhone)
 
         selectType = findViewById(R.id.radioGrpSelectType)
 
@@ -100,20 +94,6 @@ class RegisterActivity : AppCompatActivity() {
             } else {
                 val selectedType = findViewById<RadioButton>(selectType.checkedRadioButtonId)
 
-//                profileIntent = Intent(this, Profile::class.java)
-//
-//                dataBundle = Bundle()
-//                dataBundle.putString("Profile Type", selectedType.text.toString())
-//                dataBundle.putString("First Name", etFirstName.text.toString())
-//                dataBundle.putString("Last Name", etLastName.text.toString())
-//                dataBundle.putString("Email", etEmail.text.toString())
-//                if (selectType.checkedRadioButtonId == R.id.radioDonor)
-//                    dataBundle.putString("Location", etLocation.text.toString())
-//
-//
-//                profileIntent.putExtras(dataBundle)
-//                startActivity(profileIntent)
-
                 Thread {
                     try {
 
@@ -126,10 +106,10 @@ class RegisterActivity : AppCompatActivity() {
 
                         // Construct the JSON payload with register credentials
                         var userType = selectedType.text.toString()
-                        if (userType == "Donor") {
-                            userType = "0"
+                        userType = if (userType == "Donor") {
+                            "0"
                         } else {
-                            userType = "1"
+                            "1"
                         }
                         val firstName = etFirstName.text.toString()
                         val lastName = etLastName.text.toString()
@@ -137,6 +117,7 @@ class RegisterActivity : AppCompatActivity() {
                         val password = etPassword.text.toString()
                         val userName = etUserName.text.toString()
                         val location = etLocation.text.toString()
+                        val phone = etPhone.text.toString()
                         val jsonInputString = """
                             {"userType": "$userType", 
                             "firstName": "$firstName",
@@ -144,7 +125,8 @@ class RegisterActivity : AppCompatActivity() {
                             "email": "$email",
                             "password": "$password",
                             "userName": "$userName",
-                            "location": "$location"}
+                            "location": "$location",
+                            "phone": "$phone"}
                             """.trimIndent()
 
                         // Send JSON as the request body
@@ -158,7 +140,7 @@ class RegisterActivity : AppCompatActivity() {
                         serverAns = reader.readLine()
 
                         runOnUiThread {
-                            handleServerResponse(serverAns)
+                            handleServerResponse(serverAns, userType)
                         }
 
                         reader.close()
@@ -172,7 +154,7 @@ class RegisterActivity : AppCompatActivity() {
         }
     }
 
-    private fun handleServerResponse(response: String) {
+    private fun handleServerResponse(response: String, userType: String) {
         try {
             // Parse the JSON response
             val jsonResponse = JSONObject(response)
@@ -184,27 +166,19 @@ class RegisterActivity : AppCompatActivity() {
             val userId = jsonResponse.optString("userId")
 
             if (message == "INSERT successfully" && userId.isNotEmpty()) {
-
-                /*
-                TODO: ELY - UPDATE USERTYPE GLOBAL VAR
-                 */
                 GlobalVar.userId = userId // set userid to global var
+                GlobalVar.userType = userType.toInt() // set user type to global var
 
                 // Navigate to the ProfileActivity
                 val intent = Intent(this@RegisterActivity, Profile::class.java)
                 startActivity(intent)
 
-                // Finish the LoginActivity to prevent going back on back press
+                // Finish the RegisterActivity to prevent going back on back press
                 finish()
 
             } else {
                 // Handle other cases or display an error message
-                //Toast.makeText(this, "Login failed", Toast.LENGTH_SHORT).show()
-                /*
-                TODO: ELY - CHECK IF ELSE HERE IS NEEDED
-                 */
-
-
+                Toast.makeText(this, "Register failed", Toast.LENGTH_LONG).show()
             }
         } catch (e: Exception) {
             // Handle the case where parsing the JSON fails
