@@ -240,8 +240,13 @@ fun getSoldiersRequests(): List<Map<String, Any>> {
     return resultList
 }
 
-fun getDonorsEvents(): List<Map<String, Any>> {
+fun getDonorsEvents(donorId: String?): List<Map<String, Any>> {
     val resultList = mutableListOf<Map<String, Any>>()
+    var sqlFiller = "" // var that will be added to the sql query to determine if its for events history or donors events
+    if(donorId != "0")
+    {
+        sqlFiller = "WHERE donation_events.donor_id = $donorId;"
+    }
 
     try {
         // Establish the database connection
@@ -259,7 +264,8 @@ fun getDonorsEvents(): List<Map<String, Any>> {
                 JOIN
                     frontcare.event_details ON  donation_events.event_id = event_details.event_id
                 JOIN
-                    frontcare.products ON products.product_id = event_details.product_id;
+                    frontcare.products ON products.product_id = event_details.product_id
+                    $sqlFiller
 
             """.trimIndent()
 
@@ -278,6 +284,167 @@ fun getDonorsEvents(): List<Map<String, Any>> {
                 rowMap["event_address"] = resultSet.getString("event_address")
                 rowMap["remaining_spot"] = resultSet.getInt("remaining_spot")
                 rowMap["product_name"] = resultSet.getString("product_name")
+                resultList.add(rowMap)
+            }
+        }
+    } catch (e: Exception) {
+        // Handle exceptions, e.g., log or throw custom exception
+        e.printStackTrace()
+    }
+
+    return resultList
+}
+
+fun getDonorDonationHistory(userId: String?): List<Map<String, Any>> {
+    val resultList = mutableListOf<Map<String, Any>>()
+
+    try {
+        // Establish the database connection
+        DriverManager.getConnection(mysql_url, mysql_user, mysql_password).use { connection ->
+            val sqlQuery = """
+                SELECT
+                    soldier_requests.request_id,
+                    users.firstname,
+                    users.lastname,
+                    products.product_name,
+                    request_details.quantity,
+                    soldier_requests.close_date
+                  
+                FROM
+                    frontcare.request_details
+                JOIN
+                    frontcare.products ON products.product_id = request_details.product_id
+                JOIN
+                    frontcare.soldier_requests ON soldier_requests.request_id = request_details.request_id
+                JOIN
+                    frontcare.users ON soldier_requests.soldier_id = users.user_id
+                WHERE soldier_requests.status = "closed" AND soldier_requests.donor_id = ?;
+            """.trimIndent()
+
+            // Create a prepared statement
+            val statement: PreparedStatement = connection.prepareStatement(sqlQuery)
+            statement.setInt(1, userId?.toInt() ?: 0)
+
+            // Execute the query
+            val resultSet: ResultSet = statement.executeQuery()
+
+            // Process the result set and populate the list of maps
+            while (resultSet.next()) {
+                val rowMap = mutableMapOf<String, Any>()
+                rowMap["request_id"] = resultSet.getInt("request_id")
+                rowMap["firstname"] = resultSet.getString("firstname")
+                rowMap["lastname"] = resultSet.getString("lastname")
+                rowMap["product_name"] = resultSet.getString("product_name")
+                rowMap["quantity"] = resultSet.getInt("quantity")
+                val closeDate: String? = resultSet.getString("close_date")
+                rowMap["close_date"] = closeDate ?: "null"
+                resultList.add(rowMap)
+            }
+        }
+    } catch (e: Exception) {
+        // Handle exceptions, e.g., log or throw custom exception
+        e.printStackTrace()
+    }
+
+    return resultList
+}
+
+fun getSoldierRequestHistory(userId: String?): List<Map<String, Any>> {
+    val resultList = mutableListOf<Map<String, Any>>()
+
+    try {
+        // Establish the database connection
+        DriverManager.getConnection(mysql_url, mysql_user, mysql_password).use { connection ->
+            val sqlQuery = """
+                SELECT
+                    soldier_requests.request_id,
+                    users.firstname,
+                    users.lastname,
+                    products.product_name,
+                    request_details.quantity,
+                    soldier_requests.request_date,
+                    soldier_requests.close_date,
+                    soldier_requests.status
+                FROM
+                    frontcare.request_details
+                JOIN
+                    frontcare.products ON products.product_id = request_details.product_id
+                JOIN
+                    frontcare.soldier_requests ON soldier_requests.request_id = request_details.request_id
+                JOIN
+                    frontcare.users ON soldier_requests.donor_id = users.user_id
+                WHERE soldier_requests.soldier_id = ?;
+            """.trimIndent()
+
+            // Create a prepared statement
+            val statement: PreparedStatement = connection.prepareStatement(sqlQuery)
+            statement.setInt(1, userId?.toInt() ?: 0)
+
+            // Execute the query
+            val resultSet: ResultSet = statement.executeQuery()
+
+            // Process the result set and populate the list of maps
+            while (resultSet.next()) {
+                val rowMap = mutableMapOf<String, Any>()
+                rowMap["request_id"] = resultSet.getInt("request_id")
+                rowMap["firstname"] = resultSet.getString("firstname")
+                rowMap["lastname"] = resultSet.getString("lastname")
+                rowMap["product_name"] = resultSet.getString("product_name")
+                rowMap["quantity"] = resultSet.getInt("quantity")
+                rowMap["request_date"] = resultSet.getString("request_date")
+                val closeDate: String? = resultSet.getString("close_date")
+                rowMap["close_date"] = closeDate ?: "null"
+                rowMap["status"] = resultSet.getString("status")
+                resultList.add(rowMap)
+            }
+        }
+    } catch (e: Exception) {
+        // Handle exceptions, e.g., log or throw custom exception
+        e.printStackTrace()
+    }
+
+    return resultList
+}
+
+fun getSoldierEventsHistory(userId: String?): List<Map<String, Any>> {
+    val resultList = mutableListOf<Map<String, Any>>()
+
+    try {
+        // Establish the database connection
+        DriverManager.getConnection(mysql_url, mysql_user, mysql_password).use { connection ->
+            val sqlQuery = """
+                SELECT
+                    donation_events.event_id,
+                    users.firstname,
+                    users.lastname,
+                    donation_events.event_date,
+                    donation_events.event_location,
+                    donation_events.event_address
+                FROM
+                    frontcare.donation_events
+                JOIN
+                    frontcare.users ON  donation_events.donor_id = users.user_id
+				JOIN 
+					frontcare.event_participants ON event_participants.event_id = donation_events.event_id
+				WHERE event_participants.user_id = ?;
+            """.trimIndent()
+
+            // Create a prepared statement
+            val statement: PreparedStatement = connection.prepareStatement(sqlQuery)
+            statement.setInt(1, userId?.toInt() ?: 0)
+
+            // Execute the query
+            val resultSet: ResultSet = statement.executeQuery()
+
+            // Process the result set and populate the list of maps
+            while (resultSet.next()) {
+                val rowMap = mutableMapOf<String, Any>()
+                rowMap["event_id"] = resultSet.getInt("event_id")
+                rowMap["firstname"] = resultSet.getString("firstname")
+                rowMap["lastname"] = resultSet.getString("lastname")
+                rowMap["event_date"] = resultSet.getString("event_date")
+                rowMap["event_location"] = resultSet.getString("event_location")
+                rowMap["event_address"] = resultSet.getString("event_address")
                 resultList.add(rowMap)
             }
         }
@@ -475,7 +642,7 @@ TODO : RAZ - ADD USERTYPE TO THE RETURN JSON
 
         get("/api/donorsEvents") {
             try {
-                val eventsData = getDonorsEvents()
+                val eventsData = getDonorsEvents("0")
                 call.respond(eventsData)
 
             } catch (e: Exception) {
@@ -483,6 +650,60 @@ TODO : RAZ - ADD USERTYPE TO THE RETURN JSON
                 call.respond(HttpStatusCode.InternalServerError, "Error fetching donors events from the database")
             }
         }
+
+        get("/api/soldierRequestHistory/{userId}") {
+            try {
+
+                val userId = call.parameters["userId"]
+                val historyData = getSoldierRequestHistory(userId)
+
+                call.respond(historyData)
+            } catch (e: Exception) {
+                // Handle exceptions related to the database query and respond with InternalServerError status
+                call.respond(HttpStatusCode.InternalServerError, "Error fetching history data from the database")
+            }
+        }
+
+        get("/api/soldierEventsHistory/{userId}") {
+            try {
+
+                val userId = call.parameters["userId"]
+                val historyData = getSoldierEventsHistory(userId)
+
+                call.respond(historyData)
+            } catch (e: Exception) {
+                // Handle exceptions related to the database query and respond with InternalServerError status
+                call.respond(HttpStatusCode.InternalServerError, "Error fetching history data from the database")
+            }
+        }
+
+        get("/api/donorDonationHistory/{userId}") {
+            try {
+
+                val userId = call.parameters["userId"]
+                val historyData = getDonorDonationHistory(userId)
+
+                call.respond(historyData)
+            } catch (e: Exception) {
+                // Handle exceptions related to the database query and respond with InternalServerError status
+                call.respond(HttpStatusCode.InternalServerError, "Error fetching history data from the database")
+            }
+        }
+
+        get("/api/donorEventsHistory/{userId}") {
+            try {
+
+                val userId = call.parameters["userId"]
+                val historyData = getDonorsEvents(userId)
+
+                call.respond(historyData)
+            } catch (e: Exception) {
+                // Handle exceptions related to the database query and respond with InternalServerError status
+                call.respond(HttpStatusCode.InternalServerError, "Error fetching history data from the database")
+            }
+        }
+
+
 
     }
 }
