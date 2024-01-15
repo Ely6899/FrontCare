@@ -3,8 +3,7 @@ package com.example.frontcareproject
 import android.content.Intent
 import android.os.Bundle
 import android.view.View
-import android.widget.AdapterView
-import android.widget.AdapterView.OnItemSelectedListener
+
 import android.widget.ArrayAdapter
 import android.widget.Button
 import android.widget.EditText
@@ -48,7 +47,6 @@ class RegisterActivity : AppCompatActivity(){
     private lateinit var etEmail: EditText
     private lateinit var etUserName: EditText
     private lateinit var etPassword: EditText
-    //private lateinit var etLocation: EditText
     private lateinit var etPhone: EditText
     private lateinit var serverAns: String
     private lateinit var spinnerLocation: Spinner

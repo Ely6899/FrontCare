@@ -289,11 +289,15 @@ fun getDonorsEvents(): List<Map<String, Any>> {
     return resultList
 }
 
+
+/*
+* TODO: Raz - Implement no password change when receiving empty string
+* */
 fun updateUserInformation(data: Map<String, String>): Boolean {
     val userId = data["userId"]
     val phoneNumber = data["phoneNumber"]
     val email = data["email_address"]
-    val userName = data["userName"]
+    //val userName = data["userName"]
     val rawPassword = data["password"]
     var location = data["location"]
 
@@ -304,7 +308,6 @@ fun updateUserInformation(data: Map<String, String>): Boolean {
         UPDATE users
         SET phone_number = ?,
             email_address = ?,
-            username = ?,
             password = ?,
             location = ?
         WHERE user_id = ?;
@@ -318,10 +321,10 @@ fun updateUserInformation(data: Map<String, String>): Boolean {
 
         statement.setString(1, phoneNumber)
         statement.setString(2, email)
-        statement.setString(3, userName)
-        statement.setString(4, hashPassword)
-        statement.setString(5, location)
-        statement.setInt(6, userId?.toInt() ?: 0)
+        //statement.setString(3, userName)
+        statement.setString(3, hashPassword)
+        statement.setString(4, location)
+        statement.setInt(5, userId?.toInt() ?: 0)
 
         val rowsAffected = statement.executeUpdate()
         return rowsAffected > 0

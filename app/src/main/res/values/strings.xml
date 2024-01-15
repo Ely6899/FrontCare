@@ -21,6 +21,8 @@
     <string name="profile_title">Your Profile</string>
     <string name="login_failed_message">Login failed:\nEmail or password are incorrect</string>
     <string name="register_phone">Phone Number</string>
+    <string name="edit_profile_title">Edit Your Profile</string>
+    <string name="edit_profile">Edit Profile</string>
 
     <string-array name="locations_array">
         <item>North</item>

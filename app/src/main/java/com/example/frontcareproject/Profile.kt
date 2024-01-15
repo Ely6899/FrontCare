@@ -31,6 +31,8 @@ class Profile : AppCompatActivity() {
     private lateinit var redirectBtnS: Button
     private lateinit var redirectBtnD: Button
 
+    private lateinit var btnToEdit: Button
+
 
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
@@ -71,6 +73,11 @@ class Profile : AppCompatActivity() {
             // Navigate to the SoldiersRequestsPage
             val intent = Intent(this@Profile, DonorsEventsPage::class.java)
             startActivity(intent)
+        }
+
+        btnToEdit = findViewById(R.id.btnGoToEdit)
+        btnToEdit.setOnClickListener{
+            startActivity(Intent(this@Profile, EditProfile::class.java))
         }
 
     }

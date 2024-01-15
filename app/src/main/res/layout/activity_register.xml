@@ -86,6 +86,9 @@
         android:textColor="@color/black"
         android:textColorHint="@color/black"
         android:textSize="20sp"
+        android:maxLength="10"
+        android:minLines="1"
+        android:maxLines="1"
         app:layout_constraintTop_toBottomOf="@+id/radioGrpSelectType"
         tools:layout_editor_absoluteX="0dp">
 
@@ -103,6 +106,9 @@
         android:textColor="@color/black"
         android:textColorHint="@color/black"
         android:textSize="20sp"
+        android:maxLength="10"
+        android:minLines="1"
+        android:maxLines="1"
         app:layout_constraintTop_toBottomOf="@+id/etFirstName">
 
     </EditText>
@@ -119,6 +125,9 @@
         android:textColor="@color/black"
         android:textColorHint="@color/black"
         android:textSize="20sp"
+        android:maxLength="32"
+        android:minLines="1"
+        android:maxLines="1"
         app:layout_constraintTop_toBottomOf="@+id/etLastName">
 
     </EditText>
@@ -135,6 +144,9 @@
         android:textColor="@color/black"
         android:textColorHint="@color/black"
         android:textSize="20sp"
+        android:maxLength="10"
+        android:minLines="1"
+        android:maxLines="1"
         app:layout_constraintTop_toBottomOf="@+id/etEmail">
 
     </EditText>
@@ -151,6 +163,9 @@
         android:textColor="@color/black"
         android:textColorHint="@color/black"
         android:textSize="20sp"
+        android:maxLength="16"
+        android:minLines="1"
+        android:maxLines="1"
         app:layout_constraintTop_toBottomOf="@+id/etPhone">
 
     </EditText>
@@ -167,25 +182,12 @@
         android:textColor="@color/black"
         android:textColorHint="@color/black"
         android:textSize="20sp"
+        android:maxLength="12"
+        android:minLines="1"
+        android:maxLines="1"
         app:layout_constraintTop_toBottomOf="@+id/etUserName">
 
     </EditText>
-
-<!--    <EditText-->
-<!--        android:id="@+id/etDonationLocation"-->
-<!--        android:layout_width="match_parent"-->
-<!--        android:layout_height="wrap_content"-->
-
-<!--        android:autofillHints="Donation Location"-->
-<!--        android:hint="@string/register_location"-->
-<!--        android:inputType="text"-->
-<!--        android:textAlignment="center"-->
-<!--        android:textColor="@color/black"-->
-<!--        android:textColorHint="@color/black"-->
-<!--        android:textSize="20sp"-->
-<!--        app:layout_constraintTop_toBottomOf="@+id/etPassword">-->
-
-<!--    </EditText>-->
 
     <Spinner
         android:id="@+id/spinnerLocationSelect"

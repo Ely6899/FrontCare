@@ -1,0 +1,159 @@
+<?xml version="1.0" encoding="utf-8"?>
+<androidx.constraintlayout.widget.ConstraintLayout xmlns:android="http://schemas.android.com/apk/res/android"
+    xmlns:app="http://schemas.android.com/apk/res-auto"
+    xmlns:tools="http://schemas.android.com/tools"
+    android:layout_width="match_parent"
+    android:layout_height="match_parent"
+    android:background="@color/design_default_color_on_primary"
+    tools:context=".EditProfile">
+
+    <TextView
+        android:id="@+id/tvEditProfileTitle"
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:text="@string/edit_profile_title"
+        android:textAlignment="center"
+        android:textSize="25sp"
+        android:textColor="@color/black"
+
+        app:layout_constraintTop_toTopOf="parent"
+        >
+
+    </TextView>
+
+    <TableLayout
+        android:id="@+id/tableEdit"
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:stretchColumns="1"
+
+        app:layout_constraintTop_toBottomOf="@id/tvEditProfileTitle">
+
+        <TableRow
+            android:id="@+id/editPhoneRow"
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:layout_marginBottom="10dp"
+            >
+            <TextView
+                android:id="@+id/tvEditPhone"
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:text="@string/register_phone"
+                android:textAlignment="center"
+                android:textSize="20sp"
+                android:textColor="@color/black"
+                android:labelFor="@+id/etEditPhone"
+                >
+            </TextView>
+
+            <EditText
+                android:id="@+id/etEditPhone"
+                android:textColor="@color/black"
+                android:maxLength="10"
+                android:textAlignment="center"
+                android:textSize="20sp"
+                android:inputType="phone"
+                android:autofillHints="phone"
+                android:labelFor="@id/tvEditPhone"
+                >
+
+            </EditText>
+
+        </TableRow>
+
+        <TableRow
+            android:id="@+id/editEmailRow"
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:layout_marginBottom="10dp"
+            >
+            <TextView
+                android:id="@+id/tvEditEmail"
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:text="@string/register_email"
+                android:textAlignment="center"
+                android:textSize="20sp"
+                android:textColor="@color/black"
+                android:labelFor="@+id/etEditEmail"
+                >
+            </TextView>
+
+            <EditText
+                android:id="@+id/etEditEmail"
+                android:textColor="@color/black"
+                android:maxLength="32"
+                android:textAlignment="textStart"
+                android:textSize="20sp"
+                android:inputType="textEmailAddress"
+                android:autofillHints="emailAddress"
+                android:labelFor="@id/tvEditEmail"
+                >
+
+            </EditText>
+
+        </TableRow>
+
+        <TableRow
+            android:id="@+id/editPasswordRow"
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:layout_marginBottom="10dp"
+            >
+            <TextView
+                android:id="@+id/tvEditPassword"
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:text="@string/register_password"
+                android:textAlignment="center"
+                android:textSize="20sp"
+                android:textColor="@color/black"
+                android:labelFor="@+id/etEditPassword"
+                >
+            </TextView>
+
+            <EditText
+                android:id="@+id/etEditPassword"
+                android:textColor="@color/black"
+                android:maxLength="10"
+                android:textAlignment="center"
+                android:textSize="20sp"
+                android:inputType="textPassword"
+                android:autofillHints="password"
+                android:labelFor="@id/tvEditPassword"
+                >
+
+            </EditText>
+
+        </TableRow>
+    </TableLayout>
+
+    <Spinner
+        android:id="@+id/spinnerLocationEdit"
+        android:layout_width="match_parent"
+        android:layout_height="50sp"
+        android:spinnerMode="dropdown"
+        android:textAlignment="center"
+
+        app:layout_constraintTop_toBottomOf="@+id/tableEdit">
+
+    </Spinner>
+
+    <Button
+        android:id="@+id/btnEditProfile"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:layout_marginTop="100dp"
+        android:text="@string/edit_profile"
+
+        android:textSize="25sp"
+        app:layout_constraintEnd_toEndOf="parent"
+        app:layout_constraintHorizontal_bias="0.5"
+        app:layout_constraintStart_toStartOf="parent"
+        app:layout_constraintTop_toBottomOf="@+id/spinnerLocationEdit">
+
+    </Button>
+
+
+</androidx.constraintlayout.widget.ConstraintLayout>
