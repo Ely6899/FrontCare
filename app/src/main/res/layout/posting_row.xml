@@ -10,7 +10,7 @@
         android:id="@+id/tvNameElement"
         android:layout_width="wrap_content"
         android:layout_height="wrap_content"
-        android:text="@string/full_name_element"
+        android:text=""
         android:textSize="11sp"
 
 

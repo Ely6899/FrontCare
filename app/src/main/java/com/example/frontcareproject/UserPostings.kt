@@ -93,6 +93,7 @@ class UserPostings : AppCompatActivity() {
             else{
                 val newText = inflater.inflate(R.layout.posting_row, null)
                 requestIdList[requestId] = i
+                val nameView = newText.findViewById<TextView>(R.id.tvNameElement)
                 val name = newText.findViewById<TextView>(R.id.tvNameFill)
                 val date = newText.findViewById<TextView>(R.id.tvDateFill)
                 val status = newText.findViewById<TextView>(R.id.tvStatusFill)
@@ -100,7 +101,15 @@ class UserPostings : AppCompatActivity() {
                 val products = newText.findViewById<TextView>(R.id.tvProductsFill)
                 "${rowObject.getString("firstname")} ${rowObject.getString("lastname")}".also { name.text = it }
                 date.text = rowObject.getString("request_date")
-                status.text = rowObject.getString("status")
+                if (GlobalVar.userType == 0){
+                    nameView.text = "Donated to:"
+                    status.visibility = View.GONE
+                }
+                else{
+                    nameView.text = "Donated from:"
+                    status.text = rowObject.getString("status")
+                }
+
                 closeDate.text = rowObject.getString("close_date")
                 "${rowObject.getString("quantity")}-${rowObject.getString("product_name")}".also { products.text = it }
                 postingList.addView(newText, i)
