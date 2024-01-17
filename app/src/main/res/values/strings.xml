@@ -32,6 +32,8 @@
     <string name="status_element">Status</string>
     <string name="products_element">Products</string>
     <string name="close_date_element">Close date</string>
+    <string name="address_element">Address</string>
+    <string name="remaining_element">Remaining:</string>
 
     <string-array name="locations_array">
         <item>North</item>

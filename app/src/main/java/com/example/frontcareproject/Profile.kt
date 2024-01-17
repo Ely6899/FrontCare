@@ -47,18 +47,6 @@ class Profile : AppCompatActivity() {
         locationData = findViewById(R.id.ShowProfileLocation)
         phoneNumber = findViewById(R.id.ShowPhoneNumber)
 
-//        val data = intent.extras
-//        if (data != null){
-//            firstNameData.text = data.getString("First Name")
-//            lastNameData.text = data.getString("Last Name")
-//            emailData.text = data.getString("Email")
-//
-//            if (data.getString("Profile Type") == "Donor")
-//                locationData.text = data.getString("Location")
-//            else
-//                locationRow.visibility = View.GONE
-//        }
-
         fetchProfileData()
 
         //Maor's addition to custom redirecting buttons:
@@ -94,6 +82,10 @@ class Profile : AppCompatActivity() {
 
         btnToPostings.setOnClickListener{
             startActivity(Intent(this@Profile, UserPostings::class.java))
+        }
+
+        btnToEvents.setOnClickListener {
+            startActivity(Intent(this@Profile, UserEvents::class.java))
         }
     }
 

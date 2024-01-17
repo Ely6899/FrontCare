@@ -1,0 +1,171 @@
+<?xml version="1.0" encoding="utf-8"?>
+<androidx.constraintlayout.widget.ConstraintLayout xmlns:android="http://schemas.android.com/apk/res/android"
+    android:layout_width="match_parent"
+    android:layout_height="wrap_content"
+    xmlns:app="http://schemas.android.com/apk/res-auto"
+    android:padding="10dp">
+
+    <TextView
+        android:id="@+id/tvNameElement"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:text="Donated from:"
+        android:textSize="11sp"
+
+
+        app:layout_constraintStart_toStartOf="parent"
+        app:layout_constraintTop_toTopOf="parent"
+        >
+    </TextView>
+
+    <TextView
+        android:id="@+id/tvNameFill"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:paddingStart="5dp"
+        android:paddingEnd="5dp"
+        android:textSize="11sp"
+
+        app:layout_constraintLeft_toRightOf="@+id/tvNameElement"
+        app:layout_constraintTop_toTopOf="parent"
+        >
+
+
+    </TextView>
+
+    <TextView
+        android:id="@+id/tvDateElement"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:textSize="11sp"
+        android:text="@string/date_element"
+
+        app:layout_constraintLeft_toRightOf="@+id/tvNameFill"
+        app:layout_constraintTop_toTopOf="parent"
+        >
+
+    </TextView>
+
+    <TextView
+        android:id="@+id/tvDateFill"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:paddingStart="5dp"
+        android:paddingEnd="5dp"
+        android:textSize="11sp"
+
+        app:layout_constraintLeft_toRightOf="@+id/tvDateElement"
+        app:layout_constraintTop_toTopOf="parent"
+        >
+
+    </TextView>
+
+    <TextView
+        android:id="@+id/tvLocationElement"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:textSize="11sp"
+        android:text="@string/register_location"
+
+        app:layout_constraintLeft_toRightOf="@+id/tvDateFill"
+        app:layout_constraintTop_toTopOf="parent"
+        >
+
+    </TextView>
+
+    <TextView
+        android:id="@+id/tvStatusFill"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:paddingStart="5dp"
+        android:paddingEnd="5dp"
+        android:textSize="11sp"
+
+        app:layout_constraintLeft_toRightOf="@+id/tvLocationElement"
+        app:layout_constraintTop_toTopOf="parent"
+        >
+
+    </TextView>
+
+    <TextView
+        android:id="@+id/tvAddressElement"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:text="@string/address_element"
+        android:textSize="11sp"
+
+        app:layout_constraintTop_toBottomOf="@+id/tvNameElement"
+        app:layout_constraintLeft_toLeftOf="parent"
+        >
+
+    </TextView>
+
+    <TextView
+        android:id="@+id/tvAddressFill"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:paddingStart="5dp"
+        android:paddingEnd="5dp"
+        android:textSize="11sp"
+
+        app:layout_constraintLeft_toRightOf="@+id/tvAddressElement"
+        app:layout_constraintTop_toBottomOf="@id/tvNameElement"
+        >
+
+    </TextView>
+
+    <TextView
+        android:id="@+id/tvRemainingElement"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:textSize="11sp"
+        android:text="@string/remaining_element"
+
+        app:layout_constraintLeft_toLeftOf="parent"
+        app:layout_constraintTop_toBottomOf="@id/tvAddressElement"
+        >
+
+    </TextView>
+
+    <TextView
+        android:id="@+id/tvRemainingFill"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:paddingStart="5dp"
+        android:paddingEnd="5dp"
+        android:textSize="11sp"
+
+        app:layout_constraintLeft_toRightOf="@+id/tvRemainingElement"
+        app:layout_constraintTop_toBottomOf="@id/tvAddressElement"
+        >
+
+    </TextView>
+
+    <TextView
+        android:id="@+id/tvProductsElement"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:textSize="11sp"
+        android:text="@string/products_element"
+
+        app:layout_constraintLeft_toLeftOf="parent"
+        app:layout_constraintTop_toBottomOf="@id/tvRemainingElement"
+        >
+
+    </TextView>
+
+    <TextView
+        android:id="@+id/tvProductsFill"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:paddingStart="5dp"
+        android:paddingEnd="5dp"
+        android:textSize="11sp"
+
+        app:layout_constraintLeft_toRightOf="@+id/tvProductsElement"
+        app:layout_constraintTop_toBottomOf="@id/tvRemainingElement"
+        >
+
+    </TextView>
+
+</androidx.constraintlayout.widget.ConstraintLayout>
