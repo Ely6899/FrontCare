@@ -19,6 +19,12 @@
             android:name=".SoldierRequestDetails"
             android:exported="false" />
         <activity
+            android:name=".UserEvents"
+            android:exported="false" />
+        <activity
+            android:name=".UserPostings"
+            android:exported="false" />
+        <activity
             android:name=".EditProfile"
             android:exported="false" />
         <activity

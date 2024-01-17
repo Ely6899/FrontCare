@@ -31,8 +31,10 @@ class Profile : AppCompatActivity() {
     private lateinit var redirectBtnS: Button
     private lateinit var redirectBtnD: Button
 
-    private lateinit var btnToEdit: Button
 
+    private lateinit var btnToEdit: Button
+    private lateinit var btnToPostings: Button
+    private lateinit var btnToEvents: Button
 
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
@@ -44,18 +46,6 @@ class Profile : AppCompatActivity() {
         locationRow = findViewById(R.id.LocationRow)
         locationData = findViewById(R.id.ShowProfileLocation)
         phoneNumber = findViewById(R.id.ShowPhoneNumber)
-
-//        val data = intent.extras
-//        if (data != null){
-//            firstNameData.text = data.getString("First Name")
-//            lastNameData.text = data.getString("Last Name")
-//            emailData.text = data.getString("Email")
-//
-//            if (data.getString("Profile Type") == "Donor")
-//                locationData.text = data.getString("Location")
-//            else
-//                locationRow.visibility = View.GONE
-//        }
 
         fetchProfileData()
 
@@ -80,6 +70,23 @@ class Profile : AppCompatActivity() {
             startActivity(Intent(this@Profile, EditProfile::class.java))
         }
 
+        btnToPostings = findViewById(R.id.btnPostingsHistory)
+        btnToEvents = findViewById(R.id.btnEventHistory)
+
+        //Change button text according to user type connected
+        if (GlobalVar.userType == 1){
+            btnToPostings.text = getString(R.string.requests_history_button)
+        } else{
+            btnToPostings.text = getString(R.string.donations_history_button)
+        }
+
+        btnToPostings.setOnClickListener{
+            startActivity(Intent(this@Profile, UserPostings::class.java))
+        }
+
+        btnToEvents.setOnClickListener {
+            startActivity(Intent(this@Profile, UserEvents::class.java))
+        }
     }
 
     private fun fetchProfileData() {
