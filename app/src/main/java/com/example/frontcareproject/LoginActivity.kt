@@ -94,6 +94,7 @@ class LoginActivity : AppCompatActivity() {
             //optString is used ,This method returns an empty string if the key is not found.
             val message = jsonResponse.optString("message")
             val userId = jsonResponse.optString("userId")
+            val userType = jsonResponse.optInt("userType")
 
             if (message == "Login successful" && userId.isNotEmpty()) {
 
@@ -101,6 +102,7 @@ class LoginActivity : AppCompatActivity() {
                 TODO: RAZ - UPDATE USERTYPE GLOBAL VAR
                  */
                 GlobalVar.userId = userId // set userid to global var
+                GlobalVar.userType = userType
 
                 // Navigate to the ProfileActivity
                 val intent = Intent(this@LoginActivity, Profile::class.java)

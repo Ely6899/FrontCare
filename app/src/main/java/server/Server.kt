@@ -105,16 +105,17 @@ fun getUserProfile(userId: String?): Map<String, Any> {
     }
 }
 
-fun authenticateUser(username: String?, password: String?): Int? {
+fun authenticateUser(username: String?, password: String?): Pair<Int?, Int?>{
 
     var connection: Connection? = null
     var userId: Int? = null
+    var userType: Int? = null
 
     try {
 
         connection = DriverManager.getConnection(mysql_url, mysql_user, mysql_password)
 
-        val statement: PreparedStatement = connection.prepareStatement("SELECT user_id FROM users WHERE username = ? AND password = ?")
+        val statement: PreparedStatement = connection.prepareStatement("SELECT user_id, is_soldier FROM users WHERE username = ? AND password = ?")
 
         val hashPassword = hashMD5(password.toString())
         statement.setString(1, username)
@@ -123,12 +124,13 @@ fun authenticateUser(username: String?, password: String?): Int? {
 
         if (resultSet.next()) {
             userId = resultSet.getInt("user_id")
+            userType = resultSet.getInt("is_soldier")
         }
     } finally {
         connection?.close()
     }
 
-    return userId
+    return Pair(userId, userType)
 }
 
 fun userRegistration(data: Map<String, String>): Int? {
@@ -533,12 +535,13 @@ fun Application.module() {
                 val username = request["username"]
                 val password = request["password"]
 
-                val userId = authenticateUser(username, password)
-/*
-TODO : RAZ - ADD USERTYPE TO THE RETURN JSON
- */
-                val responseMessage = if (userId != null) {
-                    mapOf("message" to "Login successful", "userId" to userId)
+                // Returns a pair of userId and userType
+                val userPair = authenticateUser(username, password)
+                val userId = userPair.first
+                val userType = userPair.second
+
+                val responseMessage = if (userId != null && userType != null) {
+                    mapOf("message" to "Login successful", "userId" to userId, "userType" to userType)
                 } else {
                     mapOf("message" to "Invalid username or password")
                 }
