@@ -23,6 +23,15 @@
     <string name="register_phone">Phone Number</string>
     <string name="edit_profile_title">Edit Your Profile</string>
     <string name="edit_profile">Edit Profile</string>
+    <string name="default_string">DEFAULT</string>
+    <string name="requests_history_button">Requests</string>
+    <string name="donations_history_button">Donations</string>
+    <string name="events_history_button">Events</string>
+    <string name="full_name_element">Full Name:</string>
+    <string name="date_element">Date:</string>
+    <string name="status_element">Status</string>
+    <string name="products_element">Products</string>
+    <string name="close_date_element">Close date</string>
 
     <string-array name="locations_array">
         <item>North</item>
