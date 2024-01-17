@@ -1,0 +1,48 @@
+<?xml version="1.0" encoding="utf-8"?>
+<LinearLayout xmlns:android="http://schemas.android.com/apk/res/android"
+    xmlns:tools="http://schemas.android.com/tools"
+    android:layout_width="match_parent"
+    android:layout_height="match_parent"
+    android:orientation="vertical"
+    android:padding="16dp">
+
+    <TextView
+        android:id="@+id/requestDateTextView"
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:text="Request Date: "
+        android:textSize="18sp"
+        tools:text="Request Date: Sample Date" />
+
+    <TextView
+        android:id="@+id/firstnameTextView"
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:text="First Name: "
+        android:textSize="18sp"
+        tools:text="First Name: John" />
+
+    <TextView
+        android:id="@+id/productNameTextView"
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:text="Product Name: "
+        android:textSize="18sp"
+        tools:text="Product Name: Sample Product" />
+
+    <TextView
+        android:id="@+id/quantityTextView"
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:text="Quantity: "
+        android:textSize="18sp"
+        tools:text="Quantity: 5" />
+
+    <TextView
+        android:id="@+id/pickupLocationTextView"
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:text="Pickup Location: "
+        android:textSize="18sp"
+        tools:text="Pickup Location: Sample Location" />
+</LinearLayout>

@@ -35,7 +35,7 @@
             android:layout_height="wrap_content"
             android:layout_marginTop="15dp"
             android:background="@color/tablesBackgroundColor"
-            android:stretchColumns="0,1,2,3,4">
+            android:stretchColumns="0">
 
             <!-- Header row -->
             <TableRow>
@@ -44,31 +44,46 @@
                     android:background="@drawable/tables_outline"
                     android:gravity="center"
                     android:padding="8dp"
-                    android:text="Request ID" />
+                    android:text="Request Date"
+                    android:layout_width="wrap_content"
+                    android:maxLines="1"
+                    android:ellipsize="end" />
 
                 <TextView
                     android:background="@drawable/tables_outline"
                     android:gravity="center"
                     android:padding="8dp"
-                    android:text="First Name" />
+                    android:text="First Name"
+                    android:layout_width="wrap_content"
+                    android:maxLines="1"
+                    android:ellipsize="end" />
 
                 <TextView
                     android:background="@drawable/tables_outline"
                     android:gravity="center"
                     android:padding="8dp"
-                    android:text="Products" />
+                    android:text="Products"
+                    android:layout_width="wrap_content"
+                    android:maxLines="1"
+                    android:ellipsize="end" />
 
                 <TextView
                     android:background="@drawable/tables_outline"
                     android:gravity="center"
                     android:padding="8dp"
-                    android:text="Pickup Location" />
+                    android:text="Pickup Location"
+                    android:layout_width="wrap_content"
+                    android:maxLines="1"
+                    android:ellipsize="end" />
 
                 <TextView
                     android:background="@drawable/tables_outline"
                     android:gravity="center"
                     android:padding="8dp"
-                    android:text="Request Date" />
+                    android:text="Details"
+                    android:layout_width="wrap_content"
+                    android:maxLines="1"
+                    android:ellipsize="end" />
 
             </TableRow>
 

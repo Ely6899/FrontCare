@@ -1,6 +1,8 @@
 package com.example.frontcareproject
 
+import android.content.Intent
 import android.os.Bundle
+import android.widget.Button
 import android.widget.TableLayout
 import android.widget.TableRow
 import android.widget.TextView
@@ -61,23 +63,23 @@ class SoldiersRequestsPage : AppCompatActivity() {
         for (i in 0 until jsonArray.length()) {
             val jsonObject = jsonArray.getJSONObject(i)
             addRowToTable(
-                jsonObject.getInt("request_id").toString(),
+                jsonObject.getString("request_id"),  // Use request_id for identification
+                jsonObject.getString("request_date"),  // Add request_date to its own column
                 jsonObject.getString("firstname"),
                 jsonObject.getString("product_name"),
                 jsonObject.getInt("quantity").toString(),
-                jsonObject.getString("pickup_location"),
-                jsonObject.getString("request_date")
+                jsonObject.getString("pickup_location")
             )
         }
     }
 
     private fun addRowToTable(
         requestId: String,
+        requestDate: String,
         firstname: String,
         productName: String,
         quantity: String,
-        pickupLocation: String,
-        requestDate: String
+        pickupLocation: String
     ) {
         val existingRow = donationsTable.findViewWithTag<TableRow>(requestId)
 
@@ -87,13 +89,13 @@ class SoldiersRequestsPage : AppCompatActivity() {
         } else {
             // Create a new row
             val newRow = TableRow(this)
-            newRow.tag = requestId // Set tag to requestId for identification
+            newRow.tag = requestId // Set tag to request_id for identification
 
             // Set gray background for the TableRow
             newRow.setBackgroundColor(getColor(R.color.tablesBackgroundColor))
 
             // Add columns for each piece of information
-            val columns = listOf(requestId, firstname, "$productName - $quantity", pickupLocation, requestDate)
+            val columns = listOf(requestDate, firstname, "$productName - $quantity", pickupLocation)
             for (columnData in columns) {
                 val column = TextView(this)
                 column.text = columnData
@@ -103,6 +105,24 @@ class SoldiersRequestsPage : AppCompatActivity() {
                 column.setBackgroundResource(R.drawable.tables_outline)
                 newRow.addView(column)
             }
+
+            // Add the button to the last column
+            val detailsButton = Button(this)
+            detailsButton.text = "Details"
+            detailsButton.setOnClickListener {
+                // Handle button click, e.g., show details for the corresponding row
+                // Start SoldierRequestDetails activity and pass relevant information
+                val intent = Intent(this, SoldierRequestDetails::class.java).apply {
+                    putExtra("requestId", requestId)
+                    putExtra("requestDate", requestDate)
+                    putExtra("firstname", firstname)
+                    putExtra("productName", productName)
+                    putExtra("quantity", quantity)
+                    putExtra("pickupLocation", pickupLocation)
+                }
+                startActivity(intent)
+            }
+            newRow.addView(detailsButton)
 
             donationsTable.addView(newRow)
         }
