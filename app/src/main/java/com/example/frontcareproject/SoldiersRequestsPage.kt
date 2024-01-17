@@ -63,7 +63,8 @@ class SoldiersRequestsPage : AppCompatActivity() {
         for (i in 0 until jsonArray.length()) {
             val jsonObject = jsonArray.getJSONObject(i)
             addRowToTable(
-                jsonObject.getString("request_date"),
+                jsonObject.getString("request_id"),  // Use request_id for identification
+                jsonObject.getString("request_date"),  // Add request_date to its own column
                 jsonObject.getString("firstname"),
                 jsonObject.getString("product_name"),
                 jsonObject.getInt("quantity").toString(),
@@ -73,21 +74,22 @@ class SoldiersRequestsPage : AppCompatActivity() {
     }
 
     private fun addRowToTable(
+        requestId: String,
         requestDate: String,
         firstname: String,
         productName: String,
         quantity: String,
         pickupLocation: String
     ) {
-        val existingRow = donationsTable.findViewWithTag<TableRow>(requestDate)
+        val existingRow = donationsTable.findViewWithTag<TableRow>(requestId)
 
         if (existingRow != null) {
-            // If row with the same request_date exists, append product info to the existing row
+            // If row with the same request_id exists, append product info to the existing row
             appendProductInfoToRow(existingRow, productName, quantity)
         } else {
             // Create a new row
             val newRow = TableRow(this)
-            newRow.tag = requestDate // Set tag to requestDate for identification
+            newRow.tag = requestId // Set tag to request_id for identification
 
             // Set gray background for the TableRow
             newRow.setBackgroundColor(getColor(R.color.tablesBackgroundColor))
@@ -111,6 +113,7 @@ class SoldiersRequestsPage : AppCompatActivity() {
                 // Handle button click, e.g., show details for the corresponding row
                 // Start SoldierRequestDetails activity and pass relevant information
                 val intent = Intent(this, SoldierRequestDetails::class.java).apply {
+                    putExtra("requestId", requestId)
                     putExtra("requestDate", requestDate)
                     putExtra("firstname", firstname)
                     putExtra("productName", productName)
