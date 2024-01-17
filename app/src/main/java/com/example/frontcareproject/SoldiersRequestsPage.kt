@@ -19,6 +19,7 @@ class SoldiersRequestsPage : AppCompatActivity() {
 
     //vars:
     private lateinit var donationsTable: TableLayout
+    private lateinit var jsonArray: JSONArray  // Make the JSON array a class-level variable
 
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
@@ -41,8 +42,11 @@ class SoldiersRequestsPage : AppCompatActivity() {
                 val reader = BufferedReader(InputStreamReader(inputStream))
                 val serverResponse = reader.readText()
 
+                // Parse the JSON response
+                jsonArray = JSONArray(serverResponse)
+
                 runOnUiThread {
-                    handleSoldiersRequestsResponse(serverResponse)
+                    handleSoldiersRequestsResponse()
                 }
 
                 reader.close()
@@ -55,10 +59,7 @@ class SoldiersRequestsPage : AppCompatActivity() {
         }.start()
     }
 
-    private fun handleSoldiersRequestsResponse(response: String) {
-        // Parse the JSON response
-        val jsonArray = JSONArray(response)
-
+    private fun handleSoldiersRequestsResponse() {
         // Iterate over JSON array and add rows to the table
         for (i in 0 until jsonArray.length()) {
             val jsonObject = jsonArray.getJSONObject(i)
@@ -110,15 +111,16 @@ class SoldiersRequestsPage : AppCompatActivity() {
             val detailsButton = Button(this)
             detailsButton.text = "Details"
             detailsButton.setOnClickListener {
+                // Filter the JSON array based on request_id
+                val filteredArray = (0 until jsonArray.length())
+                    .map { jsonArray.getJSONObject(it) }
+                    .filter { it.getString("request_id") == requestId }
+                    .toTypedArray()
+
                 // Handle button click, e.g., show details for the corresponding row
                 // Start SoldierRequestDetails activity and pass relevant information
                 val intent = Intent(this, SoldierRequestDetails::class.java).apply {
-                    putExtra("requestId", requestId)
-                    putExtra("requestDate", requestDate)
-                    putExtra("firstname", firstname)
-                    putExtra("productName", productName)
-                    putExtra("quantity", quantity)
-                    putExtra("pickupLocation", pickupLocation)
+                    putExtra("jsonArray", filteredArray.toString())
                 }
                 startActivity(intent)
             }
