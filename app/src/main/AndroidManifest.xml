@@ -16,6 +16,9 @@
         android:theme="@style/Theme.FrontCareProject"
         tools:targetApi="31">
         <activity
+            android:name=".SoldierRequestDetails"
+            android:exported="false" />
+        <activity
             android:name=".EditProfile"
             android:exported="false" />
         <activity
