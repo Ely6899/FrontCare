@@ -1,9 +1,105 @@
 <?xml version="1.0" encoding="utf-8"?>
-<androidx.constraintlayout.widget.ConstraintLayout xmlns:android="http://schemas.android.com/apk/res/android"
+<androidx.constraintlayout.widget.ConstraintLayout
+    xmlns:android="http://schemas.android.com/apk/res/android"
     xmlns:app="http://schemas.android.com/apk/res-auto"
     xmlns:tools="http://schemas.android.com/tools"
     android:layout_width="match_parent"
     android:layout_height="match_parent"
     tools:context=".DonorsEventsPage">
+
+    <TextView
+        android:id="@+id/DonorsEventsPageTitle"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:layout_centerHorizontal="true"
+        android:text="Donors Events"
+        android:textColor="@android:color/black"
+        android:textSize="18sp"
+        app:layout_constraintTop_toTopOf="parent"
+        app:layout_constraintBottom_toTopOf="@+id/horizontalScrollView"
+        app:layout_constraintEnd_toEndOf="parent"
+        app:layout_constraintStart_toStartOf="parent" />
+
+    <HorizontalScrollView
+        android:id="@+id/horizontalScrollView"
+        android:layout_width="0dp"
+        android:layout_height="0dp"
+        app:layout_constraintTop_toBottomOf="@+id/DonorsEventsPageTitle"
+        app:layout_constraintBottom_toBottomOf="parent"
+        app:layout_constraintEnd_toEndOf="parent"
+        app:layout_constraintStart_toStartOf="parent">
+
+        <TableLayout
+            android:id="@+id/eventsTable"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:layout_marginTop="15dp"
+            android:background="@color/tablesBackgroundColor"
+            android:stretchColumns="0">
+
+            <!-- Header row -->
+            <TableRow>
+
+                <TextView
+                    android:background="@drawable/tables_outline"
+                    android:gravity="center"
+                    android:padding="8dp"
+                    android:text="Event Date"
+                    android:layout_width="wrap_content"
+                    android:maxLines="1"
+                    android:ellipsize="end" />
+
+                <TextView
+                    android:background="@drawable/tables_outline"
+                    android:gravity="center"
+                    android:padding="8dp"
+                    android:text="Event Location"
+                    android:layout_width="wrap_content"
+                    android:maxLines="1"
+                    android:ellipsize="end" />
+
+                <TextView
+                    android:background="@drawable/tables_outline"
+                    android:gravity="center"
+                    android:padding="8dp"
+                    android:text="Event Address"
+                    android:layout_width="wrap_content"
+                    android:maxLines="1"
+                    android:ellipsize="end" />
+
+                <TextView
+                    android:background="@drawable/tables_outline"
+                    android:gravity="center"
+                    android:padding="8dp"
+                    android:text="Remaining Spot"
+                    android:layout_width="wrap_content"
+                    android:maxLines="1"
+                    android:ellipsize="end" />
+
+                <TextView
+                    android:background="@drawable/tables_outline"
+                    android:gravity="center"
+                    android:padding="8dp"
+                    android:text="Products"
+                    android:layout_width="wrap_content"
+                    android:maxLines="1"
+                    android:ellipsize="end" />
+
+                <TextView
+                    android:background="@drawable/tables_outline"
+                    android:gravity="center"
+                    android:padding="8dp"
+                    android:text="Details"
+                    android:layout_width="wrap_content"
+                    android:maxLines="1"
+                    android:ellipsize="end" />
+
+            </TableRow>
+
+            <!-- Data rows will be added dynamically -->
+
+        </TableLayout>
+
+    </HorizontalScrollView>
 
 </androidx.constraintlayout.widget.ConstraintLayout>
