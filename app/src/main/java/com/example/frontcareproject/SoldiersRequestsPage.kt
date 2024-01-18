@@ -111,16 +111,16 @@ class SoldiersRequestsPage : AppCompatActivity() {
             val detailsButton = Button(this)
             detailsButton.text = "Details"
             detailsButton.setOnClickListener {
-                // Filter the JSON array based on request_id
-                val filteredArray = (0 until jsonArray.length())
+                var filteredArray = (0 until jsonArray.length())
                     .map { jsonArray.getJSONObject(it) }
                     .filter { it.getString("request_id") == requestId }
-                    .toTypedArray()
+                    .map {
+                        it.toString()
+                    }
 
-                // Handle button click, e.g., show details for the corresponding row
                 // Start SoldierRequestDetails activity and pass relevant information
                 val intent = Intent(this, SoldierRequestDetails::class.java).apply {
-                    putExtra("jsonArray", filteredArray.toString())
+                    putStringArrayListExtra("jsonArray", ArrayList(filteredArray))
                 }
                 startActivity(intent)
             }
@@ -138,3 +138,5 @@ class SoldiersRequestsPage : AppCompatActivity() {
         productInfoColumn?.text = "${productInfoColumn?.text}, $productName - $quantity"
     }
 }
+
+
