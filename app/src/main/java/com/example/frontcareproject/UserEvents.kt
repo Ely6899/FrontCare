@@ -102,10 +102,6 @@ class UserEvents : AppCompatActivity() {
 
         }
     }
-
-    /*
-    * TODO: Fix bug caused on activity launch
-    * */
     private fun handleDonorHistoryResponse(serverAns: String) {
         val jsonAnswer = JSONArray(serverAns)
 
@@ -140,7 +136,7 @@ class UserEvents : AppCompatActivity() {
                 date.text = rowObject.optString("event_date")
                 location.text = rowObject.optString("event_location")
                 address.text = rowObject.optString("event_address")
-                remainingSpots.text = rowObject.getInt("remaining_spots").toString()
+                remainingSpots.text = rowObject.getInt("remaining_spot").toString()
 
                 rowObject.getString("product_name").also { products.text = it }
                 eventsList.addView(newText, i)
