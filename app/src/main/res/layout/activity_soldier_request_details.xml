@@ -1,10 +1,32 @@
 <?xml version="1.0" encoding="utf-8"?>
 <LinearLayout xmlns:android="http://schemas.android.com/apk/res/android"
+    xmlns:app="http://schemas.android.com/apk/res-auto"
     xmlns:tools="http://schemas.android.com/tools"
     android:layout_width="match_parent"
     android:layout_height="match_parent"
     android:orientation="vertical"
     android:padding="16dp">
+
+    <androidx.constraintlayout.widget.ConstraintLayout
+        android:layout_width="match_parent"
+        android:layout_height="100dp">
+
+        <TextView
+            android:id="@+id/textView2"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:background="#673AB7"
+            android:text="Donation Details"
+            android:textColor="#FFFFFF"
+            android:textSize="30sp"
+            android:textStyle="bold"
+            app:layout_constraintBottom_toBottomOf="parent"
+            app:layout_constraintEnd_toEndOf="parent"
+            app:layout_constraintStart_toStartOf="parent"
+            app:layout_constraintTop_toTopOf="parent"
+            app:layout_constraintVertical_bias="0.506" />
+
+    </androidx.constraintlayout.widget.ConstraintLayout>
 
     <TextView
         android:id="@+id/requestDateTextView"
@@ -23,26 +45,65 @@
         tools:text="First Name: John" />
 
     <TextView
-        android:id="@+id/productNameTextView"
-        android:layout_width="match_parent"
-        android:layout_height="wrap_content"
-        android:text="Product Name: "
-        android:textSize="18sp"
-        tools:text="Product Name: Sample Product" />
-
-    <TextView
-        android:id="@+id/quantityTextView"
-        android:layout_width="match_parent"
-        android:layout_height="wrap_content"
-        android:text="Quantity: "
-        android:textSize="18sp"
-        tools:text="Quantity: 5" />
-
-    <TextView
         android:id="@+id/pickupLocationTextView"
         android:layout_width="match_parent"
         android:layout_height="wrap_content"
         android:text="Pickup Location: "
         android:textSize="18sp"
         tools:text="Pickup Location: Sample Location" />
+
+    <androidx.constraintlayout.widget.ConstraintLayout
+        android:layout_width="match_parent"
+        android:layout_height="603dp" >
+
+        <TableLayout
+            android:id="@+id/productsTable"
+            android:layout_width="372dp"
+            android:layout_height="430dp"
+            app:layout_constraintEnd_toEndOf="parent"
+            app:layout_constraintHorizontal_bias="0.0"
+            app:layout_constraintStart_toStartOf="parent"
+            app:layout_constraintTop_toTopOf="parent">
+
+            <TableRow
+                android:layout_width="match_parent"
+                android:layout_height="match_parent">
+
+                <TextView
+                    android:layout_width="0dp"
+                    android:layout_height="wrap_content"
+                    android:layout_weight="1"
+                    android:background="@drawable/tables_outline"
+                    android:ellipsize="end"
+                    android:gravity="center"
+                    android:maxLines="1"
+                    android:padding="8dp"
+                    android:text="Request Date" />
+
+                <TextView
+                    android:layout_width="0dp"
+                    android:layout_height="wrap_content"
+                    android:layout_weight="1"
+                    android:background="@drawable/tables_outline"
+                    android:ellipsize="end"
+                    android:gravity="center"
+                    android:maxLines="1"
+                    android:padding="8dp"
+                    android:text="Quantity" />
+            </TableRow>
+        </TableLayout>
+
+        <Button
+            android:id="@+id/donateButton"
+            android:layout_width="167dp"
+            android:layout_height="73dp"
+            android:text="Donate Now!"
+            app:layout_constraintBottom_toBottomOf="parent"
+            app:layout_constraintEnd_toEndOf="parent"
+            app:layout_constraintStart_toStartOf="parent"
+            app:layout_constraintTop_toBottomOf="@+id/productsTable"
+            app:layout_constraintVertical_bias="0.22" />
+
+    </androidx.constraintlayout.widget.ConstraintLayout>
+
 </LinearLayout>
