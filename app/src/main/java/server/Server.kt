@@ -42,28 +42,6 @@ fun main() {
     }.start(wait = true)
 }
 
-// Function to execute a SQL query and retrieve all users using plain JDBC
-/*
-TEMPLATE
- */
-fun getAllUsers(): List<Map<String, Any>> {
-
-    DriverManager.getConnection(mysql_url, mysql_user, mysql_password).use { connection ->
-        connection.prepareStatement("SELECT * FROM users where userid < 3").use { statement ->
-            statement.executeQuery().use { resultSet ->
-                val resultList = mutableListOf<Map<String, Any>>()
-                while (resultSet.next()) {
-                    val rowMap = mutableMapOf<String, Any>()
-                    rowMap["userid"] = resultSet.getInt("userid")
-                    rowMap["email"] = resultSet.getString("username")
-                    rowMap["password"] = resultSet.getString("password")
-                    resultList.add(rowMap)
-                }
-                return resultList
-            }
-        }
-    }
-}
 
 fun hashMD5(password: String): String {
     val md = MessageDigest.getInstance("MD5")
@@ -192,6 +170,9 @@ fun userRegistration(data: Map<String, String>): Int? {
 
 }
 
+/*
+TODO: REVIEW THIS FUNCTION WITH THE BOYS
+ */
 fun getSoldiersRequests(): List<Map<String, Any>> {
     val resultList = mutableListOf<Map<String, Any>>()
 
@@ -205,15 +186,17 @@ fun getSoldiersRequests(): List<Map<String, Any>> {
                     products.product_name,
                     request_details.quantity,
                     soldier_requests.pickup_location,
-                    soldier_requests.request_date
+                    soldier_requests.request_date,
+                    users.email_address,
+                    users.phone_number
                 FROM
-                    frontcare.request_details
+                    request_details
                 JOIN
-                    frontcare.products ON products.product_id = request_details.product_id
+                    products ON products.product_id = request_details.product_id
                 JOIN
-                    frontcare.soldier_requests ON soldier_requests.request_id = request_details.request_id
+                    soldier_requests ON soldier_requests.request_id = request_details.request_id
                 JOIN
-                    frontcare.users ON soldier_requests.soldier_id = users.user_id;
+                    users ON soldier_requests.soldier_id = users.user_id;
             """.trimIndent()
 
             // Create a prepared statement
@@ -231,6 +214,8 @@ fun getSoldiersRequests(): List<Map<String, Any>> {
                 rowMap["quantity"] = resultSet.getInt("quantity")
                 rowMap["pickup_location"] = resultSet.getString("pickup_location")
                 rowMap["request_date"] = resultSet.getString("request_date")
+                rowMap["email_address"] = resultSet.getString("email_address")
+                rowMap["phone_number"] = resultSet.getString("phone_number")
                 resultList.add(rowMap)
             }
         }
@@ -260,24 +245,25 @@ fun getDonorsEvents(donorId: String?): List<Map<String, Any>> {
                     donation_events.event_location,
                     donation_events.event_address,
                     donation_events.remaining_spot,
-                    products.product_name
+                    products.product_name,
+                    users.firstname,
+                    users.lastname,
+                    users.email_address,
+                    users.phone_number
                 FROM
-                    frontcare.donation_events
+                    donation_events
                 JOIN
-                    frontcare.event_details ON  donation_events.event_id = event_details.event_id
+                    event_details ON  donation_events.event_id = event_details.event_id
                 JOIN
-                    frontcare.products ON products.product_id = event_details.product_id
+                    products ON products.product_id = event_details.product_id
+                JOIN 
+                    users ON users.user_id = donation_events.donor_id
                     $sqlFiller
-
             """.trimIndent()
 
-            // Create a prepared statement
             val statement: PreparedStatement = connection.prepareStatement(sqlQuery)
-
-            // Execute the query
             val resultSet: ResultSet = statement.executeQuery()
 
-            // Process the result set and populate the list of maps
             while (resultSet.next()) {
                 val rowMap = mutableMapOf<String, Any>()
                 rowMap["event_id"] = resultSet.getInt("event_id")
@@ -285,7 +271,10 @@ fun getDonorsEvents(donorId: String?): List<Map<String, Any>> {
                 rowMap["event_location"] = resultSet.getString("event_location")
                 rowMap["event_address"] = resultSet.getString("event_address")
                 rowMap["remaining_spot"] = resultSet.getInt("remaining_spot")
-                rowMap["product_name"] = resultSet.getString("product_name")
+                rowMap["firstname"] = resultSet.getString("firstname")
+                rowMap["lastname"] = resultSet.getString("lastname")
+                rowMap["email_address"] = resultSet.getString("email_address")
+                rowMap["phone_number"] = resultSet.getString("phone_number")
                 resultList.add(rowMap)
             }
         }
@@ -457,30 +446,37 @@ fun getSoldierEventsHistory(userId: String?): List<Map<String, Any>> {
 
     return resultList
 }
-
-
-/*
-* TODO: Raz - Implement no password change when receiving empty string
-* */
 fun updateUserInformation(data: Map<String, String>): Boolean {
     val userId = data["userId"]
     val phoneNumber = data["phoneNumber"]
     val email = data["email_address"]
     //val userName = data["userName"]
     val rawPassword = data["password"]
-    var location = data["location"]
+    val location = data["location"]
+    var hashPassword = ""
 
-    // Hash the password using MD5
-    val hashPassword = hashMD5(rawPassword.toString())
-
-    val sql = """
+    var sql = """
         UPDATE users
         SET phone_number = ?,
             email_address = ?,
-            password = ?,
             location = ?
         WHERE user_id = ?;
     """.trimIndent()
+
+    if(rawPassword != "")
+    {
+        sql = """
+        UPDATE users
+        SET phone_number = ?,
+            email_address = ?,
+            location = ?,
+            password = ?
+        WHERE user_id = ?;
+    """.trimIndent()
+
+        // Hash the password using MD5
+         hashPassword = hashMD5(rawPassword.toString())
+    }
 
     var connection: Connection? = null
 
@@ -491,9 +487,14 @@ fun updateUserInformation(data: Map<String, String>): Boolean {
         statement.setString(1, phoneNumber)
         statement.setString(2, email)
         //statement.setString(3, userName)
-        statement.setString(3, hashPassword)
-        statement.setString(4, location)
-        statement.setInt(5, userId?.toInt() ?: 0)
+        statement.setString(3, location)
+        if(rawPassword != "") {
+            statement.setString(4, hashPassword)
+            statement.setInt(5, userId?.toInt() ?: 0)
+        }else
+        {
+            statement.setInt(4, userId?.toInt() ?: 0)
+        }
 
         val rowsAffected = statement.executeUpdate()
         return rowsAffected > 0
@@ -506,6 +507,110 @@ fun updateUserInformation(data: Map<String, String>): Boolean {
 
     return false
 }
+fun donorDonation(data: Map<String, String>): Boolean {
+    val userId = data["userId"]
+    val requestId = data["requestId"]
+
+    val sql = """
+        UPDATE soldier_requests
+        SET donor_id = ?,
+            status = "pending"
+        WHERE request_id = ?;
+    """.trimIndent()
+
+    var connection: Connection? = null
+
+    try {
+        connection = DriverManager.getConnection(mysql_url, mysql_user, mysql_password)
+        val statement = connection.prepareStatement(sql)
+        statement.setInt(1, userId?.toInt() ?: 0)
+        statement.setInt(2, requestId?.toInt() ?: 0)
+
+        val rowsAffected = statement.executeUpdate()
+        return rowsAffected > 0
+
+    } catch (e: Exception) {
+        e.printStackTrace()
+    } finally {
+        connection?.close()
+    }
+
+    return false
+}
+
+/*
+TODO: NEED TO CHECK IF THIS FUNC WORKS AFTER IDAN IS DONE
+ */
+fun eventRegistration(data: Map<String, String>): Boolean {
+    val userId = data["userId"]
+    val eventId = data["eventId"]
+
+    val insertSql = "INSERT INTO event_participants (event_id, user_id) VALUES (?, ?);"
+    val updateSql = "UPDATE donation_events SET remaining_spot = (remaining_spot - 1) WHERE remaining_spot > 0 AND event_id = ?;"
+
+    var connection: Connection? = null
+
+    try {
+        connection = DriverManager.getConnection(mysql_url, mysql_user, mysql_password)
+
+        // Insert into event_participants
+        val insertStatement = connection.prepareStatement(insertSql)
+        insertStatement.setInt(1, eventId?.toInt() ?: 0)
+        insertStatement.setInt(2, userId?.toInt() ?: 0)
+        val insertRowsAffected = insertStatement.executeUpdate()
+
+        // Update donation_events
+        val updateStatement = connection.prepareStatement(updateSql)
+        updateStatement.setInt(1, eventId?.toInt() ?: 0)
+        val updateRowsAffected = updateStatement.executeUpdate()
+
+        // Commit the transaction if both statements were successful
+        if (insertRowsAffected > 0 && updateRowsAffected > 0) {
+            connection.commit()
+            return true
+        }
+
+    } catch (e: Exception) {
+        e.printStackTrace()
+        connection?.rollback() // Rollback the transaction in case of an exception
+    } finally {
+        connection?.close()
+    }
+
+    return false
+}
+fun donationConfirmation(data: Map<String, String>): Boolean {
+        val userId = data["userId"]
+        val requestId = data["requestId"]
+
+        val sql = """
+        UPDATE soldier_requests
+        SET close_date = CURRENT_DATE(),
+            status = "closed"
+        WHERE request_id = ? AND soldier_id= ?;
+    """.trimIndent()
+
+        var connection: Connection? = null
+
+        try {
+            connection = DriverManager.getConnection(mysql_url, mysql_user, mysql_password)
+            val statement = connection.prepareStatement(sql)
+
+            statement.setInt(1, requestId?.toInt() ?: 0)
+            statement.setInt(2, userId?.toInt() ?: 0)
+
+            val rowsAffected = statement.executeUpdate()
+            return rowsAffected > 0
+
+        } catch (e: Exception) {
+            e.printStackTrace()
+        } finally {
+            connection?.close()
+        }
+
+        return false
+}
+
 // Define the Ktor application module
 fun Application.module() {
     // Install the ContentNegotiation feature with Jackson as the JSON serializer/deserializer
@@ -598,19 +703,64 @@ fun Application.module() {
                 call.respond(HttpStatusCode.BadRequest, "Invalid request format")
             }
         }
-            /*
-           TODO:  WE NEED TO DELETE THIS API AND HIS FUNC WHEN WE FINISH , ITS ONLY FOR TESTS
-             */
-        get("/api/users") {
-            try {
-                // Fetch all users from the database
-                val users = getAllUsers()
 
-                // Respond with the list of users in JSON format
-                call.respond(users)
+        post ("/api/donation"){
+            try {
+                val request = call.receive<Map<String, String>>() // maybe change to Map<String, Any>
+                val isUpdated = donorDonation(request) // True - Update DB successfully else False
+
+                val responseMessage = if (isUpdated) {
+                    mapOf("message" to "Update successfully")
+                } else {
+                    mapOf("message" to "Failed to Update")
+                }
+
+                // Respond with a message in JSON format
+                call.respond(responseMessage)
+
             } catch (e: Exception) {
-                // Handle exceptions related to database query and respond with InternalServerError status
-                call.respond(HttpStatusCode.InternalServerError, "Error fetching users from the database")
+                // Handle exceptions related to request format and respond with BadRequest status
+                call.respond(HttpStatusCode.BadRequest, "Invalid request format")
+            }
+        }
+
+        post ("/api/eventRegistration"){
+            try {
+                val request = call.receive<Map<String, String>>() // maybe change to Map<String, Any>
+                val isRegistered = eventRegistration(request) // True - Update DB successfully else False
+
+                val responseMessage = if (isRegistered) {
+                    mapOf("message" to "Event registration successfully")
+                } else {
+                    mapOf("message" to "Failed to register")
+                }
+
+                // Respond with a message in JSON format
+                call.respond(responseMessage)
+
+            } catch (e: Exception) {
+                // Handle exceptions related to request format and respond with BadRequest status
+                call.respond(HttpStatusCode.BadRequest, "Invalid request format")
+            }
+        }
+
+        post ("/api/donationConfirmation"){
+            try {
+                val request = call.receive<Map<String, String>>() // maybe change to Map<String, Any>
+                val isRegistered = donationConfirmation(request) // True - Update DB successfully else False
+
+                val responseMessage = if (isRegistered) {
+                    mapOf("message" to "Donation confirmed successfully")
+                } else {
+                    mapOf("message" to "Failed to confirmed donation ")
+                }
+
+                // Respond with a message in JSON format
+                call.respond(responseMessage)
+
+            } catch (e: Exception) {
+                // Handle exceptions related to request format and respond with BadRequest status
+                call.respond(HttpStatusCode.BadRequest, "Invalid request format")
             }
         }
 
