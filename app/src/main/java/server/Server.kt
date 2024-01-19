@@ -271,6 +271,7 @@ fun getDonorsEvents(donorId: String?): List<Map<String, Any>> {
                 rowMap["event_location"] = resultSet.getString("event_location")
                 rowMap["event_address"] = resultSet.getString("event_address")
                 rowMap["remaining_spot"] = resultSet.getInt("remaining_spot")
+                rowMap["product_name"] = resultSet.getString("product_name")
                 rowMap["firstname"] = resultSet.getString("firstname")
                 rowMap["lastname"] = resultSet.getString("lastname")
                 rowMap["email_address"] = resultSet.getString("email_address")
