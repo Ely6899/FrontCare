@@ -3,14 +3,14 @@
     android:layout_width="match_parent"
     android:layout_height="wrap_content"
     xmlns:app="http://schemas.android.com/apk/res-auto"
-    android:padding="10dp">
-
+    android:padding="10dp"
+    >
     <TextView
-        android:id="@+id/tvNameElement"
+        android:id="@+id/tvOrganizerElement"
         android:layout_width="wrap_content"
         android:layout_height="wrap_content"
-        android:text="Donated from:"
-        android:textSize="11sp"
+        android:text="@string/organizer_element"
+        android:textSize="13sp"
 
 
         app:layout_constraintStart_toStartOf="parent"
@@ -24,9 +24,9 @@
         android:layout_height="wrap_content"
         android:paddingStart="5dp"
         android:paddingEnd="5dp"
-        android:textSize="11sp"
+        android:textSize="13sp"
 
-        app:layout_constraintLeft_toRightOf="@+id/tvNameElement"
+        app:layout_constraintLeft_toRightOf="@+id/tvOrganizerElement"
         app:layout_constraintTop_toTopOf="parent"
         >
 
@@ -37,7 +37,7 @@
         android:id="@+id/tvDateElement"
         android:layout_width="wrap_content"
         android:layout_height="wrap_content"
-        android:textSize="11sp"
+        android:textSize="13sp"
         android:text="@string/date_element"
 
         app:layout_constraintLeft_toRightOf="@+id/tvNameFill"
@@ -52,7 +52,7 @@
         android:layout_height="wrap_content"
         android:paddingStart="5dp"
         android:paddingEnd="5dp"
-        android:textSize="11sp"
+        android:textSize="13sp"
 
         app:layout_constraintLeft_toRightOf="@+id/tvDateElement"
         app:layout_constraintTop_toTopOf="parent"
@@ -64,7 +64,7 @@
         android:id="@+id/tvLocationElement"
         android:layout_width="wrap_content"
         android:layout_height="wrap_content"
-        android:textSize="11sp"
+        android:textSize="13sp"
         android:text="@string/register_location"
 
         app:layout_constraintLeft_toRightOf="@+id/tvDateFill"
@@ -74,12 +74,12 @@
     </TextView>
 
     <TextView
-        android:id="@+id/tvStatusFill"
+        android:id="@+id/tvLocationFill"
         android:layout_width="wrap_content"
         android:layout_height="wrap_content"
         android:paddingStart="5dp"
         android:paddingEnd="5dp"
-        android:textSize="11sp"
+        android:textSize="13sp"
 
         app:layout_constraintLeft_toRightOf="@+id/tvLocationElement"
         app:layout_constraintTop_toTopOf="parent"
@@ -92,9 +92,9 @@
         android:layout_width="wrap_content"
         android:layout_height="wrap_content"
         android:text="@string/address_element"
-        android:textSize="11sp"
+        android:textSize="13sp"
 
-        app:layout_constraintTop_toBottomOf="@+id/tvNameElement"
+        app:layout_constraintTop_toBottomOf="@+id/tvDateElement"
         app:layout_constraintLeft_toLeftOf="parent"
         >
 
@@ -106,10 +106,10 @@
         android:layout_height="wrap_content"
         android:paddingStart="5dp"
         android:paddingEnd="5dp"
-        android:textSize="11sp"
+        android:textSize="13sp"
 
         app:layout_constraintLeft_toRightOf="@+id/tvAddressElement"
-        app:layout_constraintTop_toBottomOf="@id/tvNameElement"
+        app:layout_constraintTop_toBottomOf="@id/tvDateElement"
         >
 
     </TextView>
@@ -118,7 +118,7 @@
         android:id="@+id/tvRemainingElement"
         android:layout_width="wrap_content"
         android:layout_height="wrap_content"
-        android:textSize="11sp"
+        android:textSize="13sp"
         android:text="@string/remaining_element"
 
         app:layout_constraintLeft_toLeftOf="parent"
@@ -133,7 +133,7 @@
         android:layout_height="wrap_content"
         android:paddingStart="5dp"
         android:paddingEnd="5dp"
-        android:textSize="11sp"
+        android:textSize="13sp"
 
         app:layout_constraintLeft_toRightOf="@+id/tvRemainingElement"
         app:layout_constraintTop_toBottomOf="@id/tvAddressElement"
@@ -145,7 +145,7 @@
         android:id="@+id/tvProductsElement"
         android:layout_width="wrap_content"
         android:layout_height="wrap_content"
-        android:textSize="11sp"
+        android:textSize="13sp"
         android:text="@string/products_element"
 
         app:layout_constraintLeft_toLeftOf="parent"
@@ -160,7 +160,7 @@
         android:layout_height="wrap_content"
         android:paddingStart="5dp"
         android:paddingEnd="5dp"
-        android:textSize="11sp"
+        android:textSize="13sp"
 
         app:layout_constraintLeft_toRightOf="@+id/tvProductsElement"
         app:layout_constraintTop_toBottomOf="@id/tvRemainingElement"

@@ -122,14 +122,15 @@ class UserEvents : AppCompatActivity() {
             else{
                 val newText = inflater.inflate(R.layout.event_row, null)
                 requestIdList[eventId] = i
-                val nameView = newText.findViewById<TextView>(R.id.tvNameElement)
+                val nameView = newText.findViewById<TextView>(R.id.tvOrganizerElement)
                 val name = newText.findViewById<TextView>(R.id.tvNameFill)
                 val date = newText.findViewById<TextView>(R.id.tvDateFill)
-                val location = newText.findViewById<TextView>(R.id.tvLocationElement)
+                val location = newText.findViewById<TextView>(R.id.tvLocationFill)
                 val address = newText.findViewById<TextView>(R.id.tvAddressFill)
                 val remainingSpots = newText.findViewById<TextView>(R.id.tvRemainingFill)
                 val products = newText.findViewById<TextView>(R.id.tvProductsFill)
 
+                nameView.text = ""
                 nameView.visibility = View.GONE
                 name.visibility = View.GONE
 

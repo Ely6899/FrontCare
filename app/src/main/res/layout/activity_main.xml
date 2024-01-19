@@ -24,46 +24,18 @@
 
     </TextView>
 
-    <TextView
-        android:id="@+id/tvLogInDescription"
-        android:layout_width="wrap_content"
-        android:layout_height="wrap_content"
-        android:layout_marginTop="84dp"
-        android:text="@string/LogInDescriptionText"
 
-        android:textColor="@color/black"
-        android:textSize="23sp"
+    <Button
+        android:id="@+id/btnLogIn"
+        android:layout_width="0dp"
+        android:layout_height="wrap_content"
+        android:layout_marginTop="116dp"
+        android:text="@string/LogInButtonText"
+        android:textSize="30sp"
         app:layout_constraintEnd_toEndOf="@+id/tvTitle"
+        app:layout_constraintHorizontal_bias="0.0"
         app:layout_constraintStart_toStartOf="@+id/tvTitle"
         app:layout_constraintTop_toBottomOf="@+id/tvTitle">
-
-    </TextView>
-
-    <Button
-        android:id="@+id/btnLogInSoldier"
-        android:layout_width="0dp"
-        android:layout_height="wrap_content"
-        android:layout_marginTop="48dp"
-        android:text="@string/SoldierLogInButton"
-        android:textSize="30sp"
-        app:layout_constraintEnd_toEndOf="@+id/tvTitle"
-        app:layout_constraintHorizontal_bias="0.0"
-        app:layout_constraintStart_toStartOf="@+id/tvTitle"
-        app:layout_constraintTop_toBottomOf="@+id/tvLogInDescription">
-
-    </Button>
-
-    <Button
-        android:id="@+id/btnLogInDonor"
-        android:layout_width="0dp"
-        android:layout_height="wrap_content"
-        android:layout_marginTop="40dp"
-        android:text="@string/DonorLogInButton"
-        android:textSize="30sp"
-        app:layout_constraintEnd_toEndOf="@+id/btnLogInSoldier"
-        app:layout_constraintHorizontal_bias="0.0"
-        app:layout_constraintStart_toStartOf="@+id/btnLogInSoldier"
-        app:layout_constraintTop_toBottomOf="@+id/btnLogInSoldier">
 
     </Button>
 
@@ -71,13 +43,13 @@
         android:id="@+id/btnRegisterDescription"
         android:layout_width="0dp"
         android:layout_height="wrap_content"
-        android:layout_marginTop="124dp"
+        android:layout_marginTop="60dp"
         android:text="@string/RegisterButtonText"
         android:textSize="25sp"
         app:layout_constraintEnd_toEndOf="@+id/tvTitle"
         app:layout_constraintHorizontal_bias="0.0"
         app:layout_constraintStart_toStartOf="@+id/tvTitle"
-        app:layout_constraintTop_toBottomOf="@+id/btnLogInDonor">
+        app:layout_constraintTop_toBottomOf="@+id/btnLogIn">
 
     </Button>
 

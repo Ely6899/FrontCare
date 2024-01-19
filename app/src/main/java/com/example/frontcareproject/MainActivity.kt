@@ -7,40 +7,23 @@ import android.widget.Button
 
 class MainActivity : AppCompatActivity() {
     private lateinit var registerButton: Button
-    private lateinit var soldierLoginButton: Button
-    private lateinit var donorLoginButton: Button
-
-    //Declare different intents for each potential screen
-    private lateinit var logInIntent: Intent
-    private lateinit var registerIntent: Intent
+    private lateinit var loginButton: Button
 
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
         setContentView(R.layout.activity_main)
 
         registerButton = findViewById(R.id.btnRegisterDescription)
-        soldierLoginButton = findViewById(R.id.btnLogInSoldier)
-        donorLoginButton = findViewById(R.id.btnLogInDonor)
+        loginButton = findViewById(R.id.btnLogIn)
 
-        logInIntent = Intent(this, LoginActivity::class.java)
-        registerIntent = Intent(this, RegisterActivity::class.java)
-
-
-        soldierLoginButton.setOnClickListener {
-
-            //Used for passing data to the next activity
-            logInIntent.putExtra("token", "soldier")
-            startActivity(logInIntent)
-        }
-
-        donorLoginButton.setOnClickListener {
-            logInIntent.putExtra("token", "donor")
-            startActivity(logInIntent)
+        //Connects to login screen
+        loginButton.setOnClickListener {
+            startActivity(Intent(this@MainActivity, LoginActivity::class.java))
         }
 
         // Connects to register screen
         registerButton.setOnClickListener {
-            startActivity(registerIntent)
+            startActivity(Intent(this@MainActivity, RegisterActivity::class.java))
         }
     }
 }

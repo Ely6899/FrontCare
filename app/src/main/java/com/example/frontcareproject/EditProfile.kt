@@ -3,11 +3,13 @@ package com.example.frontcareproject
 import android.content.Intent
 import androidx.appcompat.app.AppCompatActivity
 import android.os.Bundle
+import android.view.View
 import android.widget.ArrayAdapter
 import android.widget.Button
 import android.widget.EditText
 import android.widget.Spinner
 import android.widget.Toast
+import androidx.core.view.isVisible
 import org.json.JSONObject
 import utils.GlobalVar
 import java.io.BufferedReader
@@ -35,17 +37,22 @@ class EditProfile : AppCompatActivity() {
 
         //Enable location spinner
         spinnerLocation = findViewById(R.id.spinnerLocationEdit)
-        // Create an ArrayAdapter using the string array and a default spinner layout.
-        ArrayAdapter.createFromResource(
-            this,
-            R.array.locations_array,
-            android.R.layout.simple_spinner_item
-        ).also { adapter ->
-            // Specify the layout to use when the list of choices appears.
-            adapter.setDropDownViewResource(android.R.layout.simple_spinner_dropdown_item)
-            // Apply the adapter to the spinner.
-            spinnerLocation.adapter = adapter
+        if (GlobalVar.userType == 0){
+            // Create an ArrayAdapter using the string array and a default spinner layout.
+            ArrayAdapter.createFromResource(
+                this,
+                R.array.locations_array,
+                android.R.layout.simple_spinner_item
+            ).also { adapter ->
+                // Specify the layout to use when the list of choices appears.
+                adapter.setDropDownViewResource(android.R.layout.simple_spinner_dropdown_item)
+                // Apply the adapter to the spinner.
+                spinnerLocation.adapter = adapter
+            }
         }
+        else
+            spinnerLocation.visibility = View.GONE
+
 
         //Get initial user data
         fetchProfileData()
@@ -65,12 +72,14 @@ class EditProfile : AppCompatActivity() {
                 connection.setRequestProperty("Content-Type", "application/json")
                 connection.connect()
 
+                val locationUpdate = if (GlobalVar.userType == 0) spinnerLocation.selectedItem  else "null"
+
                 val jsonInputString = """
                             {"userId": "${GlobalVar.userId}", 
                             "phoneNumber": "${etPhone.text}",
                             "email_address": "${etEmail.text}",
                             "password": "${etPassword.text}",
-                            "location": "${spinnerLocation.selectedItem}"}
+                            "location": "$locationUpdate"}
                             """.trimIndent()
 
                 // Send JSON as the request body
@@ -109,7 +118,6 @@ class EditProfile : AppCompatActivity() {
     private fun fetchProfileData() {
         Thread  {
             try {
-                //val userId = GlobalVar.userId // Replace with your logic to get the user ID
                 val url = URL("http://${GlobalVar.serverIP}:8080/api/profile/${GlobalVar.userId}")
                 val connection = url.openConnection() as HttpURLConnection
                 connection.requestMethod = "GET"
@@ -146,7 +154,8 @@ class EditProfile : AppCompatActivity() {
             val locationsArray = resources.getStringArray(R.array.locations_array)
 
             // on below line we are setting selection for our spinner to spinner position.
-            spinnerLocation.setSelection(locationsArray.indexOf(jsonResponse.optString("location")))
+            if (GlobalVar.userType == 0)
+                spinnerLocation.setSelection(locationsArray.indexOf(jsonResponse.optString("location")))
 
 
         } catch (e: Exception) {
