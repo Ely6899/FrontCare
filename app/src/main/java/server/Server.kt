@@ -25,9 +25,9 @@ import java.security.MessageDigest
 import org.json.JSONArray
 import org.json.JSONObject
 // Entry point of the server application
-val mysql_url = "jdbc:mysql://localhost:3306/frontcare"
-val mysql_user = "root" //
-val mysql_password = "root" // change to YOUR password
+val mysql_url = "jdbc:mysql://uxd6gaqgeoenekcj:0CqlD3oWHl1SBg9lqWLJ@bm1cdufjqwhe4cgtldeh-mysql.services.clever-cloud.com:3306/bm1cdufjqwhe4cgtldeh"
+val mysql_user = "uxd6gaqgeoenekcj" //
+val mysql_password = "0CqlD3oWHl1SBg9lqWLJ" // change to YOUR password
 val userId = GlobalVar.userId
 
 /*
@@ -578,6 +578,10 @@ fun eventRegistration(data: Map<String, String>): Boolean {
         connection?.close()
     }
 
+    /*
+    TODO: RAZ - CHECK THAT ROLLBACK CANCELS THE ACTION IN THE DB
+     */
+    connection?.rollback() // Rollback the transaction in case of an exception
     return false
 }
 fun donationConfirmation(data: Map<String, String>): Boolean {
