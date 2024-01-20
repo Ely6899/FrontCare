@@ -115,12 +115,14 @@ class DonorsEventsPage : AppCompatActivity() {
                 val filteredArray = (0 until jsonArray.length())
                     .map { jsonArray.getJSONObject(it) }
                     .filter { it.getString("event_id") == eventId }
-                    .toTypedArray()
+                    .map {
+                        it.toString()
+                    }
 
                 // Handle button click, e.g., show details for the corresponding row
                 // Start EventDetails activity and pass relevant information
                 val intent = Intent(this, EventDetails::class.java).apply {
-                    putExtra("jsonArray", filteredArray.toString())
+                    putStringArrayListExtra("jsonArray", ArrayList(filteredArray))
                 }
                 startActivity(intent)
             }
