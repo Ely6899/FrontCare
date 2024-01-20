@@ -196,7 +196,8 @@ fun getSoldiersRequests(): List<Map<String, Any>> {
                 JOIN
                     soldier_requests ON soldier_requests.request_id = request_details.request_id
                 JOIN
-                    users ON soldier_requests.soldier_id = users.user_id;
+                    users ON soldier_requests.soldier_id = users.user_id
+                WHERE soldier_requests.status = "open";
             """.trimIndent()
 
             // Create a prepared statement
@@ -860,8 +861,6 @@ fun Application.module() {
                 call.respond(HttpStatusCode.InternalServerError, "Error fetching history data from the database")
             }
         }
-
-
 
     }
 }
