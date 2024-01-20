@@ -303,13 +303,13 @@ fun getDonorDonationHistory(userId: String?): List<Map<String, Any>> {
                     soldier_requests.close_date
                   
                 FROM
-                    frontcare.request_details
+                    request_details
                 JOIN
-                    frontcare.products ON products.product_id = request_details.product_id
+                    products ON products.product_id = request_details.product_id
                 JOIN
-                    frontcare.soldier_requests ON soldier_requests.request_id = request_details.request_id
+                    soldier_requests ON soldier_requests.request_id = request_details.request_id
                 JOIN
-                    frontcare.users ON soldier_requests.soldier_id = users.user_id
+                    users ON soldier_requests.soldier_id = users.user_id
                 WHERE soldier_requests.status = "closed" AND soldier_requests.donor_id = ?;
             """.trimIndent()
 
@@ -358,13 +358,13 @@ fun getSoldierRequestHistory(userId: String?): List<Map<String, Any>> {
                     soldier_requests.close_date,
                     soldier_requests.status
                 FROM
-                    frontcare.request_details
+                    request_details
                 JOIN
-                    frontcare.products ON products.product_id = request_details.product_id
+                    products ON products.product_id = request_details.product_id
                 JOIN
-                    frontcare.soldier_requests ON soldier_requests.request_id = request_details.request_id
+                    soldier_requests ON soldier_requests.request_id = request_details.request_id
                 JOIN
-                    frontcare.users ON soldier_requests.donor_id = users.user_id
+                    users ON soldier_requests.donor_id = users.user_id
                 WHERE soldier_requests.soldier_id = ?;
             """.trimIndent()
 
@@ -413,11 +413,11 @@ fun getSoldierEventsHistory(userId: String?): List<Map<String, Any>> {
                     donation_events.event_location,
                     donation_events.event_address
                 FROM
-                    frontcare.donation_events
+                    donation_events
                 JOIN
-                    frontcare.users ON  donation_events.donor_id = users.user_id
+                    users ON  donation_events.donor_id = users.user_id
 				JOIN 
-					frontcare.event_participants ON event_participants.event_id = donation_events.event_id
+					event_participants ON event_participants.event_id = donation_events.event_id
 				WHERE event_participants.user_id = ?;
             """.trimIndent()
 
