@@ -33,8 +33,8 @@ class Profile : AppCompatActivity() {
 
 
     private lateinit var btnToEdit: Button
-    private lateinit var btnToPostings: Button
-    private lateinit var btnToEvents: Button
+    private lateinit var btnToPostingsHistory: Button
+    private lateinit var btnToEventsHistory: Button
 
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
@@ -70,21 +70,21 @@ class Profile : AppCompatActivity() {
             startActivity(Intent(this@Profile, EditProfile::class.java))
         }
 
-        btnToPostings = findViewById(R.id.btnPostingsHistory)
-        btnToEvents = findViewById(R.id.btnEventHistory)
+        btnToPostingsHistory = findViewById(R.id.btnPostingsHistory)
+        btnToEventsHistory = findViewById(R.id.btnEventHistory)
 
         //Change button text according to user type connected
         if (GlobalVar.userType == 1){
-            btnToPostings.text = getString(R.string.requests_history_button)
+            btnToPostingsHistory.text = getString(R.string.requests_history_button)
         } else{
-            btnToPostings.text = getString(R.string.donations_history_button)
+            btnToPostingsHistory.text = getString(R.string.donations_history_button)
         }
 
-        btnToPostings.setOnClickListener{
+        btnToPostingsHistory.setOnClickListener{
             startActivity(Intent(this@Profile, UserPostings::class.java))
         }
 
-        btnToEvents.setOnClickListener {
+        btnToEventsHistory.setOnClickListener {
             startActivity(Intent(this@Profile, UserEvents::class.java))
         }
     }

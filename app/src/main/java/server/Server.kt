@@ -60,7 +60,7 @@ fun hashMD5(password: String): String {
 }
 fun getUserProfile(userId: String?): Map<String, Any> {
     DriverManager.getConnection(mysql_url, mysql_user, mysql_password).use { connection ->
-        connection.prepareStatement("SELECT is_soldier,firstname,lastname,location,email_address,phone_number FROM users WHERE user_id = ?").use { statement ->
+        connection.prepareStatement("SELECT is_soldier,firstname,lastname,username,location,email_address,phone_number FROM users WHERE user_id = ?").use { statement ->
             // Set the value for the parameter in the prepared statement
             statement.setString(1, userId)
 
@@ -70,6 +70,7 @@ fun getUserProfile(userId: String?): Map<String, Any> {
                     rowMap["is_soldier"] = resultSet.getInt("is_soldier")
                     rowMap["firstname"] = resultSet.getString("firstname")
                     rowMap["lastname"] = resultSet.getString("lastname")
+                    rowMap["userName"] = resultSet.getString("username")
                     rowMap["location"] = resultSet.getString("location")
                     rowMap["email_address"] = resultSet.getString("email_address")
                     rowMap["phone_number"] = resultSet.getString("phone_number")
@@ -452,7 +453,7 @@ fun updateUserInformation(data: Map<String, String>): Boolean {
     val userId = data["userId"]
     val phoneNumber = data["phoneNumber"]
     val email = data["email_address"]
-    //val userName = data["userName"]
+    val userName = data["userName"]
     val rawPassword = data["password"]
     val location = data["location"]
     var hashPassword = ""
@@ -460,6 +461,7 @@ fun updateUserInformation(data: Map<String, String>): Boolean {
     var sql = """
         UPDATE users
         SET phone_number = ?,
+            username = ?,
             email_address = ?,
             location = ?
         WHERE user_id = ?;
@@ -470,6 +472,7 @@ fun updateUserInformation(data: Map<String, String>): Boolean {
         sql = """
         UPDATE users
         SET phone_number = ?,
+            username = ?,
             email_address = ?,
             location = ?,
             password = ?
@@ -488,14 +491,14 @@ fun updateUserInformation(data: Map<String, String>): Boolean {
 
         statement.setString(1, phoneNumber)
         statement.setString(2, email)
-        //statement.setString(3, userName)
-        statement.setString(3, location)
+        statement.setString(3, userName)
+        statement.setString(4, location)
         if(rawPassword != "") {
-            statement.setString(4, hashPassword)
-            statement.setInt(5, userId?.toInt() ?: 0)
+            statement.setString(5, hashPassword)
+            statement.setInt(6, userId?.toInt() ?: 0)
         }else
         {
-            statement.setInt(4, userId?.toInt() ?: 0)
+            statement.setInt(5, userId?.toInt() ?: 0)
         }
 
         val rowsAffected = statement.executeUpdate()

@@ -9,7 +9,6 @@ import android.widget.Button
 import android.widget.EditText
 import android.widget.Spinner
 import android.widget.Toast
-import androidx.core.view.isVisible
 import org.json.JSONObject
 import utils.GlobalVar
 import java.io.BufferedReader
@@ -21,6 +20,7 @@ import java.net.URL
 class EditProfile : AppCompatActivity() {
 
     private lateinit var etPhone: EditText
+    private lateinit var etUsername: EditText
     private lateinit var etEmail: EditText
     private lateinit var etPassword: EditText
     private lateinit var spinnerLocation: Spinner
@@ -31,6 +31,7 @@ class EditProfile : AppCompatActivity() {
         setContentView(R.layout.activity_edit_profile)
 
         etPhone = findViewById(R.id.etEditPhone)
+        etUsername = findViewById(R.id.etEditUsername)
         etEmail = findViewById(R.id.etEditEmail)
         etPassword = findViewById(R.id.etEditPassword)
         btnEditProfile = findViewById(R.id.btnEditProfile)
@@ -77,6 +78,7 @@ class EditProfile : AppCompatActivity() {
                 val jsonInputString = """
                             {"userId": "${GlobalVar.userId}", 
                             "phoneNumber": "${etPhone.text}",
+                            "userName": "${etUsername.text}",
                             "email_address": "${etEmail.text}",
                             "password": "${etPassword.text}",
                             "location": "$locationUpdate"}
@@ -149,6 +151,7 @@ class EditProfile : AppCompatActivity() {
             val jsonResponse = JSONObject(serverAns)
 
             etPhone.setText(jsonResponse.optString("phone_number"))
+            etUsername.setText(jsonResponse.optString("userName"))
             etEmail.setText(jsonResponse.optString("email_address"))
 
             val locationsArray = resources.getStringArray(R.array.locations_array)
