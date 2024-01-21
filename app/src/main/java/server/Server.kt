@@ -461,8 +461,8 @@ fun updateUserInformation(data: Map<String, String>): Boolean {
     var sql = """
         UPDATE users
         SET phone_number = ?,
-            username = ?,
             email_address = ?,
+            username = ?,
             location = ?
         WHERE user_id = ?;
     """.trimIndent()
@@ -472,8 +472,8 @@ fun updateUserInformation(data: Map<String, String>): Boolean {
         sql = """
         UPDATE users
         SET phone_number = ?,
-            username = ?,
             email_address = ?,
+            username = ?,
             location = ?,
             password = ?
         WHERE user_id = ?;
