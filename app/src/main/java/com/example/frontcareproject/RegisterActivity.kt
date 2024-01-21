@@ -11,9 +11,7 @@ import android.widget.RadioButton
 import android.widget.RadioGroup
 import android.widget.Spinner
 import android.widget.Toast
-import androidx.activity.result.contract.ActivityResultContracts
 import androidx.appcompat.app.AppCompatActivity
-import com.example.frontcareproject.databinding.ActivityRegisterBinding
 import org.json.JSONObject
 import utils.GlobalVar
 import java.io.BufferedReader
@@ -24,18 +22,6 @@ import java.net.URL
 
 
 class RegisterActivity : AppCompatActivity(){
-
-    //Used for picture selection
-    private lateinit var binding: ActivityRegisterBinding
-    private val galleryLauncher = registerForActivityResult(ActivityResultContracts.GetContent()) {
-        val galleryUri = it
-        try {
-            binding.imgBtnPfp.setImageURI(galleryUri)
-        } catch (e: Exception) {
-            e.printStackTrace()
-        }
-
-    }
 
     //RadioGroup of type we select on register
     private lateinit var selectType: RadioGroup
@@ -54,13 +40,6 @@ class RegisterActivity : AppCompatActivity(){
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
         setContentView(R.layout.activity_register)
-
-        //Picture selection
-        binding = ActivityRegisterBinding.inflate(layoutInflater)
-        setContentView(binding.root)
-        binding.imgBtnPfp.setOnClickListener {
-            galleryLauncher.launch("image/*")
-        }
 
         //Used for selecting profile picture
 
@@ -88,6 +67,10 @@ class RegisterActivity : AppCompatActivity(){
             spinnerLocation.adapter = adapter
         }
 
+        //Hide location spinner upon creating page
+        spinnerLocation.visibility = View.INVISIBLE
+
+        //Enable or disable spinner based on user type selection
         selectType.setOnCheckedChangeListener { _, checkedId ->
             if (checkedId == R.id.radioSoldier) {
                 spinnerLocation.isEnabled = false

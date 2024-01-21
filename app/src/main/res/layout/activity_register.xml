@@ -60,35 +60,22 @@
 
     </RadioGroup>
 
-    <ImageButton
-        android:id="@+id/imgBtnPfp"
-        android:layout_width="150dp"
-        android:layout_height="150dp"
-        android:contentDescription="@string/profile_picture_select"
-        android:src="@mipmap/ic_launcher_round"
-        app:layout_constraintBottom_toTopOf="@+id/etFirstName"
-        app:layout_constraintEnd_toEndOf="parent"
-        app:layout_constraintHorizontal_bias="0.498"
-        app:layout_constraintStart_toStartOf="parent"
-        app:layout_constraintTop_toBottomOf="@+id/radioGrpSelectType"
-        app:layout_constraintVertical_bias="0.0" />
-
     <EditText
         android:id="@+id/etFirstName"
         android:layout_width="match_parent"
         android:layout_height="wrap_content"
 
-        android:layout_marginTop="148dp"
+        android:layout_marginTop="24dp"
         android:autofillHints="name"
         android:hint="@string/register_first_name"
         android:inputType="textPersonName"
+        android:maxLength="10"
+        android:maxLines="1"
+        android:minLines="1"
         android:textAlignment="center"
         android:textColor="@color/black"
         android:textColorHint="@color/black"
         android:textSize="20sp"
-        android:maxLength="10"
-        android:minLines="1"
-        android:maxLines="1"
         app:layout_constraintTop_toBottomOf="@+id/radioGrpSelectType"
         tools:layout_editor_absoluteX="0dp">
 
@@ -205,7 +192,7 @@
         android:id="@+id/btnRegister"
         android:layout_width="match_parent"
         android:layout_height="wrap_content"
-        android:layout_marginTop="76dp"
+        android:layout_marginTop="40dp"
 
         android:text="@string/register_button_register"
         android:textSize="25sp"
