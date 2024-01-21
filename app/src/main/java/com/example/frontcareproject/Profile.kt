@@ -18,6 +18,9 @@ import java.io.IOException
 import java.io.InputStreamReader
 import java.net.HttpURLConnection
 import java.net.URL
+import android.graphics.drawable.Drawable
+import android.widget.ImageView
+
 
 class Profile : AppCompatActivity() {
     private lateinit var firstNameData: TextView
@@ -26,6 +29,8 @@ class Profile : AppCompatActivity() {
     private lateinit var locationRow: TableRow
     private lateinit var locationData: TextView
     private lateinit var phoneNumber: TextView
+    private lateinit var profileImage: ImageView
+
 
     //Maor's addition to a redirect button:
     private lateinit var redirectBtnS: Button
@@ -46,8 +51,20 @@ class Profile : AppCompatActivity() {
         locationRow = findViewById(R.id.LocationRow)
         locationData = findViewById(R.id.ShowProfileLocation)
         phoneNumber = findViewById(R.id.ShowPhoneNumber)
+        profileImage = findViewById(R.id.imageView)
 
         fetchProfileData()
+
+        // set profile image by usertype
+        if(GlobalVar.userType == 1) {
+            val defaultProfilePicture: Drawable? = ContextCompat.getDrawable(this, R.drawable.soldier_default_image)
+            profileImage.setImageDrawable(defaultProfilePicture)
+        }
+        else
+        {
+            val defaultProfilePicture: Drawable? = ContextCompat.getDrawable(this, R.drawable.donor_default_image)
+            profileImage.setImageDrawable(defaultProfilePicture)
+        }
 
         //Maor's addition to custom redirecting buttons:
         redirectBtnS = findViewById(R.id.btnSoldiersRequests)
