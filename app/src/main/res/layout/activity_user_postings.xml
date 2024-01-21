@@ -19,35 +19,82 @@
 
     </TextView>
 
-    <androidx.core.widget.NestedScrollView
+    <HorizontalScrollView
         android:id="@+id/scrollPostings"
         android:layout_width="match_parent"
         android:layout_height="wrap_content"
 
-        android:layout_marginBottom="589dp"
-        app:layout_constraintBottom_toTopOf="@+id/createRequest"
-        app:layout_constraintTop_toBottomOf="@+id/tvPostingsTitle">
+        app:layout_constraintTop_toBottomOf="@+id/tvPostingsTitle"
+        >
 
-        <LinearLayout
-            android:id="@+id/postingScrollList"
+        <TableLayout
+            android:id="@+id/postingsTable"
             android:layout_width="wrap_content"
             android:layout_height="wrap_content"
-            android:orientation="vertical">
+            android:layout_marginTop="15dp"
+            android:background="@color/tablesBackgroundColor"
+            android:stretchColumns="*">
 
-        </LinearLayout>
+            <!-- Header row -->
+            <TableRow>
 
-    </androidx.core.widget.NestedScrollView>
+                <TextView
+                    />
 
-    <Button
-        android:id="@+id/createRequest"
-        android:layout_width="wrap_content"
-        android:layout_height="wrap_content"
-        android:text="Create new request"
-        app:layout_constraintBottom_toBottomOf="parent"
-        app:layout_constraintEnd_toEndOf="parent"
-        app:layout_constraintHorizontal_bias="0.497"
-        app:layout_constraintStart_toStartOf="parent"
-        app:layout_constraintTop_toBottomOf="@+id/tvPostingsTitle"
-        app:layout_constraintVertical_bias="0.897" />
+                <TextView
+                    android:id="@+id/tvStatusColumn"
+                    android:background="@drawable/tables_outline"
+                    android:gravity="center"
+                    android:padding="8dp"
+                    android:text="@string/status_element"
+                    android:layout_width="wrap_content"
+                    android:maxLines="1"
+                    android:ellipsize="end" />
+
+                <TextView
+                    android:id="@+id/tvDateColumn"
+                    android:background="@drawable/tables_outline"
+                    android:gravity="center"
+                    android:padding="8dp"
+                    android:text="@string/date_element"
+                    android:layout_width="wrap_content"
+                    android:maxLines="1"
+                    android:ellipsize="end" />
+
+                <TextView
+                    android:id="@+id/tvNameColumn"
+                    android:background="@drawable/tables_outline"
+                    android:gravity="center"
+                    android:padding="8dp"
+                    android:text="@string/default_string"
+                    android:layout_width="wrap_content"
+                    android:maxLines="1"
+                    android:ellipsize="end" />
+
+                <TextView
+                    android:background="@drawable/tables_outline"
+                    android:gravity="center"
+                    android:padding="8dp"
+                    android:text="@string/products_element"
+                    android:layout_width="wrap_content"
+                    android:maxLines="1"
+                    android:ellipsize="end" />
+
+                <TextView
+                    android:background="@drawable/tables_outline"
+                    android:gravity="center"
+                    android:padding="8dp"
+                    android:text="Close Date"
+                    android:layout_width="wrap_content"
+                    android:maxLines="1"
+                    android:ellipsize="end" />
+
+            </TableRow>
+
+            <!-- Data rows will be added dynamically -->
+
+        </TableLayout>
+
+    </HorizontalScrollView>
 
 </androidx.constraintlayout.widget.ConstraintLayout>
