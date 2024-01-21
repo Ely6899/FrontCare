@@ -1,22 +1,25 @@
 package com.example.frontcareproject
 
 import android.annotation.SuppressLint
+import android.content.Intent
 import android.os.Bundle
 import android.widget.TextView
 import androidx.appcompat.app.AppCompatActivity
 import org.json.JSONArray
 import android.view.Gravity
-import android.view.View
 import android.widget.Button
 import android.widget.TableLayout
 import android.widget.TableRow
+import androidx.lifecycle.lifecycleScope
+import kotlinx.coroutines.Dispatchers
+import kotlinx.coroutines.launch
 import org.json.JSONObject
 import server.userId
 import utils.GlobalVar
-import java.io.BufferedReader
-import java.io.InputStreamReader
-import java.net.HttpURLConnection
-import java.net.URL
+import okhttp3.MediaType.Companion.toMediaTypeOrNull
+import okhttp3.OkHttpClient
+import okhttp3.Request
+import okhttp3.RequestBody.Companion.toRequestBody
 
 
 class SoldierRequestDetails : AppCompatActivity() {
@@ -45,21 +48,22 @@ class SoldierRequestDetails : AppCompatActivity() {
         val requestDate = jsonObject.getString("request_date")
         val firstname = jsonObject.getString("firstname")
         val pickupLocation = jsonObject.getString("pickup_location")
+        val emailAddress = jsonObject.getString("email_address")
+        val phoneNumber = jsonObject.getString("phone_number")
 
         // Get views
         val requestDateTextView: TextView = findViewById(R.id.requestDateTextView)
         val firstnameTextView: TextView = findViewById(R.id.firstnameTextView)
         val pickupLocationTextView: TextView = findViewById(R.id.pickupLocationTextView)
+        val contactTextView: TextView = findViewById(R.id.contactTextView)
         val donateButtonView: Button = findViewById(R.id.donateButton)
         val productsTableView: TableLayout = findViewById(R.id.productsTable)
 
-        // Add button listener
-        donateButtonView.setOnClickListener(donate(requestId))
-
         // Display user data
         requestDateTextView.text = "Request Date: $requestDate"
-        firstnameTextView.text = "First Name: $firstname"
+        firstnameTextView.text = "Soldier Name: $firstname"
         pickupLocationTextView.text = "Pickup Location: $pickupLocation"
+        contactTextView.text = "Email: $emailAddress \nPhone number: $phoneNumber"
 
         // Get products and put them in map
         var products = mutableMapOf<String, Int>()
@@ -70,38 +74,38 @@ class SoldierRequestDetails : AppCompatActivity() {
 
         // Display products in table
         displayProducts(productsTableView, products)
-    }
 
-    private fun donate(requestId: Int): View.OnClickListener {
-        return View.OnClickListener {view ->
-            //if you are using your phone instead of emulator you need to change the ip
-            val url = URL("http://${GlobalVar.serverIP}:8080/api/donation")
-            val connection = url.openConnection() as HttpURLConnection
-            connection.requestMethod = "POST"
-            connection.setRequestProperty("Content-Type", "application/json")
-            connection.doOutput = true
+        // Add button listener
+        donateButtonView.setOnClickListener{
+            val url = "http://${GlobalVar.serverIP}:8080/api/donation"
 
-            // Construct the JSON payload with email and password
-            val jsonInputString = """{"userId": "$userId", "requestId": "$requestId"}"""
+            // Request in a new Coroutine that is destroyed after leaving this scope
+            lifecycleScope.launch(Dispatchers.IO) {
+                val client = OkHttpClient()
 
-            // Send JSON as the request body
-            val outputStream = connection.outputStream
-            outputStream.write(jsonInputString.toByteArray(Charsets.UTF_8))
-            outputStream.close()
+                // create request body
+                val jsonMediaType = "application/json; charset=utf-8".toMediaTypeOrNull()
+                val json = """{"userId": "$userId", "requestId": "$requestId"}"""
+                val requestBody = json.toRequestBody(jsonMediaType)
 
-            // Get the response
-            val inputStream = connection.inputStream
-            val reader = BufferedReader(InputStreamReader(inputStream))
-            val serverAns = reader.readLine()
+                // build the request
+                val request = Request.Builder()
+                    .url(url)
+                    .post(requestBody)
+                    .build()
 
-            // check for errors
-            val responseCode = connection.responseCode
-            if (responseCode != HttpURLConnection.HTTP_OK) {
-                // Do something
+                // send request and put response in variable
+                val response = client.newCall(request).execute()
+
+                // check response code
+                if (response.isSuccessful) {
+                    // return to requests page activity
+                    val intent = Intent(this@SoldierRequestDetails, SoldiersRequestsPage::class.java)
+                    startActivity(intent)
+                } else {
+                    println("Request failed with code: ${response.code}")
+                }
             }
-
-            reader.close()
-            connection.disconnect()
         }
     }
 
