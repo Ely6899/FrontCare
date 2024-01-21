@@ -1,9 +1,11 @@
 package com.example.frontcareproject
 
+import android.content.Intent
 import androidx.appcompat.app.AppCompatActivity
 import android.os.Bundle
 import android.view.LayoutInflater
 import android.view.View
+import android.widget.Button
 import android.widget.LinearLayout
 import android.widget.TextView
 import androidx.core.content.getSystemService
@@ -21,6 +23,7 @@ import java.net.URL
 class UserPostings : AppCompatActivity() {
     private lateinit var postingsTitle: TextView
     private lateinit var postingList: LinearLayout
+    private lateinit var createRequestButton: Button
 
     //Used for adding elements to the scrollview
     private lateinit var inflater: LayoutInflater
@@ -32,6 +35,12 @@ class UserPostings : AppCompatActivity() {
 
         postingsTitle = findViewById(R.id.tvPostingsTitle)
         postingList = findViewById(R.id.postingScrollList)
+        createRequestButton = findViewById(R.id.createRequest)
+        createRequestButton.setOnClickListener{
+            val intent = Intent(this, CreateSoldierRequest::class.java)
+            startActivity(intent)
+        }
+
         inflater = applicationContext.getSystemService(android.content.Context.LAYOUT_INFLATER_SERVICE)
                 as LayoutInflater
 
@@ -43,6 +52,8 @@ class UserPostings : AppCompatActivity() {
             postingsTitle.text = getString(R.string.donations_history_button)
             fetchHistory("donorDonationHistory")
         }
+
+
     }
 
     private fun fetchHistory(apiRequest: String) {

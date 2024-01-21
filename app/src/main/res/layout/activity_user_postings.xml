@@ -24,18 +24,30 @@
         android:layout_width="match_parent"
         android:layout_height="wrap_content"
 
-        app:layout_constraintTop_toBottomOf="@+id/tvPostingsTitle"
-        >
+        android:layout_marginBottom="589dp"
+        app:layout_constraintBottom_toTopOf="@+id/createRequest"
+        app:layout_constraintTop_toBottomOf="@+id/tvPostingsTitle">
 
         <LinearLayout
             android:id="@+id/postingScrollList"
             android:layout_width="wrap_content"
             android:layout_height="wrap_content"
-            android:orientation="vertical"
-            >
+            android:orientation="vertical">
 
         </LinearLayout>
 
     </androidx.core.widget.NestedScrollView>
+
+    <Button
+        android:id="@+id/createRequest"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:text="Create new request"
+        app:layout_constraintBottom_toBottomOf="parent"
+        app:layout_constraintEnd_toEndOf="parent"
+        app:layout_constraintHorizontal_bias="0.497"
+        app:layout_constraintStart_toStartOf="parent"
+        app:layout_constraintTop_toBottomOf="@+id/tvPostingsTitle"
+        app:layout_constraintVertical_bias="0.897" />
 
 </androidx.constraintlayout.widget.ConstraintLayout>
