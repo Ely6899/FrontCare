@@ -75,4 +75,5 @@ dependencies {
     implementation("ch.qos.logback:logback-core:1.2.6")
     implementation("mysql:mysql-connector-java:8.0.23")
     implementation("org.jetbrains.kotlinx:kotlinx-serialization-json:1.3.0")
+    implementation("com.squareup.okhttp3:okhttp:4.9.1")
 }
