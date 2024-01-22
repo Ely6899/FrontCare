@@ -289,62 +289,20 @@ fun getDonorsEvents(donorId: String?): List<Map<String, Any>> {
     return resultList
 }
 
-fun getDonorDonationHistory(userId: String?): List<Map<String, Any>> {
+fun getHistory(userId: String?,userType:String?): List<Map<String, Any>> {
     val resultList = mutableListOf<Map<String, Any>>()
+    var sqlFiller = "" // var that will be added to the sql query to determine if its for events history or donors events
 
-    try {
-        // Establish the database connection
-        DriverManager.getConnection(mysql_url, mysql_user, mysql_password).use { connection ->
-            val sqlQuery = """
-                SELECT
-                    soldier_requests.request_id,
-                    users.firstname,
-                    users.lastname,
-                    products.product_name,
-                    request_details.quantity,
-                    soldier_requests.close_date
-                  
-                FROM
-                    request_details
-                JOIN
-                    products ON products.product_id = request_details.product_id
-                JOIN
-                    soldier_requests ON soldier_requests.request_id = request_details.request_id
-                JOIN
-                    users ON soldier_requests.soldier_id = users.user_id
-                WHERE soldier_requests.status = "closed" AND soldier_requests.donor_id = ?;
-            """.trimIndent()
+    when (userType) {
+        "soldier" -> sqlFiller = "users ON soldier_requests.donor_id = users.user_id " +
+                "WHERE soldier_requests.soldier_id = $userId;"
+        "donor"-> sqlFiller = " users ON soldier_requests.soldier_id = users.user_id " +
+                "WHERE soldier_requests.donor_id = $userId;"
 
-            // Create a prepared statement
-            val statement: PreparedStatement = connection.prepareStatement(sqlQuery)
-            statement.setInt(1, userId?.toInt() ?: 0)
-
-            // Execute the query
-            val resultSet: ResultSet = statement.executeQuery()
-
-            // Process the result set and populate the list of maps
-            while (resultSet.next()) {
-                val rowMap = mutableMapOf<String, Any>()
-                rowMap["request_id"] = resultSet.getInt("request_id")
-                rowMap["firstname"] = resultSet.getString("firstname")
-                rowMap["lastname"] = resultSet.getString("lastname")
-                rowMap["product_name"] = resultSet.getString("product_name")
-                rowMap["quantity"] = resultSet.getInt("quantity")
-                val closeDate: String? = resultSet.getString("close_date")
-                rowMap["close_date"] = closeDate ?: "null"
-                resultList.add(rowMap)
-            }
+        else -> {
+            return resultList; // if there is a problem return an empty result
         }
-    } catch (e: Exception) {
-        // Handle exceptions, e.g., log or throw custom exception
-        e.printStackTrace()
     }
-
-    return resultList
-}
-
-fun getSoldierRequestHistory(userId: String?): List<Map<String, Any>> {
-    val resultList = mutableListOf<Map<String, Any>>()
 
     try {
         // Establish the database connection
@@ -365,24 +323,25 @@ fun getSoldierRequestHistory(userId: String?): List<Map<String, Any>> {
                     products ON products.product_id = request_details.product_id
                 JOIN
                     soldier_requests ON soldier_requests.request_id = request_details.request_id
-                JOIN
-                    users ON soldier_requests.donor_id = users.user_id
-                WHERE soldier_requests.soldier_id = ?;
+                LEFT JOIN
+                $sqlFiller
             """.trimIndent()
 
-            // Create a prepared statement
             val statement: PreparedStatement = connection.prepareStatement(sqlQuery)
-            statement.setInt(1, userId?.toInt() ?: 0)
-
-            // Execute the query
             val resultSet: ResultSet = statement.executeQuery()
 
-            // Process the result set and populate the list of maps
             while (resultSet.next()) {
                 val rowMap = mutableMapOf<String, Any>()
                 rowMap["request_id"] = resultSet.getInt("request_id")
-                rowMap["firstname"] = resultSet.getString("firstname")
-                rowMap["lastname"] = resultSet.getString("lastname")
+
+                // Check if firstname is null, and provide a default value
+                val firstname: String? = resultSet.getString("firstname")
+                rowMap["firstname"] = firstname ?: "Unknown"
+
+                // Check if lastname is null, and provide a default value
+                val lastname: String? = resultSet.getString("lastname")
+                rowMap["lastname"] = lastname ?: "Unknown"
+
                 rowMap["product_name"] = resultSet.getString("product_name")
                 rowMap["quantity"] = resultSet.getInt("quantity")
                 rowMap["request_date"] = resultSet.getString("request_date")
@@ -550,6 +509,7 @@ fun eventRegistration(data: Map<String, String>): Boolean {
     val userId = data["userId"]
     val eventId = data["eventId"]
 
+    val checkSql = "SELECT COUNT(*) FROM event_participants WHERE event_id = ? AND user_id = ?;"
     val insertSql = "INSERT INTO event_participants (event_id, user_id) VALUES (?, ?);"
     val updateSql = "UPDATE donation_events SET remaining_spot = (remaining_spot - 1) WHERE remaining_spot > 0 AND event_id = ?;"
 
@@ -558,21 +518,35 @@ fun eventRegistration(data: Map<String, String>): Boolean {
     try {
         connection = DriverManager.getConnection(mysql_url, mysql_user, mysql_password)
 
-        // Insert into event_participants
-        val insertStatement = connection.prepareStatement(insertSql)
-        insertStatement.setInt(1, eventId?.toInt() ?: 0)
-        insertStatement.setInt(2, userId?.toInt() ?: 0)
-        val insertRowsAffected = insertStatement.executeUpdate()
+        // Check if the user is already registered for the event
+        val checkStatement = connection.prepareStatement(checkSql)
+        checkStatement.setInt(1, eventId?.toInt() ?: 0)
+        checkStatement.setInt(2, userId?.toInt() ?: 0)
+        val resultSet = checkStatement.executeQuery()
 
-        // Update donation_events
-        val updateStatement = connection.prepareStatement(updateSql)
-        updateStatement.setInt(1, eventId?.toInt() ?: 0)
-        val updateRowsAffected = updateStatement.executeUpdate()
+        /*
+        resultSet.next(): checks if there is at least one row in the result set.
+        resultSet.getInt(1) == 0: checks if the value in the first column of the current row is equal to 0.
+         */
+        if (resultSet.next() && resultSet.getInt(1) == 0) {
+            // User is not registered for the event, proceed with insertion
+            val insertStatement = connection.prepareStatement(insertSql)
+            insertStatement.setInt(1, eventId?.toInt() ?: 0)
+            insertStatement.setInt(2, userId?.toInt() ?: 0)
+            val insertRowsAffected = insertStatement.executeUpdate()
 
-        // Commit the transaction if both statements were successful
-        if (insertRowsAffected > 0 && updateRowsAffected > 0) {
-            connection.commit()
-            return true
+            // Update donation_events
+            val updateStatement = connection.prepareStatement(updateSql)
+            updateStatement.setInt(1, eventId?.toInt() ?: 0)
+            val updateRowsAffected = updateStatement.executeUpdate()
+
+            // Commit the transaction if both statements were successful
+            if (insertRowsAffected > 0 && updateRowsAffected > 0) {
+                return true
+            }
+        } else {
+            // User is already registered for the event, do not proceed
+            println("User is already registered for the event.")
         }
 
     } catch (e: Exception) {
@@ -581,44 +555,62 @@ fun eventRegistration(data: Map<String, String>): Boolean {
     } finally {
         connection?.close()
     }
-
     /*
-    TODO: RAZ - CHECK THAT ROLLBACK CANCELS THE ACTION IN THE DB
+       TODO: RAZ - CHECK THAT ROLLBACK CANCELS THE ACTION IN THE DB
      */
-    connection?.rollback() // Rollback the transaction in case of an exception
+    connection?.rollback()
     return false
 }
-fun donationConfirmation(data: Map<String, String>): Boolean {
-        val userId = data["userId"]
-        val requestId = data["requestId"]
 
-        val sql = """
+fun donationConfirmation(data: Map<String, String>): Map<String, Any> {
+    val sqlResult = mutableMapOf<String, Any>()
+    val userId = data["userId"]
+    val requestId = data["requestId"]
+
+    val updateSql = """
         UPDATE soldier_requests
         SET close_date = CURRENT_DATE(),
-            status = "closed"
+            status = 'closed'
         WHERE request_id = ? AND soldier_id= ?;
     """.trimIndent()
 
-        var connection: Connection? = null
+    val selectSql = """
+        SELECT close_date, status
+        FROM soldier_requests
+        WHERE request_id = ? AND soldier_id = ?;
+    """.trimIndent()
 
-        try {
-            connection = DriverManager.getConnection(mysql_url, mysql_user, mysql_password)
-            val statement = connection.prepareStatement(sql)
+    var connection: Connection? = null
 
-            statement.setInt(1, requestId?.toInt() ?: 0)
-            statement.setInt(2, userId?.toInt() ?: 0)
+    try {
+        connection = DriverManager.getConnection(mysql_url, mysql_user, mysql_password)
 
-            val rowsAffected = statement.executeUpdate()
-            return rowsAffected > 0
+        // Execute the update statement
+        val updateStatement = connection.prepareStatement(updateSql)
+        updateStatement.setInt(1, requestId?.toInt() ?: 0)
+        updateStatement.setInt(2, userId?.toInt() ?: 0)
+        updateStatement.executeUpdate()
 
-        } catch (e: Exception) {
-            e.printStackTrace()
-        } finally {
-            connection?.close()
+        // Execute the select statement to retrieve the updated values
+        val selectStatement = connection.prepareStatement(selectSql)
+        selectStatement.setInt(1, requestId?.toInt() ?: 0)
+        selectStatement.setInt(2, userId?.toInt() ?: 0)
+
+        val resultSet = selectStatement.executeQuery()
+        if (resultSet.next()) {
+            sqlResult["close_date"] = resultSet.getString("close_date")
+            sqlResult["status"] = resultSet.getString("status")
         }
 
-        return false
+    } catch (e: Exception) {
+        e.printStackTrace()
+    } finally {
+        connection?.close()
+    }
+
+    return sqlResult
 }
+
 
 // Define the Ktor application module
 fun Application.module() {
@@ -756,20 +748,13 @@ fun Application.module() {
         post ("/api/donationConfirmation"){
             try {
                 val request = call.receive<Map<String, String>>() // maybe change to Map<String, Any>
-                val isRegistered = donationConfirmation(request) // True - Update DB successfully else False
+                val confirmationData = donationConfirmation(request) // True - Update DB successfully else False
 
-                val responseMessage = if (isRegistered) {
-                    mapOf("message" to "Donation confirmed successfully")
-                } else {
-                    mapOf("message" to "Failed to confirmed donation ")
-                }
-
-                // Respond with a message in JSON format
-                call.respond(responseMessage)
+                call.respond(confirmationData)
 
             } catch (e: Exception) {
                 // Handle exceptions related to request format and respond with BadRequest status
-                call.respond(HttpStatusCode.BadRequest, "Invalid request format")
+                call.respond(HttpStatusCode.BadRequest, "Confirmation failed")
             }
         }
 
@@ -777,10 +762,7 @@ fun Application.module() {
             try {
                 // Retrieve the userId from the path parameters
                 val userId = call.parameters["userId"]
-
-                // Fetch user profile data from the database based on userId
                 val profileData = getUserProfile(userId)
-                println(profileData)
 
                 // Respond with the user profile data in JSON format
                 call.respond(profileData)
@@ -817,7 +799,7 @@ fun Application.module() {
             try {
 
                 val userId = call.parameters["userId"]
-                val historyData = getSoldierRequestHistory(userId)
+                val historyData = getHistory(userId,"soldier")
 
                 call.respond(historyData)
             } catch (e: Exception) {
@@ -843,7 +825,7 @@ fun Application.module() {
             try {
 
                 val userId = call.parameters["userId"]
-                val historyData = getDonorDonationHistory(userId)
+                val historyData = getHistory(userId,"donor")
 
                 call.respond(historyData)
             } catch (e: Exception) {
