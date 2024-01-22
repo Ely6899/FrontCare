@@ -14,7 +14,6 @@ import androidx.lifecycle.lifecycleScope
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.launch
 import org.json.JSONObject
-import server.userId
 import utils.GlobalVar
 import okhttp3.MediaType.Companion.toMediaTypeOrNull
 import okhttp3.OkHttpClient
@@ -85,7 +84,7 @@ class SoldierRequestDetails : AppCompatActivity() {
 
                 // create request body
                 val jsonMediaType = "application/json; charset=utf-8".toMediaTypeOrNull()
-                val json = """{"userId": "$userId", "requestId": "$requestId"}"""
+                val json = """{"userId": "${GlobalVar.userId}", "requestId": "$requestId"}"""
                 val requestBody = json.toRequestBody(jsonMediaType)
 
                 // build the request

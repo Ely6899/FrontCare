@@ -20,7 +20,6 @@ import okhttp3.MediaType.Companion.toMediaTypeOrNull
 import okhttp3.OkHttpClient
 import okhttp3.Request
 import okhttp3.RequestBody.Companion.toRequestBody
-import server.userId
 import utils.GlobalVar
 import com.google.gson.Gson
 import com.google.gson.JsonArray
@@ -78,7 +77,7 @@ class CreateSoldierRequest : AppCompatActivity() {
                 return@setOnClickListener
             }
 
-            val url = "http://${GlobalVar.serverIP}:8080/api/"
+            val url = "http://${GlobalVar.serverIP}:8080/api/createSoldierRequest"
 
             // Find the radio button by ID
             val selectedRadioButton: RadioButton = findViewById(selectedRadioButtonId)

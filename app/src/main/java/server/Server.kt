@@ -2,7 +2,6 @@
 
 package server
 
-import com.example.frontcareproject.R
 import io.ktor.application.*
 import io.ktor.features.ContentNegotiation
 import io.ktor.features.StatusPages
@@ -15,34 +14,32 @@ import io.ktor.routing.post
 import io.ktor.routing.routing
 import io.ktor.server.engine.embeddedServer
 import io.ktor.server.netty.Netty
-import utils.GlobalVar
 import java.sql.Connection
 import java.sql.DriverManager
 import java.sql.PreparedStatement
 import java.sql.ResultSet
 import java.math.BigInteger
 import java.security.MessageDigest
-import org.json.JSONArray
-import org.json.JSONObject
-// Entry point of the server application
+
+// mysql server credentials
 val mysql_url = "jdbc:mysql://uxd6gaqgeoenekcj:0CqlD3oWHl1SBg9lqWLJ@bm1cdufjqwhe4cgtldeh-mysql.services.clever-cloud.com:3306/bm1cdufjqwhe4cgtldeh"
-val mysql_user = "uxd6gaqgeoenekcj" //
-val mysql_password = "0CqlD3oWHl1SBg9lqWLJ" // change to YOUR password
-val userId = GlobalVar.userId
+val mysql_user = "uxd6gaqgeoenekcj"
+val mysql_password = "0CqlD3oWHl1SBg9lqWLJ"
+
 
 /*
-TODO: RAZ - DOCUMENT ALL FUNCS
+TODO: RAZ - DOCUMENT ALL functions
  */
 
 fun main() {
-    // Start an embedded Netty server on port 8080 and configure it with the defined module
+    // start an embedded Netty server on port 8080 and configure it with the defined module
     embeddedServer(Netty, port = 8080) {
-        // Call the module function to configure the server application
+        // call the module function to configure the server application
         module()
     }.start(wait = true)
 }
 
-
+//This function converts a string into a md5 hash
 fun hashMD5(password: String): String {
     val md = MessageDigest.getInstance("MD5")
     val byteArray = md.digest(password.toByteArray())
@@ -58,6 +55,8 @@ fun hashMD5(password: String): String {
 
     return hashedPassword
 }
+
+//This function gets userId and returns the user's profile data
 fun getUserProfile(userId: String?): Map<String, Any> {
     DriverManager.getConnection(mysql_url, mysql_user, mysql_password).use { connection ->
         connection.prepareStatement("SELECT is_soldier,firstname,lastname,username,location,email_address,phone_number FROM users WHERE user_id = ?").use { statement ->
@@ -84,6 +83,7 @@ fun getUserProfile(userId: String?): Map<String, Any> {
     }
 }
 
+//This function gets username&password and check if the user is in the system, if so returns is ID and Type
 fun authenticateUser(username: String?, password: String?): Pair<Int?, Int?>{
 
     var connection: Connection? = null
@@ -112,6 +112,7 @@ fun authenticateUser(username: String?, password: String?): Pair<Int?, Int?>{
     return Pair(userId, userType)
 }
 
+//This function register a new user in the system
 fun userRegistration(data: Map<String, String>): Int? {
     // Extract email and password from the received payload
     val userType = data["userType"]
@@ -174,6 +175,7 @@ fun userRegistration(data: Map<String, String>): Int? {
 /*
 TODO: REVIEW THIS FUNCTION WITH THE BOYS
  */
+//This function returns all the soldiers requests ,for the soldier requests feed
 fun getSoldiersRequests(): List<Map<String, Any>> {
     val resultList = mutableListOf<Map<String, Any>>()
 
@@ -229,6 +231,10 @@ fun getSoldiersRequests(): List<Map<String, Any>> {
     return resultList
 }
 
+/*
+ This function returns all the donors events for the donors events feed
+ Unless,the donorId is different from 0 , if so it returns only the events this particular donor created , for the history events page
+ */
 fun getDonorsEvents(donorId: String?): List<Map<String, Any>> {
     val resultList = mutableListOf<Map<String, Any>>()
     var sqlFiller = "" // var that will be added to the sql query to determine if its for events history or donors events
@@ -289,6 +295,7 @@ fun getDonorsEvents(donorId: String?): List<Map<String, Any>> {
     return resultList
 }
 
+//This function returns the
 fun getHistory(userId: String?,userType:String?): List<Map<String, Any>> {
     val resultList = mutableListOf<Map<String, Any>>()
     var sqlFiller = "" // var that will be added to the sql query to determine if its for events history or donors events
@@ -300,7 +307,7 @@ fun getHistory(userId: String?,userType:String?): List<Map<String, Any>> {
                 "WHERE soldier_requests.donor_id = $userId;"
 
         else -> {
-            return resultList; // if there is a problem return an empty result
+            return resultList // if there is a problem return an empty result
         }
     }
 
@@ -611,6 +618,87 @@ fun donationConfirmation(data: Map<String, String>): Map<String, Any> {
     return sqlResult
 }
 
+fun createSoldierRequest(data: Map<String, Any>): Boolean{
+
+    val userId = data["userId"].toString()
+    val location = data["location"].toString()
+    val products = data["products"] as Map<String, Int>
+
+    var connection: Connection? = null
+
+    try {
+        connection = DriverManager.getConnection(mysql_url, mysql_user, mysql_password)
+
+        // Insert into soldier_requests table
+        val insertSoldierRequestSQL = """
+            INSERT INTO soldier_requests (soldier_id, pickup_location, request_date, status)
+            VALUES (?, ?, CURRENT_DATE(), 'open');
+        """.trimIndent()
+
+        val insertSoldierRequestStatement = connection.prepareStatement(insertSoldierRequestSQL, 1)
+        insertSoldierRequestStatement.setInt(1, userId.toInt())
+        insertSoldierRequestStatement.setString(2, location)
+        insertSoldierRequestStatement.executeUpdate()
+
+        // Get the generated request_id
+        val generatedKeys = insertSoldierRequestStatement.generatedKeys
+        var requestId: Int? = null
+        if (generatedKeys.next()) {
+            requestId = generatedKeys.getInt(1)
+        }
+
+        if (requestId != null) {
+            // Insert into request_details table for each product
+            val insertRequestDetailsSQL = """
+                INSERT INTO request_details (request_id, product_id, quantity)
+                VALUES (?, (SELECT product_id FROM products WHERE product_name = ?), ?);
+            """.trimIndent()
+
+            val insertRequestDetailsStatement = connection.prepareStatement(insertRequestDetailsSQL)
+
+            for ((product, quantity) in products) {
+                insertRequestDetailsStatement.setInt(1, requestId)
+                insertRequestDetailsStatement.setString(2, product)
+                insertRequestDetailsStatement.setInt(3, quantity)
+                insertRequestDetailsStatement.executeUpdate()
+            }
+
+            return true
+        }
+    } catch (e: Exception) {
+        e.printStackTrace()
+    } finally {
+        connection?.close()
+    }
+
+    return false
+}
+
+fun getProducts(): List<Map<String, Any>> {
+    val resultList = mutableListOf<Map<String, Any>>()
+
+    try {
+        // Establish the database connection
+        DriverManager.getConnection(mysql_url, mysql_user, mysql_password).use { connection ->
+            val sqlQuery = "SELECT products.product_name FROM products;"
+            val statement: PreparedStatement = connection.prepareStatement(sqlQuery)
+            val resultSet: ResultSet = statement.executeQuery()
+
+            // Process the result set and populate the list of maps
+            while (resultSet.next()) {
+                val rowMap = mutableMapOf<String, Any>()
+                rowMap["product_name"] = resultSet.getString("product_name")
+                resultList.add(rowMap)
+            }
+        }
+    } catch (e: Exception) {
+        // Handle exceptions, e.g., log or throw custom exception
+        e.printStackTrace()
+    }
+
+    return resultList
+}
+
 
 // Define the Ktor application module
 fun Application.module() {
@@ -758,6 +846,19 @@ fun Application.module() {
             }
         }
 
+        post ("/api/createSoldierRequest"){
+            try {
+                val request = call.receive<Map<String, Any>>() // maybe change to Map<String, Any>
+                val confirmationData = createSoldierRequest(request) // True - Update DB successfully else False
+
+                call.respond(confirmationData)
+
+            } catch (e: Exception) {
+                // Handle exceptions related to request format and respond with BadRequest status
+                call.respond(HttpStatusCode.BadRequest, "Confirmation failed")
+            }
+        }
+
         get("/api/profile/{userId}") {
             try {
                 // Retrieve the userId from the path parameters
@@ -792,6 +893,17 @@ fun Application.module() {
             } catch (e: Exception) {
                 // Handle exceptions related to the database query and respond with InternalServerError status
                 call.respond(HttpStatusCode.InternalServerError, "Error fetching donors events from the database")
+            }
+        }
+
+        get("/api/products") {
+            try {
+                val products = getProducts()
+                call.respond(products)
+
+            } catch (e: Exception) {
+                // Handle exceptions related to the database query and respond with InternalServerError status
+                call.respond(HttpStatusCode.InternalServerError, "Error fetching products from the database")
             }
         }
 
