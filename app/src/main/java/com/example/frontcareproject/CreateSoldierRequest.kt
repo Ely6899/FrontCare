@@ -86,9 +86,8 @@ class CreateSoldierRequest : AppCompatActivity() {
             val location = selectedRadioButton.text.toString()
 
             // convert Products map to jsonArray
-            val productsList: List<Map<String, Int>> = products.map { mapOf(it.key to it.value) }
             val gson = Gson()
-            val jsonArray: JsonArray = gson.toJsonTree(productsList).asJsonArray
+            val jsonProducts = gson.toJson(products)
 
             // Request in a new Coroutine that is destroyed after leaving this scope
             lifecycleScope.launch(Dispatchers.IO) {
@@ -96,7 +95,7 @@ class CreateSoldierRequest : AppCompatActivity() {
 
                 // create request body
                 val jsonMediaType = "application/json; charset=utf-8".toMediaTypeOrNull()
-                val json = """{"userId": "${GlobalVar.userId}", "location": "$location"}, products: $jsonArray"""
+                val json = """{"userId": ${GlobalVar.userId}, "location": "$location", "products": $jsonProducts}"""
                 val requestBody = json.toRequestBody(jsonMediaType)
 
                 // build the request
