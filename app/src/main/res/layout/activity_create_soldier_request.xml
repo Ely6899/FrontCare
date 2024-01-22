@@ -8,8 +8,8 @@
     android:padding="16dp">
 
     <androidx.constraintlayout.widget.ConstraintLayout
-        android:layout_width="match_parent"
-        android:layout_height="100dp">
+        android:layout_width="378dp"
+        android:layout_height="79dp">
 
         <TextView
             android:id="@+id/textView2"
@@ -30,21 +30,46 @@
 
     </androidx.constraintlayout.widget.ConstraintLayout>
 
-    <EditText
-        android:id="@+id/productName"
-        android:layout_width="match_parent"
+    <LinearLayout
+        android:layout_width="378dp"
         android:layout_height="wrap_content"
-        android:autofillHints="username"
-        android:inputType="text"
-        android:text="Product Name"
-        android:textAlignment="center"
-        android:textColor="@color/black"
-        android:textColorHint="@color/black"
+        android:orientation="horizontal">
 
-        android:textSize="25sp"
-        tools:layout_editor_absoluteX="0dp">
+        <EditText
+            android:id="@+id/productName"
+            android:layout_width="95dp"
+            android:layout_height="wrap_content"
+            android:layout_weight="1"
+            android:autofillHints="username"
+            android:hint="@string/product_name"
+            android:inputType="text"
+            android:textAlignment="center"
 
-    </EditText>
+            android:textColor="@color/black"
+            android:textColorHint="@color/black"
+            android:textSize="25sp"
+            tools:layout_editor_absoluteX="0dp">
+
+        </EditText>
+
+        <EditText
+            android:id="@+id/quantity"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:layout_weight="1"
+            android:autofillHints="username"
+            android:hint="@string/quantity"
+            android:inputType="number|numberSigned"
+
+            android:textAlignment="center"
+            android:textColor="@color/black"
+            android:textColorHint="@color/black"
+            android:textSize="25sp"
+            tools:layout_editor_absoluteX="0dp">
+
+        </EditText>
+
+    </LinearLayout>
 
     <Button
         android:id="@+id/addToListButton"
@@ -52,10 +77,80 @@
         android:layout_height="wrap_content"
         android:text="Add to list" />
 
-    <ListView
-        android:id="@+id/productList"
-        android:layout_width="wrap_content"
-        android:layout_height="362dp" />
+    <TableLayout
+        android:id="@+id/productsTable"
+        android:layout_width="365dp"
+        android:layout_height="298dp"
+        android:layout_marginTop="16dp"
+        app:layout_constraintEnd_toEndOf="parent"
+        app:layout_constraintHorizontal_bias="0.333"
+        app:layout_constraintStart_toStartOf="parent"
+        app:layout_constraintTop_toTopOf="parent">
+
+        <TableRow
+            android:layout_width="match_parent"
+            android:layout_height="match_parent">
+
+            <TextView
+                android:layout_width="0dp"
+                android:layout_height="wrap_content"
+                android:layout_weight="1"
+                android:background="@drawable/tables_outline"
+                android:ellipsize="end"
+                android:gravity="center"
+                android:maxLines="1"
+                android:padding="8dp"
+                android:text="Product" />
+
+            <TextView
+                android:layout_width="0dp"
+                android:layout_height="wrap_content"
+                android:layout_weight="1"
+                android:background="@drawable/tables_outline"
+                android:ellipsize="end"
+                android:gravity="center"
+                android:maxLines="1"
+                android:padding="8dp"
+                android:text="Quantity" />
+        </TableRow>
+    </TableLayout>
+
+    <TextView
+        android:id="@+id/textView"
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:text="Choose Location"
+        android:textAlignment="center"
+        android:textSize="18sp"
+        android:textStyle="bold" />
+
+    <RadioGroup
+        android:id="@+id/radioGroup"
+        android:layout_width="372dp"
+        android:layout_height="48dp"
+        android:orientation="horizontal">
+
+        <RadioButton
+            android:id="@+id/northRadioButton"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:layout_weight="1"
+            android:text="North" />
+
+        <RadioButton
+            android:id="@+id/centerRadioButton"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:layout_weight="1"
+            android:text="Center" />
+
+        <RadioButton
+            android:id="@+id/southRadioButton"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:layout_weight="1"
+            android:text="South" />
+    </RadioGroup>
 
     <androidx.constraintlayout.widget.ConstraintLayout
         android:layout_width="381dp"
@@ -65,12 +160,11 @@
             android:id="@+id/createButton"
             android:layout_width="167dp"
             android:layout_height="73dp"
-            android:layout_marginBottom="24dp"
             android:text="Create"
             app:layout_constraintBottom_toBottomOf="parent"
             app:layout_constraintEnd_toEndOf="parent"
             app:layout_constraintStart_toStartOf="parent"
-            app:layout_constraintTop_toBottomOf="@+id/productsTable"
+            app:layout_constraintTop_toTopOf="parent"
             app:layout_constraintVertical_bias="0.535" />
     </androidx.constraintlayout.widget.ConstraintLayout>
 

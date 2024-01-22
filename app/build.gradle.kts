@@ -76,4 +76,5 @@ dependencies {
     implementation("mysql:mysql-connector-java:8.0.23")
     implementation("org.jetbrains.kotlinx:kotlinx-serialization-json:1.3.0")
     implementation("com.squareup.okhttp3:okhttp:4.9.1")
+    implementation("com.google.code.gson:gson:2.10")
 }

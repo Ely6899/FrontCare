@@ -33,6 +33,8 @@
     <string name="address_element">Address</string>
     <string name="remaining_element">Remaining:</string>
     <string name="organizer_element">Organizer</string>
+    <string name="product_name">Product Name</string>
+    <string name="quantity">Quantity</string>
 
     <string-array name="locations_array">
         <item>North</item>

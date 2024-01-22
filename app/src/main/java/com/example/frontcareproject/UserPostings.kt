@@ -1,5 +1,6 @@
 package com.example.frontcareproject
 
+import android.content.Intent
 import androidx.appcompat.app.AppCompatActivity
 import android.os.Bundle
 import android.view.View
@@ -21,6 +22,7 @@ class UserPostings : AppCompatActivity() {
     private lateinit var statusColumn: TextView
     private lateinit var dateColumn: TextView
     private lateinit var nameColumn: TextView
+    private lateinit var createRequestButton: TextView
 
     //private lateinit var postingList: LinearLayout
     private lateinit var postingsTable: TableLayout
@@ -38,7 +40,12 @@ class UserPostings : AppCompatActivity() {
         nameColumn = findViewById(R.id.tvNameColumn)
         statusColumn = findViewById(R.id.tvStatusColumn)
         dateColumn = findViewById(R.id.tvDateColumn)
+        createRequestButton = findViewById(R.id.createRequestButton)
 
+        createRequestButton.setOnClickListener{
+            val intent = Intent(this@UserPostings, CreateSoldierRequest::class.java)
+            startActivity(intent)
+        }
 
         if (GlobalVar.userType == 1) { //Handle soldier requests
             postingsTitle.text = getString(R.string.requests_history_button)
