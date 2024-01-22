@@ -23,12 +23,7 @@ class UserPostings : AppCompatActivity() {
     private lateinit var dateColumn: TextView
     private lateinit var nameColumn: TextView
     private lateinit var createRequestButton: TextView
-
-    //private lateinit var postingList: LinearLayout
     private lateinit var postingsTable: TableLayout
-
-    //Used for adding elements to the scrollview
-    //private lateinit var inflater: LayoutInflater
 
 
     override fun onCreate(savedInstanceState: Bundle?) {
@@ -41,6 +36,8 @@ class UserPostings : AppCompatActivity() {
         statusColumn = findViewById(R.id.tvStatusColumn)
         dateColumn = findViewById(R.id.tvDateColumn)
         createRequestButton = findViewById(R.id.createRequestButton)
+
+        postingsTable.setColumnCollapsed(0, true)
 
         createRequestButton.setOnClickListener{
             val intent = Intent(this@UserPostings, CreateSoldierRequest::class.java)
@@ -94,29 +91,11 @@ class UserPostings : AppCompatActivity() {
         //Iterate through elements of the answer representing rows
         for (i in 0 until jsonAnswer.length()){
             val jsonObject = jsonAnswer.getJSONObject(i)
-//            addRowToTable(
-//                jsonObject.getString("request_id"),
-//                jsonObject.getString("request_date"),
-//                jsonObject.getString("firstname"),
-//                jsonObject.getString("product_name"),
-//                jsonObject.getString("quantity"),
-//                jsonObject.getString("close_date"),
-//                jsonObject.getString("status"))
-
             addRowToTable(jsonObject)
         }
     }
 
-    private fun addRowToTable(
-//        requestId: String,
-//        requestDate: String,
-//        firstname: String,
-//        productName: String,
-//        quantity: String,
-//        closeDate: String,
-//        status: String
-        jsonObject: JSONObject
-    ) {
+    private fun addRowToTable(jsonObject: JSONObject) {
         val requestId = jsonObject.getString("request_id")
         val existingRow = postingsTable.findViewWithTag<TableRow>(requestId)
 
@@ -131,33 +110,28 @@ class UserPostings : AppCompatActivity() {
             // Set gray background for the TableRow
             newRow.setBackgroundColor(getColor(R.color.tablesBackgroundColor))
 
-            val columns: List<String>
 
             if(GlobalVar.userType == 1){
-                columns = listOf(
-                    jsonObject.getString("status"),
-                    jsonObject.getString("request_date"),
-                    jsonObject.getString("firstname"),
-                    "${jsonObject.getString("product_name")} - ${jsonObject.getString("quantity")}",
-                    jsonObject.getString("close_date"))
-
                 // Add the button to the last column
+                postingsTable.setColumnCollapsed(0, false)
                 val confirmButton = Button(this)
                 confirmButton.text = "Confirm"
                 confirmButton.setOnClickListener {
                     handleDonationConfirmation(newRow)
+                    confirmButton.isEnabled = false
                 }
                 newRow.addView(confirmButton)
             }
             else{
-                columns = listOf(
-                    "",
-                    "",
-                    jsonObject.getString("firstname"),
-                    "${jsonObject.getString("product_name")} - ${jsonObject.getString("quantity")}",
-                    jsonObject.getString("close_date"))
+                newRow.addView(TextView(this))
             }
 
+            val columns = listOf(
+                jsonObject.getString("status"),
+                jsonObject.getString("request_date"),
+                jsonObject.getString("firstname"),
+                "${jsonObject.getString("product_name")} - ${jsonObject.getString("quantity")}",
+                jsonObject.getString("close_date"))
 
             // Add columns for each piece of information
 
@@ -175,7 +149,7 @@ class UserPostings : AppCompatActivity() {
         }
     }
 
-    private fun handleDonationConfirmation(rowToHandle: View) {
+    private fun handleDonationConfirmation(rowToHandle: TableRow) {
         Thread  {
             try {
                 val url = URL("http://${GlobalVar.serverIP}:8080/api/donationConfirmation")
@@ -198,8 +172,12 @@ class UserPostings : AppCompatActivity() {
                 val serverAns = reader.readLine()
 
                 runOnUiThread {
-                    TODO("Handle closing request with a separate function")
-                    //fetchHistory("soldierRequestHistory")
+                    val jsonNewData = JSONObject(serverAns)
+                    val closeDateField = rowToHandle.getChildAt(5) as? TextView
+                    val statusField = rowToHandle.getChildAt(1) as? TextView
+
+                    closeDateField!!.text = jsonNewData.optString("close_date")
+                    statusField!!.text = jsonNewData.optString("status")
                 }
 
                 reader.close()
@@ -214,7 +192,8 @@ class UserPostings : AppCompatActivity() {
 
     private fun appendProductInfoToRow(existingRow: TableRow, productName: String, quantity: String) {
         // Find the column for productName and quantity in the existing row
-        val productInfoColumn = existingRow.getChildAt(4) as? TextView
+        val productsColumnIndex = if (GlobalVar.userType == 1) 4 else 3
+        val productInfoColumn = existingRow.getChildAt(productsColumnIndex) as? TextView
 
         // Append new product info to the existing column
         productInfoColumn?.text = "${productInfoColumn?.text}, $productName - $quantity"

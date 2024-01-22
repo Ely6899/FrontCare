@@ -39,6 +39,7 @@
             <TableRow>
 
                 <TextView
+                    android:id="@+id/confirmationColumn"
                     />
 
                 <TextView
