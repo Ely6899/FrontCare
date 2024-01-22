@@ -22,7 +22,7 @@
 
     </TextView>
 
-    <androidx.core.widget.NestedScrollView
+    <HorizontalScrollView
         android:id="@+id/scrollEvents"
         android:layout_width="match_parent"
         android:layout_height="wrap_content"
@@ -30,15 +30,83 @@
         app:layout_constraintTop_toBottomOf="@+id/tvEventHistoryTitle"
         >
 
-        <LinearLayout
-            android:id="@+id/eventsScrollList"
+        <TableLayout
+            android:id="@+id/eventsTable"
             android:layout_width="wrap_content"
             android:layout_height="wrap_content"
-            android:orientation="vertical"
-            >
+            android:layout_marginTop="15dp"
+            android:background="@color/tablesBackgroundColor"
+            android:stretchColumns="*">
 
-        </LinearLayout>
+            <!-- Header row -->
+            <TableRow>
 
-    </androidx.core.widget.NestedScrollView>
+                <TextView
+                    android:id="@+id/tvOrganizerColumn"
+                    android:background="@drawable/tables_outline"
+                    android:gravity="center"
+                    android:padding="8dp"
+                    android:text="@string/organizer_element"
+                    android:layout_width="wrap_content"
+                    android:maxLines="1"
+                    android:ellipsize="end" />
+
+                <TextView
+                    android:id="@+id/tvDateColumn"
+                    android:background="@drawable/tables_outline"
+                    android:gravity="center"
+                    android:padding="8dp"
+                    android:text="@string/date_element"
+                    android:layout_width="wrap_content"
+                    android:maxLines="1"
+                    android:ellipsize="end" />
+
+                <TextView
+                    android:id="@+id/tvLocationColumn"
+                    android:background="@drawable/tables_outline"
+                    android:gravity="center"
+                    android:padding="8dp"
+                    android:text="@string/register_location"
+                    android:layout_width="wrap_content"
+                    android:maxLines="1"
+                    android:ellipsize="end" />
+
+                <TextView
+                    android:id="@+id/tvAddressColumn"
+                    android:background="@drawable/tables_outline"
+                    android:gravity="center"
+                    android:padding="8dp"
+                    android:text="@string/address_element"
+                    android:layout_width="wrap_content"
+                    android:maxLines="1"
+                    android:ellipsize="end" />
+
+                <TextView
+                    android:id="@+id/tvProductsColumn"
+                    android:background="@drawable/tables_outline"
+                    android:gravity="center"
+                    android:padding="8dp"
+                    android:text="@string/products_element"
+                    android:layout_width="wrap_content"
+                    android:maxLines="1"
+                    android:ellipsize="end" />
+
+                <TextView
+                    android:id="@+id/tvRemainingColumn"
+                    android:background="@drawable/tables_outline"
+                    android:gravity="center"
+                    android:padding="8dp"
+                    android:text="@string/remaining_element"
+                    android:layout_width="wrap_content"
+                    android:maxLines="1"
+                    android:ellipsize="end" />
+
+            </TableRow>
+
+            <!-- Data rows will be added dynamically -->
+
+        </TableLayout>
+
+    </HorizontalScrollView>
 
 </androidx.constraintlayout.widget.ConstraintLayout>
