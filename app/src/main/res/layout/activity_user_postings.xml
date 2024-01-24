@@ -43,6 +43,10 @@
                     />
 
                 <TextView
+                    android:id="@+id/editPostingColumn"
+                    />
+
+                <TextView
                     android:id="@+id/tvStatusColumn"
                     android:background="@drawable/tables_outline"
                     android:gravity="center"

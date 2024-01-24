@@ -1,7 +1,9 @@
 package com.example.frontcareproject
 
+import android.content.Intent
 import androidx.appcompat.app.AppCompatActivity
 import android.os.Bundle
+import android.widget.Button
 import android.widget.TableLayout
 import android.widget.TableRow
 import android.widget.TextView
@@ -24,8 +26,9 @@ class UserEvents : AppCompatActivity() {
 
         eventsTable = findViewById(R.id.eventsTable)
 
-        eventsTable.setColumnCollapsed(4, true)
+        //Collapse products and remaining spots columns on initialization
         eventsTable.setColumnCollapsed(5, true)
+        eventsTable.setColumnCollapsed(6, true)
 
         if(GlobalVar.userType == 1){fetchHistory("soldierEventsHistory")}
         else {fetchHistory("donorEventsHistory")}
@@ -93,14 +96,23 @@ class UserEvents : AppCompatActivity() {
             ).toMutableList()
 
             if(GlobalVar.userType == 0){
-                eventsTable.setColumnCollapsed(4, false)
+                //Show the products and remaining spots columns if donor
                 eventsTable.setColumnCollapsed(5, false)
+                eventsTable.setColumnCollapsed(6, false)
 
                 columns += listOf(
                     jsonObject.getString("product_name"),
                     jsonObject.getInt("remaining_spot").toString()
                 )
             }
+
+            val editEventButton = Button(this)
+            editEventButton.text = getString(R.string.edit_button_history_tables)
+            editEventButton.setOnClickListener {
+                handleEditEvent()
+            }
+
+            newRow.addView(editEventButton)
 
             // Add columns for each piece of information
 
@@ -118,9 +130,13 @@ class UserEvents : AppCompatActivity() {
         }
     }
 
+    private fun handleEditEvent() {
+        startActivity(Intent(this@UserEvents, EditEvent::class.java))
+    }
+
     private fun appendProductInfoToRow(existingRow: TableRow, productName: String) {
         // Find the column for productName and quantity in the existing row
-        val productInfoColumn = existingRow.getChildAt(4) as? TextView
+        val productInfoColumn = existingRow.getChildAt(5) as? TextView
 
         // Append new product info to the existing column
         "${productInfoColumn?.text}, $productName".also { productInfoColumn?.text = it }

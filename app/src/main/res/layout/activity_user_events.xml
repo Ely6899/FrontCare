@@ -42,6 +42,12 @@
             <TableRow>
 
                 <TextView
+                    android:id="@+id/editEventColumn"
+                    >
+
+                </TextView>
+
+                <TextView
                     android:id="@+id/tvOrganizerColumn"
                     android:background="@drawable/tables_outline"
                     android:gravity="center"

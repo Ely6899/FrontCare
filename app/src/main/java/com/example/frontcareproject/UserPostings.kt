@@ -37,7 +37,9 @@ class UserPostings : AppCompatActivity() {
         dateColumn = findViewById(R.id.tvDateColumn)
         createRequestButton = findViewById(R.id.createRequestButton)
 
+        //Collapse button columns on initialization
         postingsTable.setColumnCollapsed(0, true)
+        postingsTable.setColumnCollapsed(1, true)
 
         createRequestButton.setOnClickListener{
             val intent = Intent(this@UserPostings, CreateSoldierRequest::class.java)
@@ -86,8 +88,6 @@ class UserPostings : AppCompatActivity() {
     private fun handleHistoryResponse(serverAns: String) {
         val jsonAnswer = JSONArray(serverAns)
 
-        //val requestIdList = mutableMapOf<Int, Int>()
-
         //Iterate through elements of the answer representing rows
         for (i in 0 until jsonAnswer.length()){
             val jsonObject = jsonAnswer.getJSONObject(i)
@@ -112,17 +112,30 @@ class UserPostings : AppCompatActivity() {
 
 
             if(GlobalVar.userType == 1){
-                // Add the button to the last column
+                // Reverse button column collapsing
                 postingsTable.setColumnCollapsed(0, false)
+                postingsTable.setColumnCollapsed(1, false)
+
+                //Define the two buttons of the row
                 val confirmButton = Button(this)
                 confirmButton.text = "Confirm"
                 confirmButton.setOnClickListener {
                     handleDonationConfirmation(newRow)
                     confirmButton.isEnabled = false
                 }
+
+                val editRequestButton = Button(this)
+                editRequestButton.text = getString(R.string.edit_button_history_tables)
+                editRequestButton.setOnClickListener {
+                    handleEditRequest()
+                }
+
+                //Add two buttons to the row
                 newRow.addView(confirmButton)
+                newRow.addView(editRequestButton)
             }
             else{
+                newRow.addView(TextView(this))
                 newRow.addView(TextView(this))
             }
 
@@ -147,6 +160,10 @@ class UserPostings : AppCompatActivity() {
 
             postingsTable.addView(newRow)
         }
+    }
+
+    private fun handleEditRequest() {
+        startActivity(Intent(this@UserPostings, EditSoldierRequest::class.java))
     }
 
     private fun handleDonationConfirmation(rowToHandle: TableRow) {
@@ -192,8 +209,7 @@ class UserPostings : AppCompatActivity() {
 
     private fun appendProductInfoToRow(existingRow: TableRow, productName: String, quantity: String) {
         // Find the column for productName and quantity in the existing row
-        val productsColumnIndex = if (GlobalVar.userType == 1) 4 else 3
-        val productInfoColumn = existingRow.getChildAt(productsColumnIndex) as? TextView
+        val productInfoColumn = existingRow.getChildAt(5) as? TextView
 
         // Append new product info to the existing column
         productInfoColumn?.text = "${productInfoColumn?.text}, $productName - $quantity"

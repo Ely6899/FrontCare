@@ -35,6 +35,7 @@
     <string name="organizer_element">Organizer</string>
     <string name="product_name">Product Name</string>
     <string name="quantity">Quantity</string>
+    <string name="edit_button_history_tables">Edit</string>
 
     <string-array name="locations_array">
         <item>North</item>
