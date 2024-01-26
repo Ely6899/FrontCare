@@ -19,88 +19,96 @@
 
     </TextView>
 
-    <HorizontalScrollView
-        android:id="@+id/scrollPostings"
+    <ScrollView
         android:layout_width="match_parent"
         android:layout_height="wrap_content"
 
         app:layout_constraintTop_toBottomOf="@+id/tvPostingsTitle"
         >
 
-        <TableLayout
-            android:id="@+id/postingsTable"
-            android:layout_width="wrap_content"
+        <HorizontalScrollView
+            android:id="@+id/scrollPostings"
+            android:layout_width="match_parent"
             android:layout_height="wrap_content"
-            android:layout_marginTop="15dp"
-            android:background="@color/tablesBackgroundColor"
-            android:stretchColumns="*">
+            >
 
-            <!-- Header row -->
-            <TableRow>
+            <TableLayout
+                android:id="@+id/postingsTable"
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:layout_marginTop="15dp"
+                android:background="@color/tablesBackgroundColor"
+                android:stretchColumns="*"
+                >
 
-                <TextView
-                    android:id="@+id/confirmationColumn"
-                    />
+                <!-- Header row -->
+                <TableRow
+                    android:layout_width="match_parent"
+                    >
 
-                <TextView
-                    android:id="@+id/editPostingColumn"
-                    />
+                    <TextView
+                        android:id="@+id/confirmationColumn"
+                        />
 
-                <TextView
-                    android:id="@+id/tvStatusColumn"
-                    android:background="@drawable/tables_outline"
-                    android:gravity="center"
-                    android:padding="8dp"
-                    android:text="@string/status_element"
-                    android:layout_width="wrap_content"
-                    android:maxLines="1"
-                    android:ellipsize="end" />
+                    <TextView
+                        android:id="@+id/editPostingColumn"
+                        />
 
-                <TextView
-                    android:id="@+id/tvDateColumn"
-                    android:background="@drawable/tables_outline"
-                    android:gravity="center"
-                    android:padding="8dp"
-                    android:text="@string/date_element"
-                    android:layout_width="wrap_content"
-                    android:maxLines="1"
-                    android:ellipsize="end" />
+                    <TextView
+                        android:id="@+id/tvStatusColumn"
+                        android:background="@drawable/tables_outline"
+                        android:gravity="center"
+                        android:padding="8dp"
+                        android:text="@string/status_element"
+                        android:layout_width="wrap_content"
+                        android:maxLines="1"
+                        android:ellipsize="end" />
 
-                <TextView
-                    android:id="@+id/tvNameColumn"
-                    android:background="@drawable/tables_outline"
-                    android:gravity="center"
-                    android:padding="8dp"
-                    android:text="@string/default_string"
-                    android:layout_width="wrap_content"
-                    android:maxLines="1"
-                    android:ellipsize="end" />
+                    <TextView
+                        android:id="@+id/tvDateColumn"
+                        android:background="@drawable/tables_outline"
+                        android:gravity="center"
+                        android:padding="8dp"
+                        android:text="@string/date_element"
+                        android:layout_width="wrap_content"
+                        android:maxLines="1"
+                        android:ellipsize="end" />
 
-                <TextView
-                    android:background="@drawable/tables_outline"
-                    android:gravity="center"
-                    android:padding="8dp"
-                    android:text="@string/products_element"
-                    android:layout_width="wrap_content"
-                    android:maxLines="1"
-                    android:ellipsize="end" />
+                    <TextView
+                        android:id="@+id/tvNameColumn"
+                        android:background="@drawable/tables_outline"
+                        android:gravity="center"
+                        android:padding="8dp"
+                        android:text="@string/default_string"
+                        android:layout_width="wrap_content"
+                        android:maxLines="1"
+                        android:ellipsize="end" />
 
-                <TextView
-                    android:background="@drawable/tables_outline"
-                    android:gravity="center"
-                    android:padding="8dp"
-                    android:text="Close Date"
-                    android:layout_width="wrap_content"
-                    android:maxLines="1"
-                    android:ellipsize="end" />
+                    <TextView
+                        android:background="@drawable/tables_outline"
+                        android:gravity="center"
+                        android:padding="8dp"
+                        android:text="@string/products_element"
+                        android:layout_width="73dp"
+                        android:maxLines="1"
+                        android:ellipsize="end" />
 
-            </TableRow>
+                    <TextView
+                        android:background="@drawable/tables_outline"
+                        android:gravity="center"
+                        android:padding="8dp"
+                        android:text="Close Date"
+                        android:layout_width="wrap_content"
+                        android:maxLines="1"
+                        android:ellipsize="end" />
 
-            <!-- Data rows will be added dynamically -->
+                </TableRow>
 
-        </TableLayout>
+                <!-- Data rows will be added dynamically -->
 
-    </HorizontalScrollView>
+            </TableLayout>
+        </HorizontalScrollView>
+    </ScrollView>
 
     <Button
         android:id="@+id/createRequestButton"
