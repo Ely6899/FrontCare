@@ -18,17 +18,17 @@ import java.net.URL
 class DonorsEventsPage : AppCompatActivity() {
 
     //vars:
-    private lateinit var eventsTable: TableLayout
-    private lateinit var jsonArray: JSONArray  // Make the JSON array a class-level variable
+    private lateinit var eventsTable: TableLayout // the table from the xml file
+    private lateinit var jsonArray: JSONArray  // the JSON that is being sent from the server
 
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
         setContentView(R.layout.activity_donors_events_page)
 
-        // Find the TableLayout
+        // Find the TableLayout from the xml:
         eventsTable = findViewById(R.id.eventsTable)
 
-        // Make API GET request
+        // Make the API GET request from the server:
         Thread {
             try {
                 val url = URL("http://${GlobalVar.serverIP}:8080/api/donorsEvents")
@@ -42,10 +42,11 @@ class DonorsEventsPage : AppCompatActivity() {
                 val reader = BufferedReader(InputStreamReader(inputStream))
                 val serverResponse = reader.readText()
 
-                // Parse the JSON response
+                // Process the response into a JSON array:
                 jsonArray = JSONArray(serverResponse)
 
                 runOnUiThread {
+                    // fill up the table with the JSON array:
                     handleDonorsEventsResponse()
                 }
 
@@ -53,65 +54,54 @@ class DonorsEventsPage : AppCompatActivity() {
                 connection.disconnect()
 
             } catch (e: IOException) {
-                // Handle the exception, e.g., show an error message
+                // Handle an exception in case one occurs:
                 e.printStackTrace()
             }
         }.start()
     }
 
     private fun handleDonorsEventsResponse() {
-        // Iterate over JSON array and add rows to the table
+        // Iterate over the JSON array and add rows to the table
         for (i in 0 until jsonArray.length()) {
             val jsonObject = jsonArray.getJSONObject(i)
             addRowToTable(
-                jsonObject.getString("event_id"),  // Use event_id for identification
-                jsonObject.getString("event_date"),  // Add event_date to its own column
+                // adding from each single JSON in the JSON array its values to a table row:
+                jsonObject.getString("event_id"),
+                jsonObject.getString("event_date"),
                 jsonObject.getString("event_location"),
-                jsonObject.getString("event_address"),
-                jsonObject.getInt("remaining_spot").toString(),
-                jsonObject.getString("product_name")
+                jsonObject.getInt("remaining_spot").toString()
             )
         }
     }
 
     private fun addRowToTable(
-        eventId: String,
+        eventId: String, // Used for identification, so JSONs with the same event_id won't take more than one row
         eventDate: String,
         eventLocation: String,
-        eventAddress: String,
-        remainingSpot: String,
-        productName: String
+        remainingSpot: String
     ) {
+        // try to find a row with the same event_id, will be NULL if none is found:
         val existingRow = eventsTable.findViewWithTag<TableRow>(eventId)
 
-        if (existingRow != null) {
-            // If row with the same event_id exists, append product info to the existing row
-            appendProductInfoToRow(existingRow, productName)
-        } else {
-            // Create a new row
+        // If a row with the same event_id exists, then there is no need to make a new one
+        // so only make a new row in case existingRow is null:
+        if (existingRow == null) {
+
+            // Create a new row:
             val newRow = TableRow(this)
             newRow.tag = eventId // Set tag to event_id for identification
 
-            // Set gray background for the TableRow
+            // Set background color for the TableRow from the defined table background color:
             newRow.setBackgroundColor(getColor(R.color.tablesBackgroundColor))
 
-            // Add columns for each piece of information
-            val columns = listOf(eventDate, eventLocation, eventAddress, remainingSpot, "$productName")
-            for (columnData in columns) {
-                val column = TextView(this)
-                column.text = columnData
-                column.gravity = android.view.Gravity.CENTER
-                column.setPadding(8, 8, 8, 8)
-                // Set black border for the TextView
-                column.setBackgroundResource(R.drawable.tables_outline)
-                newRow.addView(column)
-            }
-
-            // Add the button to the last column
+            // Add the details button to the first column for the current row:
             val detailsButton = Button(this)
             detailsButton.text = "Details"
+
+            // Define what happens on button click:
             detailsButton.setOnClickListener {
-                // Filter the JSON array based on event_id
+                // Filter the JSON array based on event_id, so only relevant JSONs will be sent to the details page,
+                // then, reshape each JSON to a String. The filteredArray will now have an array of String-represented JSONs:
                 val filteredArray = (0 until jsonArray.length())
                     .map { jsonArray.getJSONObject(it) }
                     .filter { it.getString("event_id") == eventId }
@@ -119,24 +109,29 @@ class DonorsEventsPage : AppCompatActivity() {
                         it.toString()
                     }
 
-                // Handle button click, e.g., show details for the corresponding row
                 // Start EventDetails activity and pass relevant information
                 val intent = Intent(this, EventDetails::class.java).apply {
                     putStringArrayListExtra("jsonArray", ArrayList(filteredArray))
                 }
                 startActivity(intent)
             }
+
+            // Add the button to the current new row:
             newRow.addView(detailsButton)
+
+            // Add columns for each piece of information:
+            val columns = listOf(eventDate, eventLocation, remainingSpot)
+            for (columnData in columns) {
+                val column = TextView(this)
+                column.text = columnData
+                column.gravity = android.view.Gravity.CENTER
+                //column.setPadding(8, 8, 8, 8) TODO: maor - check if this line is needed or not
+                // Set the defined border for the TextView:
+                column.setBackgroundResource(R.drawable.tables_outline)
+                newRow.addView(column)
+            }
 
             eventsTable.addView(newRow)
         }
-    }
-
-    private fun appendProductInfoToRow(existingRow: TableRow, productName: String) {
-        // Find the column for productName in the existing row
-        val productInfoColumn = existingRow.getChildAt(4) as? TextView
-
-        // Append new product info to the existing column
-        productInfoColumn?.text = "${productInfoColumn?.text}, $productName"
     }
 }

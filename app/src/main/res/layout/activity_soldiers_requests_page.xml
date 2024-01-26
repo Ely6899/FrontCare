@@ -20,10 +20,12 @@
         app:layout_constraintStart_toStartOf="parent"
         app:layout_constraintTop_toTopOf="parent" />
 
-    <HorizontalScrollView
+    <ScrollView
         android:id="@+id/horizontalScrollView"
         android:layout_width="0dp"
         android:layout_height="0dp"
+        android:layout_marginLeft="1dp"
+        android:layout_marginRight="1dp"
         app:layout_constraintBottom_toBottomOf="parent"
         app:layout_constraintEnd_toEndOf="parent"
         app:layout_constraintStart_toStartOf="parent"
@@ -34,11 +36,22 @@
             android:layout_width="wrap_content"
             android:layout_height="wrap_content"
             android:layout_marginTop="15dp"
+            android:layout_marginLeft="1dp"
+            android:layout_marginRight="1dp"
             android:background="@color/tablesBackgroundColor"
             android:stretchColumns="0">
 
             <!-- Header row -->
             <TableRow>
+
+                <TextView
+                    android:background="@drawable/tables_outline"
+                    android:gravity="center"
+                    android:padding="8dp"
+                    android:text="Details"
+                    android:layout_width="wrap_content"
+                    android:maxLines="1"
+                    android:ellipsize="end" />
 
                 <TextView
                     android:background="@drawable/tables_outline"
@@ -62,28 +75,12 @@
                     android:background="@drawable/tables_outline"
                     android:gravity="center"
                     android:padding="8dp"
-                    android:text="Products"
-                    android:layout_width="wrap_content"
-                    android:maxLines="1"
-                    android:ellipsize="end" />
-
-                <TextView
-                    android:background="@drawable/tables_outline"
-                    android:gravity="center"
-                    android:padding="8dp"
                     android:text="Pickup Location"
                     android:layout_width="wrap_content"
                     android:maxLines="1"
                     android:ellipsize="end" />
 
-                <TextView
-                    android:background="@drawable/tables_outline"
-                    android:gravity="center"
-                    android:padding="8dp"
-                    android:text="Details"
-                    android:layout_width="wrap_content"
-                    android:maxLines="1"
-                    android:ellipsize="end" />
+
 
             </TableRow>
 
@@ -91,6 +88,6 @@
 
         </TableLayout>
 
-    </HorizontalScrollView>
+    </ScrollView>
 
 </androidx.constraintlayout.widget.ConstraintLayout>
