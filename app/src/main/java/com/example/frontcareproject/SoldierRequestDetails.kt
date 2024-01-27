@@ -22,11 +22,25 @@ import okhttp3.RequestBody.Companion.toRequestBody
 
 
 class SoldierRequestDetails : AppCompatActivity() {
+    private lateinit var requestDateTextView: TextView
+    private lateinit var firstnameTextView: TextView
+    private lateinit var pickupLocationTextView: TextView
+    private lateinit var contactTextView: TextView
+    private lateinit var donateButtonView: Button
+    private lateinit var productsTableView: TableLayout
 
     @SuppressLint("SetTextI18n")
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
         setContentView(R.layout.activity_soldier_request_details)
+
+        // Get views
+        requestDateTextView = findViewById(R.id.requestDateTextView)
+        firstnameTextView = findViewById(R.id.firstnameTextView)
+        pickupLocationTextView = findViewById(R.id.pickupLocationTextView)
+        contactTextView = findViewById(R.id.contactTextView)
+        donateButtonView = findViewById(R.id.donateButton)
+        productsTableView = findViewById(R.id.productsTable)
 
         // Retrieve JSON array from the intent
         val jsonStringList = intent.getStringArrayListExtra("jsonArray")
@@ -50,14 +64,6 @@ class SoldierRequestDetails : AppCompatActivity() {
         val emailAddress = jsonObject.getString("email_address")
         val phoneNumber = jsonObject.getString("phone_number")
 
-        // Get views
-        val requestDateTextView: TextView = findViewById(R.id.requestDateTextView)
-        val firstnameTextView: TextView = findViewById(R.id.firstnameTextView)
-        val pickupLocationTextView: TextView = findViewById(R.id.pickupLocationTextView)
-        val contactTextView: TextView = findViewById(R.id.contactTextView)
-        val donateButtonView: Button = findViewById(R.id.donateButton)
-        val productsTableView: TableLayout = findViewById(R.id.productsTable)
-
         // Display user data
         requestDateTextView.text = "Request Date: $requestDate"
         firstnameTextView.text = "Soldier Name: $firstname"
@@ -65,7 +71,7 @@ class SoldierRequestDetails : AppCompatActivity() {
         contactTextView.text = "Email: $emailAddress \nPhone number: $phoneNumber"
 
         // Get products and put them in map
-        var products = mutableMapOf<String, Int>()
+        val products = mutableMapOf<String, Int>()
         for (i in 0 until jsonArray.length()) {
             val obj = jsonArray.getJSONObject(i)
             products[obj.getString("product_name")] = obj.getInt("quantity")
@@ -76,34 +82,38 @@ class SoldierRequestDetails : AppCompatActivity() {
 
         // Add button listener
         donateButtonView.setOnClickListener{
-            val url = "http://${GlobalVar.serverIP}:8080/api/donation"
+            onDonateButtonClick(requestId)
+        }
+    }
 
-            // Request in a new Coroutine that is destroyed after leaving this scope
-            lifecycleScope.launch(Dispatchers.IO) {
-                val client = OkHttpClient()
+    private fun onDonateButtonClick(requestId : Int) {
+        val url = "http://${GlobalVar.serverIP}:8080/api/donation"
 
-                // create request body
-                val jsonMediaType = "application/json; charset=utf-8".toMediaTypeOrNull()
-                val json = """{"userId": "${GlobalVar.userId}", "requestId": "$requestId"}"""
-                val requestBody = json.toRequestBody(jsonMediaType)
+        // Request in a new Coroutine that is destroyed after leaving this scope
+        lifecycleScope.launch(Dispatchers.IO) {
+            val client = OkHttpClient()
 
-                // build the request
-                val request = Request.Builder()
-                    .url(url)
-                    .post(requestBody)
-                    .build()
+            // create request body
+            val jsonMediaType = "application/json; charset=utf-8".toMediaTypeOrNull()
+            val json = """{"userId": "${GlobalVar.userId}", "requestId": "$requestId"}"""
+            val requestBody = json.toRequestBody(jsonMediaType)
 
-                // send request and put response in variable
-                val response = client.newCall(request).execute()
+            // build the request
+            val request = Request.Builder()
+                .url(url)
+                .post(requestBody)
+                .build()
 
-                // check response code
-                if (response.isSuccessful) {
-                    // return to requests page activity
-                    val intent = Intent(this@SoldierRequestDetails, SoldiersRequestsPage::class.java)
-                    startActivity(intent)
-                } else {
-                    println("Request failed with code: ${response.code}")
-                }
+            // send request and put response in variable
+            val response = client.newCall(request).execute()
+
+            // check response code
+            if (response.isSuccessful) {
+                // return to requests page activity
+                val intent = Intent(this@SoldierRequestDetails, SoldiersRequestsPage::class.java)
+                startActivity(intent)
+            } else {
+                println("Request failed with code: ${response.code}")
             }
         }
     }
