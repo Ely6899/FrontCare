@@ -622,7 +622,7 @@ fun createSoldierRequest(data: Map<String, Any>): Boolean{
 
     val userId = data["userId"].toString()
     val location = data["location"].toString()
-    val products = data["products"] as Map<String, Int>
+    val products = data["products"] as Map<Int, Int>
 
     var connection: Connection? = null
 
@@ -651,14 +651,14 @@ fun createSoldierRequest(data: Map<String, Any>): Boolean{
             // Insert into request_details table for each product
             val insertRequestDetailsSQL = """
                 INSERT INTO request_details (request_id, product_id, quantity)
-                VALUES (?, (SELECT product_id FROM products WHERE product_name = ?), ?);
+                VALUES (?, ?, ?);
             """.trimIndent()
 
             val insertRequestDetailsStatement = connection.prepareStatement(insertRequestDetailsSQL)
 
-            for ((product, quantity) in products) {
+            for ((productId, quantity) in products) {
                 insertRequestDetailsStatement.setInt(1, requestId)
-                insertRequestDetailsStatement.setString(2, product)
+                insertRequestDetailsStatement.setInt(2, productId)
                 insertRequestDetailsStatement.setInt(3, quantity)
                 insertRequestDetailsStatement.executeUpdate()
             }
@@ -674,29 +674,25 @@ fun createSoldierRequest(data: Map<String, Any>): Boolean{
     return false
 }
 
-fun getProducts(): List<Map<String, Any>> {
-    val resultList = mutableListOf<Map<String, Any>>()
-
+fun getProducts(): MutableMap<String, String> {
+    val productsMap = mutableMapOf<String, String>()
     try {
         // Establish the database connection
         DriverManager.getConnection(mysql_url, mysql_user, mysql_password).use { connection ->
-            val sqlQuery = "SELECT products.product_name FROM products;"
+            val sqlQuery = "SELECT products.product_id,products.product_name FROM products;"
             val statement: PreparedStatement = connection.prepareStatement(sqlQuery)
             val resultSet: ResultSet = statement.executeQuery()
 
             // Process the result set and populate the list of maps
             while (resultSet.next()) {
-                val rowMap = mutableMapOf<String, Any>()
-                rowMap["product_name"] = resultSet.getString("product_name")
-                resultList.add(rowMap)
+                productsMap[resultSet.getInt("product_id").toString()] = resultSet.getString("product_name")
             }
         }
     } catch (e: Exception) {
         // Handle exceptions, e.g., log or throw custom exception
         e.printStackTrace()
     }
-
-    return resultList
+    return productsMap
 }
 
 
