@@ -36,11 +36,18 @@
     <string name="product_name">Product Name</string>
     <string name="quantity">Quantity</string>
     <string name="edit_button_history_tables">Edit</string>
+    <string name="edit_request_title">Edit Request</string>
 
     <string-array name="locations_array">
         <item>North</item>
         <item>Center</item>
         <item>South</item>
+    </string-array>
+
+    <string-array name="posting_history_options">
+        <item>Details</item>
+        <item>Edit</item>
+        <item>Confirm</item>
     </string-array>
 
 

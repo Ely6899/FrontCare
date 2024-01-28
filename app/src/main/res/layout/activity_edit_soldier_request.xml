@@ -4,6 +4,149 @@
     xmlns:tools="http://schemas.android.com/tools"
     android:layout_width="match_parent"
     android:layout_height="match_parent"
+    android:background="@color/design_default_color_on_primary"
     tools:context=".EditSoldierRequest">
 
+    <TextView
+        android:id="@+id/tvEditRequestTitle"
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:text="@string/edit_request_title"
+        android:textAlignment="center"
+        android:textColor="@android:color/black"
+        android:textSize="25sp"
+        app:layout_constraintTop_toTopOf="parent">
+
+    </TextView>
+
+    <Spinner
+        android:id="@+id/itemsSpinner"
+        android:layout_width="250dp"
+        android:layout_height="50dp"
+        android:layout_marginTop="28dp"
+        android:spinnerMode="dropdown"
+
+        android:textAlignment="center"
+        app:layout_constraintStart_toStartOf="parent"
+        app:layout_constraintTop_toBottomOf="@+id/tvEditRequestTitle">
+
+
+    </Spinner>
+
+    <EditText
+        android:id="@+id/etProductQuantity"
+        android:layout_width="0dp"
+        android:layout_height="50dp"
+        android:layout_marginTop="28dp"
+        android:inputType="number"
+        android:textColor="@color/black"
+        android:hint="@string/quantity"
+        android:textColorHint="@color/black"
+        android:autofillHints=""
+        android:textAlignment="center"
+        app:layout_constraintEnd_toEndOf="parent"
+        app:layout_constraintHorizontal_bias="0.5"
+        app:layout_constraintStart_toEndOf="@+id/itemsSpinner"
+        app:layout_constraintTop_toBottomOf="@+id/tvEditRequestTitle">
+
+    </EditText>
+
+    <Button
+        android:id="@+id/btnAddItem"
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:text="Add to list"
+        android:textSize="25sp"
+
+        app:layout_constraintTop_toBottomOf="@+id/itemsSpinner"
+        >
+
+    </Button>
+
+    <ScrollView
+        android:id="@+id/scrollProducts"
+        android:layout_width="match_parent"
+        android:layout_height="350dp"
+
+        app:layout_constraintTop_toBottomOf="@id/btnAddItem">
+
+        <TableLayout
+            android:id="@+id/itemTable"
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:layout_marginTop="25dp"
+            android:stretchColumns="*"
+
+            app:layout_constraintTop_toBottomOf="@+id/btnAddItem">
+
+            <!-- Header row -->
+            <TableRow
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content">
+
+                <TextView
+                    android:id="@+id/tvProductsSpinnerColumn"
+                    android:gravity="center"
+                    android:text="Products"
+                    android:padding="8dp"
+                    android:maxLines="1"
+                    android:textAlignment="center" />
+
+                <TextView
+                    android:id="@+id/tvQuantityColumn"
+                    android:layout_width="wrap_content"
+                    android:background="@drawable/tables_outline"
+                    android:ellipsize="end"
+                    android:gravity="center"
+                    android:maxLines="1"
+                    android:padding="8dp"
+                    android:text="@string/quantity" />
+
+                <TextView
+                    android:id="@+id/tvRemoveButtonColumn"
+                    android:layout_width="wrap_content"
+                    android:background="@drawable/tables_outline"
+                    android:ellipsize="end"
+                    android:gravity="center"
+                    android:maxLines="1"
+                    android:padding="8dp"
+                    android:text="Remove" />
+
+            </TableRow>
+
+        </TableLayout>
+
+    </ScrollView>
+
+    <Button
+        android:id="@+id/btnConfirmEdit"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:layout_marginTop="20dp"
+        android:text="@string/edit_request_title"
+        android:textSize="25sp"
+
+        app:layout_constraintEnd_toEndOf="parent"
+        app:layout_constraintHorizontal_bias="0.5"
+        app:layout_constraintStart_toStartOf="parent"
+        app:layout_constraintTop_toBottomOf="@+id/scrollProducts">
+
+    </Button>
+
+    <Button
+        android:id="@+id/btnRemoveRequest"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:layout_marginTop="20dp"
+        android:text="Remove Request"
+        android:textSize="25sp"
+
+
+        app:layout_constraintEnd_toEndOf="parent"
+        app:layout_constraintHorizontal_bias="0.5"
+        app:layout_constraintStart_toStartOf="parent"
+        app:layout_constraintTop_toBottomOf="@+id/btnConfirmEdit"
+        >
+
+    </Button>
 </androidx.constraintlayout.widget.ConstraintLayout>

@@ -3,8 +3,12 @@ package com.example.frontcareproject
 import android.content.Intent
 import androidx.appcompat.app.AppCompatActivity
 import android.os.Bundle
+import android.view.Display.Mode
 import android.view.View
+import android.widget.AdapterView
+import android.widget.ArrayAdapter
 import android.widget.Button
+import android.widget.Spinner
 import android.widget.TableLayout
 import android.widget.TableRow
 import android.widget.TextView
@@ -37,9 +41,9 @@ class UserPostings : AppCompatActivity() {
         dateColumn = findViewById(R.id.tvDateColumn)
         createRequestButton = findViewById(R.id.createRequestButton)
 
+
         //Collapse button columns on initialization
-        postingsTable.setColumnCollapsed(0, true)
-        postingsTable.setColumnCollapsed(1, true)
+        //postingsTable.setColumnCollapsed(0, true)
 
         createRequestButton.setOnClickListener{
             val intent = Intent(this@UserPostings, CreateSoldierRequest::class.java)
@@ -110,34 +114,77 @@ class UserPostings : AppCompatActivity() {
             // Set gray background for the TableRow
             newRow.setBackgroundColor(getColor(R.color.tablesBackgroundColor))
 
+            /*
+            TODO(Fix bug of listener not working when returning from the screen)
+            */
 
-            if(GlobalVar.userType == 1){
-                // Reverse button column collapsing
-                postingsTable.setColumnCollapsed(0, false)
-                postingsTable.setColumnCollapsed(1, false)
-
-                //Define the two buttons of the row
-                val confirmButton = Button(this)
-                confirmButton.text = "Confirm"
-                confirmButton.setOnClickListener {
-                    handleDonationConfirmation(newRow)
-                    confirmButton.isEnabled = false
-                }
-
-                val editRequestButton = Button(this)
-                editRequestButton.text = getString(R.string.edit_button_history_tables)
-                editRequestButton.setOnClickListener {
-                    handleEditRequest()
-                }
-
-                //Add two buttons to the row
-                newRow.addView(confirmButton)
-                newRow.addView(editRequestButton)
+            //Define options spinner for the row
+            val optionsSpinner = Spinner(this,  Spinner.MODE_DROPDOWN)
+            ArrayAdapter.createFromResource(
+                this,
+                R.array.posting_history_options,
+                android.R.layout.simple_spinner_item
+            ).also { adapter ->
+                // Specify the layout to use when the list of choices appears.
+                adapter.setDropDownViewResource(android.R.layout.simple_spinner_dropdown_item)
+                // Apply the adapter to the spinner.
+                optionsSpinner.adapter = adapter
             }
-            else{
-                newRow.addView(TextView(this))
-                newRow.addView(TextView(this))
+
+            optionsSpinner.onItemSelectedListener = object: AdapterView.OnItemSelectedListener {
+                override fun onNothingSelected(parent: AdapterView<*>?) {
+                    // Do nothing
+                }
+                override fun onItemSelected(parent: AdapterView<*>?, view: View?, position: Int, id: Long) {
+                    //val selection = parent?.getItemAtPosition(position)
+
+                    if(position == 0){ //Details
+                        //Nothing YET
+                    }
+
+                    if (position == 1){ //Edit
+                        val editIntent = Intent(this@UserPostings, EditSoldierRequest::class.java)
+                        val productsString = newRow.getChildAt(4) as TextView
+                        editIntent.putExtra("products", productsString.text)
+                        editIntent.putExtra("request_id", newRow.tag as String)
+
+                        startActivity(editIntent)
+                    }
+
+                    if (position == 2){ //Confirm
+                        handleDonationConfirmation(newRow)
+                    }
+                }
             }
+
+            newRow.addView(optionsSpinner)
+
+//            if(GlobalVar.userType == 1){
+//                // Reverse button column collapsing
+//                postingsTable.setColumnCollapsed(0, false)
+//
+//                //Define the two buttons of the row
+//                val confirmButton = Button(this)
+//                confirmButton.text = "Confirm"
+//                confirmButton.setOnClickListener {
+//                    handleDonationConfirmation(newRow)
+//                    confirmButton.isEnabled = false
+//                }
+//
+//                val editRequestButton = Button(this)
+//                editRequestButton.text = getString(R.string.edit_button_history_tables)
+//                editRequestButton.setOnClickListener {
+//                    handleEditRequest()
+//                }
+
+//                //Add two buttons to the row
+//                newRow.addView(confirmButton)
+//                newRow.addView(editRequestButton)
+//            }
+//            else{
+//                newRow.addView(TextView(this))
+//                newRow.addView(TextView(this))
+//            }
 
             val columns = listOf(
                 jsonObject.getString("status"),
@@ -152,7 +199,7 @@ class UserPostings : AppCompatActivity() {
                 val column = TextView(this)
                 column.text = columnData
                 column.gravity = android.view.Gravity.CENTER
-                column.setPadding(8, 8, 8, 8)
+                //column.setPadding(8, 8, 8, 8)
                 // Set black border for the TextView
                 column.setBackgroundResource(R.drawable.tables_outline)
                 newRow.addView(column)
@@ -160,10 +207,6 @@ class UserPostings : AppCompatActivity() {
 
             postingsTable.addView(newRow)
         }
-    }
-
-    private fun handleEditRequest() {
-        startActivity(Intent(this@UserPostings, EditSoldierRequest::class.java))
     }
 
     private fun handleDonationConfirmation(rowToHandle: TableRow) {
@@ -209,7 +252,7 @@ class UserPostings : AppCompatActivity() {
 
     private fun appendProductInfoToRow(existingRow: TableRow, productName: String, quantity: String) {
         // Find the column for productName and quantity in the existing row
-        val productInfoColumn = existingRow.getChildAt(5) as? TextView
+        val productInfoColumn = existingRow.getChildAt(4) as? TextView
 
         // Append new product info to the existing column
         productInfoColumn?.text = "${productInfoColumn?.text}, $productName - $quantity"
