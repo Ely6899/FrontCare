@@ -84,15 +84,6 @@
                         android:background="@drawable/tables_outline"
                         android:gravity="center"
                         android:padding="8dp"
-                        android:text="@string/products_element"
-                        android:layout_width="73dp"
-                        android:maxLines="1"
-                        android:ellipsize="end" />
-
-                    <TextView
-                        android:background="@drawable/tables_outline"
-                        android:gravity="center"
-                        android:padding="8dp"
                         android:text="Close Date"
                         android:layout_width="wrap_content"
                         android:maxLines="1"

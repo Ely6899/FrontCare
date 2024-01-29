@@ -3,7 +3,6 @@ package com.example.frontcareproject
 import android.content.Intent
 import androidx.appcompat.app.AppCompatActivity
 import android.os.Bundle
-import android.text.Editable
 import android.text.InputType
 import android.widget.ArrayAdapter
 import android.widget.Button
@@ -13,6 +12,7 @@ import android.widget.TableLayout
 import android.widget.TableRow
 import android.widget.Toast
 import androidx.core.view.forEach
+import org.json.JSONArray
 import org.json.JSONObject
 import utils.GlobalVar
 import java.io.BufferedReader
@@ -50,16 +50,18 @@ class EditSoldierRequest : AppCompatActivity() {
 
         //Prepare data for inserting as rows to the table.
 
-        val productsString = intent.getStringExtra("products").toString()
-        // Define a regular expression pattern to match "product - number" pairs
-        val pattern = Regex("(\\w+) - (\\d+)")
+        val jsonStringList = intent.getStringArrayListExtra("jsonArray")
+        val jsonArray = JSONArray()
 
-        // Find all matches of the pattern in the input string
-        pattern.findAll(productsString).forEach { matchResult ->
-            // Extract product and number from the matched groups
-            val (product, number) = matchResult.destructured
-            // Store product and number in the map
-            productMap[product] = number.toInt()
+        if(jsonStringList != null){
+            for(jsonString in jsonStringList){
+                jsonArray.put(JSONObject(jsonString))
+            }
+        }
+
+        for (i in 0 until jsonArray.length()){
+            val obj = jsonArray.getJSONObject((i))
+            productMap[obj.getString("product_name")] = obj.getInt("quantity")
         }
 
         //Request the products data from the DB
@@ -230,7 +232,7 @@ class EditSoldierRequest : AppCompatActivity() {
 
         newRow.addView(productSpinnerColumn)
 
-        var etQuantityColumn = EditText(this)
+        val etQuantityColumn = EditText(this)
         etQuantityColumn.inputType=InputType.TYPE_CLASS_NUMBER
         etQuantityColumn.setText(quantity)
         etQuantityColumn.textAlignment=EditText.TEXT_ALIGNMENT_CENTER

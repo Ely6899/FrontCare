@@ -3,11 +3,9 @@ package com.example.frontcareproject
 import android.content.Intent
 import androidx.appcompat.app.AppCompatActivity
 import android.os.Bundle
-import android.view.Display.Mode
 import android.view.View
 import android.widget.AdapterView
 import android.widget.ArrayAdapter
-import android.widget.Button
 import android.widget.Spinner
 import android.widget.TableLayout
 import android.widget.TableRow
@@ -28,6 +26,7 @@ class UserPostings : AppCompatActivity() {
     private lateinit var nameColumn: TextView
     private lateinit var createRequestButton: TextView
     private lateinit var postingsTable: TableLayout
+    private lateinit var jsonArray: JSONArray
 
 
     override fun onCreate(savedInstanceState: Bundle?) {
@@ -40,10 +39,6 @@ class UserPostings : AppCompatActivity() {
         statusColumn = findViewById(R.id.tvStatusColumn)
         dateColumn = findViewById(R.id.tvDateColumn)
         createRequestButton = findViewById(R.id.createRequestButton)
-
-
-        //Collapse button columns on initialization
-        //postingsTable.setColumnCollapsed(0, true)
 
         createRequestButton.setOnClickListener{
             val intent = Intent(this@UserPostings, CreateSoldierRequest::class.java)
@@ -74,9 +69,10 @@ class UserPostings : AppCompatActivity() {
                 val inputStream = connection.inputStream
                 val reader = BufferedReader(InputStreamReader(inputStream))
                 val serverAns = reader.readLine()
+                jsonArray = JSONArray(serverAns)
 
                 runOnUiThread {
-                    handleHistoryResponse(serverAns)
+                    handleHistoryResponse()
                 }
 
                 reader.close()
@@ -89,12 +85,10 @@ class UserPostings : AppCompatActivity() {
         }.start()
     }
 
-    private fun handleHistoryResponse(serverAns: String) {
-        val jsonAnswer = JSONArray(serverAns)
-
+    private fun handleHistoryResponse() {
         //Iterate through elements of the answer representing rows
-        for (i in 0 until jsonAnswer.length()){
-            val jsonObject = jsonAnswer.getJSONObject(i)
+        for (i in 0 until jsonArray.length()){
+            val jsonObject = jsonArray.getJSONObject(i)
             addRowToTable(jsonObject)
         }
     }
@@ -103,20 +97,13 @@ class UserPostings : AppCompatActivity() {
         val requestId = jsonObject.getString("request_id")
         val existingRow = postingsTable.findViewWithTag<TableRow>(requestId)
 
-        if (existingRow != null) {
-            // If row with the same request_id exists, append product info to the existing row
-            appendProductInfoToRow(existingRow, jsonObject.getString("product_name"), jsonObject.getString("quantity"))
-        } else {
+        if(existingRow == null){
             // Create a new row
             val newRow = TableRow(this)
             newRow.tag = requestId // Set tag to request_id for identification
 
             // Set gray background for the TableRow
             newRow.setBackgroundColor(getColor(R.color.tablesBackgroundColor))
-
-            /*
-            TODO(Fix bug of listener not working when returning from the screen)
-            */
 
             //Define options spinner for the row
             val optionsSpinner = Spinner(this,  Spinner.MODE_DROPDOWN)
@@ -131,66 +118,56 @@ class UserPostings : AppCompatActivity() {
                 optionsSpinner.adapter = adapter
             }
 
+            optionsSpinner.setSelection(0,false)
+
             optionsSpinner.onItemSelectedListener = object: AdapterView.OnItemSelectedListener {
                 override fun onNothingSelected(parent: AdapterView<*>?) {
                     // Do nothing
                 }
                 override fun onItemSelected(parent: AdapterView<*>?, view: View?, position: Int, id: Long) {
-                    //val selection = parent?.getItemAtPosition(position)
+                    // Check if the position is valid
+                    when (position) {
+                        0 -> {
+                            val filteredArray = (0 until jsonArray.length())
+                                .map { jsonArray.getJSONObject(it) }
+                                .filter { it.getString("request_id") == requestId }
+                                .map {
+                                    it.toString()
+                                }
 
-                    if(position == 0){ //Details
-                        //Nothing YET
-                    }
+                            val detailsIntent = Intent(this@UserPostings, SoldierRequestDetails::class.java)
+                            detailsIntent.putStringArrayListExtra("jsonArray", ArrayList(filteredArray))
+                            detailsIntent.putExtra("fromHistory", true)
 
-                    if (position == 1){ //Edit
-                        val editIntent = Intent(this@UserPostings, EditSoldierRequest::class.java)
-                        val productsString = newRow.getChildAt(4) as TextView
-                        editIntent.putExtra("products", productsString.text)
-                        editIntent.putExtra("request_id", newRow.tag as String)
+                            startActivity(detailsIntent)
+                        }
+                        1 -> {
+                            val filteredArray = (0 until jsonArray.length())
+                                .map { jsonArray.getJSONObject(it) }
+                                .filter { it.getString("request_id") == requestId }
+                                .map {
+                                    it.toString()
+                                }
 
-                        startActivity(editIntent)
-                    }
+                            val editIntent = Intent(this@UserPostings, EditSoldierRequest::class.java)
+                            editIntent.putExtra("request_id", newRow.tag as String)
+                            editIntent.putStringArrayListExtra("jsonArray", ArrayList(filteredArray))
 
-                    if (position == 2){ //Confirm
-                        handleDonationConfirmation(newRow)
+                            startActivity(editIntent)
+                        }
+                        2 -> {
+                            handleDonationConfirmation(newRow)
+                        }
                     }
                 }
             }
 
             newRow.addView(optionsSpinner)
 
-//            if(GlobalVar.userType == 1){
-//                // Reverse button column collapsing
-//                postingsTable.setColumnCollapsed(0, false)
-//
-//                //Define the two buttons of the row
-//                val confirmButton = Button(this)
-//                confirmButton.text = "Confirm"
-//                confirmButton.setOnClickListener {
-//                    handleDonationConfirmation(newRow)
-//                    confirmButton.isEnabled = false
-//                }
-//
-//                val editRequestButton = Button(this)
-//                editRequestButton.text = getString(R.string.edit_button_history_tables)
-//                editRequestButton.setOnClickListener {
-//                    handleEditRequest()
-//                }
-
-//                //Add two buttons to the row
-//                newRow.addView(confirmButton)
-//                newRow.addView(editRequestButton)
-//            }
-//            else{
-//                newRow.addView(TextView(this))
-//                newRow.addView(TextView(this))
-//            }
-
             val columns = listOf(
                 jsonObject.getString("status"),
                 jsonObject.getString("request_date"),
                 jsonObject.getString("firstname"),
-                "${jsonObject.getString("product_name")} - ${jsonObject.getString("quantity")}",
                 jsonObject.getString("close_date"))
 
             // Add columns for each piece of information
@@ -199,7 +176,7 @@ class UserPostings : AppCompatActivity() {
                 val column = TextView(this)
                 column.text = columnData
                 column.gravity = android.view.Gravity.CENTER
-                //column.setPadding(8, 8, 8, 8)
+                column.setPadding(8, 8, 8, 8)
                 // Set black border for the TextView
                 column.setBackgroundResource(R.drawable.tables_outline)
                 newRow.addView(column)
@@ -233,7 +210,7 @@ class UserPostings : AppCompatActivity() {
 
                 runOnUiThread {
                     val jsonNewData = JSONObject(serverAns)
-                    val closeDateField = rowToHandle.getChildAt(5) as? TextView
+                    val closeDateField = rowToHandle.getChildAt(4) as? TextView
                     val statusField = rowToHandle.getChildAt(1) as? TextView
 
                     closeDateField!!.text = jsonNewData.optString("close_date")
@@ -248,13 +225,5 @@ class UserPostings : AppCompatActivity() {
                 e.printStackTrace()
             }
         }.start()
-    }
-
-    private fun appendProductInfoToRow(existingRow: TableRow, productName: String, quantity: String) {
-        // Find the column for productName and quantity in the existing row
-        val productInfoColumn = existingRow.getChildAt(4) as? TextView
-
-        // Append new product info to the existing column
-        productInfoColumn?.text = "${productInfoColumn?.text}, $productName - $quantity"
     }
 }

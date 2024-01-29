@@ -323,7 +323,10 @@ fun getHistory(userId: String?,userType:String?): List<Map<String, Any>> {
                     request_details.quantity,
                     soldier_requests.request_date,
                     soldier_requests.close_date,
-                    soldier_requests.status
+                    soldier_requests.status,
+                    soldier_requests.pickup_location,
+                    users.email_address,
+                    users.phone_number
                 FROM
                     request_details
                 JOIN
@@ -355,6 +358,9 @@ fun getHistory(userId: String?,userType:String?): List<Map<String, Any>> {
                 val closeDate: String? = resultSet.getString("close_date")
                 rowMap["close_date"] = closeDate ?: "null"
                 rowMap["status"] = resultSet.getString("status")
+                rowMap["pickup_location"] = resultSet.getString("pickup_location")
+                rowMap["email_address"] = resultSet.getString("email_address")
+                rowMap["phone_number"] = resultSet.getString("phone_number")
                 resultList.add(rowMap)
             }
         }
