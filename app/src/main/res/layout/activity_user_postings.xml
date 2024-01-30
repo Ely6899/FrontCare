@@ -47,7 +47,9 @@
                     >
 
                     <TextView
-                        android:id="@+id/confirmationColumn"
+                        android:id="@+id/optionsColumn"
+                        android:layout_height="match_parent"
+                        android:background="@color/white"
                         />
 
                     <TextView
@@ -56,6 +58,7 @@
                         android:gravity="center"
                         android:padding="8dp"
                         android:text="@string/status_element"
+                        android:textColor="@color/black"
                         android:layout_width="wrap_content"
                         android:maxLines="1"
                         android:ellipsize="end" />
@@ -66,6 +69,7 @@
                         android:gravity="center"
                         android:padding="8dp"
                         android:text="@string/date_element"
+                        android:textColor="@color/black"
                         android:layout_width="wrap_content"
                         android:maxLines="1"
                         android:ellipsize="end" />
@@ -76,6 +80,7 @@
                         android:gravity="center"
                         android:padding="8dp"
                         android:text="@string/default_string"
+                        android:textColor="@color/black"
                         android:layout_width="wrap_content"
                         android:maxLines="1"
                         android:ellipsize="end" />
@@ -85,6 +90,7 @@
                         android:gravity="center"
                         android:padding="8dp"
                         android:text="Close Date"
+                        android:textColor="@color/black"
                         android:layout_width="wrap_content"
                         android:maxLines="1"
                         android:ellipsize="end" />

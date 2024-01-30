@@ -1,12 +1,12 @@
 package com.example.frontcareproject
 
 import android.content.Intent
+import android.graphics.Color
 import androidx.appcompat.app.AppCompatActivity
 import android.os.Bundle
-import android.view.View
 import android.widget.AdapterView
 import android.widget.ArrayAdapter
-import android.widget.Spinner
+import android.widget.ListView
 import android.widget.TableLayout
 import android.widget.TableRow
 import android.widget.TextView
@@ -27,6 +27,7 @@ class UserPostings : AppCompatActivity() {
     private lateinit var createRequestButton: TextView
     private lateinit var postingsTable: TableLayout
     private lateinit var jsonArray: JSONArray
+    private lateinit var optionsArray: Array<String>
 
 
     override fun onCreate(savedInstanceState: Bundle?) {
@@ -39,6 +40,9 @@ class UserPostings : AppCompatActivity() {
         statusColumn = findViewById(R.id.tvStatusColumn)
         dateColumn = findViewById(R.id.tvDateColumn)
         createRequestButton = findViewById(R.id.createRequestButton)
+
+        //Used for creating lists of options for each row
+        optionsArray = arrayOf("Details", "Edit", "Confirm")
 
         createRequestButton.setOnClickListener{
             val intent = Intent(this@UserPostings, CreateSoldierRequest::class.java)
@@ -105,29 +109,27 @@ class UserPostings : AppCompatActivity() {
             // Set gray background for the TableRow
             newRow.setBackgroundColor(getColor(R.color.tablesBackgroundColor))
 
-            //Define options spinner for the row
-            val optionsSpinner = Spinner(this,  Spinner.MODE_DROPDOWN)
-            ArrayAdapter.createFromResource(
-                this,
-                R.array.posting_history_options,
-                android.R.layout.simple_spinner_item
-            ).also { adapter ->
-                // Specify the layout to use when the list of choices appears.
-                adapter.setDropDownViewResource(android.R.layout.simple_spinner_dropdown_item)
-                // Apply the adapter to the spinner.
-                optionsSpinner.adapter = adapter
+            if(GlobalVar.userType == 0){ //Donor
+                val dummyView = TextView(this)
+                newRow.addView(dummyView)
+                postingsTable.setColumnCollapsed(0, true)
             }
-
-            optionsSpinner.setSelection(0,false)
-
-            optionsSpinner.onItemSelectedListener = object: AdapterView.OnItemSelectedListener {
-                override fun onNothingSelected(parent: AdapterView<*>?) {
-                    // Do nothing
+            else{
+                val optionsList = ListView(this)
+                val adapter = if (jsonObject.optString("status") != "closed"){
+                    ArrayAdapter(this, R.layout.list_item, R.id.text_view, optionsArray)
+                }else{
+                    ArrayAdapter(this, R.layout.list_item, R.id.text_view, optionsArray.slice(IntRange(0,0)))
                 }
-                override fun onItemSelected(parent: AdapterView<*>?, view: View?, position: Int, id: Long) {
-                    // Check if the position is valid
-                    when (position) {
-                        0 -> {
+
+                optionsList.adapter = adapter
+                optionsList.setBackgroundResource(R.drawable.tables_outline)
+
+                optionsList.onItemClickListener = AdapterView.OnItemClickListener { _, _, position, _ ->
+                    // Handle item clicks
+
+                    when(optionsArray[position]){
+                        "Details" -> {
                             val filteredArray = (0 until jsonArray.length())
                                 .map { jsonArray.getJSONObject(it) }
                                 .filter { it.getString("request_id") == requestId }
@@ -141,7 +143,7 @@ class UserPostings : AppCompatActivity() {
 
                             startActivity(detailsIntent)
                         }
-                        1 -> {
+                        "Edit" -> {
                             val filteredArray = (0 until jsonArray.length())
                                 .map { jsonArray.getJSONObject(it) }
                                 .filter { it.getString("request_id") == requestId }
@@ -155,14 +157,13 @@ class UserPostings : AppCompatActivity() {
 
                             startActivity(editIntent)
                         }
-                        2 -> {
+                        "Confirm" -> {
                             handleDonationConfirmation(newRow)
                         }
                     }
                 }
+                newRow.addView(optionsList)
             }
-
-            newRow.addView(optionsSpinner)
 
             val columns = listOf(
                 jsonObject.getString("status"),
@@ -176,7 +177,8 @@ class UserPostings : AppCompatActivity() {
                 val column = TextView(this)
                 column.text = columnData
                 column.gravity = android.view.Gravity.CENTER
-                column.setPadding(8, 8, 8, 8)
+                column.setPadding(6, 6, 6, 6)
+                column.setTextColor(Color.BLACK)
                 // Set black border for the TextView
                 column.setBackgroundResource(R.drawable.tables_outline)
                 newRow.addView(column)

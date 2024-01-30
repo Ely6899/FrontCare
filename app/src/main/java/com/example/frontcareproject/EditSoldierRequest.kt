@@ -31,7 +31,10 @@ class EditSoldierRequest : AppCompatActivity() {
     private lateinit var etItemQuantity: EditText
     private lateinit var productsJSON: JSONObject
 
+    //Array of products which will be initialized by DB request
     private lateinit var productsArray: MutableList<String>
+
+    //Map of products contained in a specific request
     private lateinit var productMap: MutableMap<String, Int>
 
     override fun onCreate(savedInstanceState: Bundle?) {
@@ -153,20 +156,21 @@ class EditSoldierRequest : AppCompatActivity() {
         Thread  {
             try {
                 //val userId = GlobalVar.userId // Replace with your logic to get the user ID
-                val url = URL("http://${GlobalVar.serverIP}:8080/api/updateRequest/${intent.getStringExtra("request_id")}")
+                val url = URL("http://${GlobalVar.serverIP}:8080/api/updateRequest")
                 val connection = url.openConnection() as HttpURLConnection
                 connection.requestMethod = "POST"
                 connection.setRequestProperty("Content-Type", "application/json")
                 connection.connect()
 
                 val newProductsMap = mutableMapOf<String, Int>()
+                newProductsMap["request_id"] = intent.getStringExtra("request_id")!!.toInt()
 
                 itemTable.forEach {view ->
                     val currRow = view as TableRow
                     val currSpinner = currRow.getChildAt(0) as Spinner
                     val currEditText = currRow.getChildAt(1) as EditText
                     if (currRow.id > 0){
-                        val itemId = currSpinner.selectedItemId.toString()
+                        val itemId = productsArray.indexOf(currSpinner.selectedItem.toString()).toString()
                         val itemQuantity = currEditText.text.toString().toInt()
                         if(newProductsMap.containsKey(itemId)){
                             newProductsMap[itemId] = newProductsMap[itemId]!! + itemQuantity
