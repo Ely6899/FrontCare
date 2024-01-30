@@ -298,17 +298,11 @@ fun getDonorsEvents(donorId: String?): List<Map<String, Any>> {
 //This function returns the
 fun getHistory(userId: String?,userType:String?): List<Map<String, Any>> {
     val resultList = mutableListOf<Map<String, Any>>()
-    var sqlFiller = "" // var that will be added to the sql query to determine if its for events history or donors events
 
-    when (userType) {
-        "soldier" -> sqlFiller = "users ON soldier_requests.donor_id = users.user_id " +
-                "WHERE soldier_requests.soldier_id = $userId;"
-        "donor"-> sqlFiller = " users ON soldier_requests.soldier_id = users.user_id " +
-                "WHERE soldier_requests.donor_id = $userId;"
-
-        else -> {
-            return resultList // if there is a problem return an empty result
-        }
+    val sqlFiller = when (userType) { // var that will be added to the sql query to determine if its for events history or donors events
+        "soldier" -> "users ON soldier_requests.donor_id = users.user_id WHERE soldier_requests.soldier_id = ?"
+        "donor" -> "users ON soldier_requests.soldier_id = users.user_id WHERE soldier_requests.donor_id = ?"
+        else -> return resultList // if there is a problem return an empty result
     }
 
     try {
@@ -338,6 +332,8 @@ fun getHistory(userId: String?,userType:String?): List<Map<String, Any>> {
             """.trimIndent()
 
             val statement: PreparedStatement = connection.prepareStatement(sqlQuery)
+            statement.setInt(1, userId?.toInt() ?: 0)
+
             val resultSet: ResultSet = statement.executeQuery()
 
             while (resultSet.next()) {
@@ -359,8 +355,10 @@ fun getHistory(userId: String?,userType:String?): List<Map<String, Any>> {
                 rowMap["close_date"] = closeDate ?: "null"
                 rowMap["status"] = resultSet.getString("status")
                 rowMap["pickup_location"] = resultSet.getString("pickup_location")
-                rowMap["email_address"] = resultSet.getString("email_address")
-                rowMap["phone_number"] = resultSet.getString("phone_number")
+                val emailAddress: String? = resultSet.getString("email_address")
+                rowMap["email_address"] = emailAddress ?: "Unknown"
+                val phoneNumber: String? = resultSet.getString("phone_number")
+                rowMap["phone_number"] = phoneNumber ?: "Unknown"
                 resultList.add(rowMap)
             }
         }
@@ -680,6 +678,97 @@ fun createSoldierRequest(data: Map<String, Any>): Boolean{
     return false
 }
 
+fun createEvent(data: Map<String, Any>): Boolean{
+
+    val userId = data["userId"].toString()
+    val eventDate = data["eventDate"].toString()
+    val eventLocation = data["eventLocation"].toString()
+    val eventAddress = data["eventAddress"].toString()
+    val eventSpots = data["eventSpots"].toString()
+    val products = data["products"] as List<Int>
+
+    var connection: Connection? = null
+
+    try {
+        connection = DriverManager.getConnection(mysql_url, mysql_user, mysql_password)
+
+        // Insert into donation_events table
+        val insertDonationEventsSQL = """
+            INSERT INTO donation_events (donor_id, event_date, event_location, event_address,remaining_spot)
+            VALUES (?, ?, ?, ?, ? );
+        """.trimIndent()
+
+        val insertSoldierRequestStatement = connection.prepareStatement(insertDonationEventsSQL, 1)
+        insertSoldierRequestStatement.setInt(1, userId.toInt())
+        insertSoldierRequestStatement.setString(2, eventDate)
+        insertSoldierRequestStatement.setString(3, eventLocation)
+        insertSoldierRequestStatement.setString(4, eventAddress)
+        insertSoldierRequestStatement.setInt(5, eventSpots.toInt())
+        insertSoldierRequestStatement.executeUpdate()
+
+        // Get the generated eventId
+        val generatedKeys = insertSoldierRequestStatement.generatedKeys
+        var eventId: Int? = null
+        if (generatedKeys.next()) {
+            eventId = generatedKeys.getInt(1)
+        }
+
+        if (eventId != null) {
+            // Insert into event_details table
+            val insertEventDetailsSQL = """
+                INSERT INTO event_details (event_id, product_id)
+                VALUES (?, ?);
+            """.trimIndent()
+
+            val insertRequestDetailsStatement = connection.prepareStatement(insertEventDetailsSQL)
+
+            for (productId in products) {
+                insertRequestDetailsStatement.setInt(1, eventId)
+                insertRequestDetailsStatement.setInt(2, productId)
+                insertRequestDetailsStatement.executeUpdate()
+            }
+
+            return true
+        }
+    } catch (e: Exception) {
+        e.printStackTrace()
+    } finally {
+        connection?.close()
+    }
+
+    return false
+}
+
+fun removeRequest(requestId: String?): Boolean {
+    val deleteSoldierRequestSQL = "DELETE FROM soldier_requests WHERE request_id = ?"
+    val deleteRequestDetailsSQL = "DELETE FROM request_details WHERE request_id = ?"
+
+    var connection: Connection? = null
+
+    try {
+        connection = DriverManager.getConnection(mysql_url, mysql_user, mysql_password)
+
+        // Delete from request_details table
+        val deleteRequestDetailsStatement = connection.prepareStatement(deleteRequestDetailsSQL)
+        deleteRequestDetailsStatement.setInt(1, requestId?.toIntOrNull() ?: 0)
+        val rowsAffectedRequestDetails = deleteRequestDetailsStatement.executeUpdate()
+
+        // Delete from soldier_requests table
+        val deleteSoldierRequestStatement = connection.prepareStatement(deleteSoldierRequestSQL)
+        deleteSoldierRequestStatement.setInt(1, requestId?.toIntOrNull() ?: 0)
+        val rowsAffectedSoldierRequests = deleteSoldierRequestStatement.executeUpdate()
+
+        return rowsAffectedSoldierRequests > 0 && rowsAffectedRequestDetails > 0
+    } catch (e: Exception) {
+        e.printStackTrace()
+    } finally {
+        connection?.close()
+    }
+
+    return false
+}
+
+
 fun getProducts(): MutableMap<String, String> {
     val productsMap = mutableMapOf<String, String>()
     try {
@@ -699,6 +788,83 @@ fun getProducts(): MutableMap<String, String> {
         e.printStackTrace()
     }
     return productsMap
+}
+
+fun updateRequest(data: Map<String, String>): Boolean {
+    val requestId = data["request_id"].toString()
+    val productsMap = data.filterKeys { it != "request_id" }
+        .mapKeys { it.key.toIntOrNull() ?: 0 }
+        .filter { it.key > 0 && it.value.toIntOrNull() != null }
+        .mapValues { it.value.toInt() }
+
+    if (productsMap.isEmpty()) {
+        // If there are no valid product quantities, return false
+        return false
+    }
+    var connection: Connection? = null
+
+    try {
+        connection = DriverManager.getConnection(mysql_url, mysql_user, mysql_password)
+        connection?.autoCommit = false // Disable auto-commit to handle transactions
+
+        for ((productId, quantity) in productsMap) {
+            if (quantity == 0) {
+                // If quantity is 0, delete the corresponding product from request_details
+                val deleteProductSQL = """
+                DELETE FROM request_details WHERE request_id = ? AND product_id = ?;
+            """.trimIndent()
+                val deleteStatement = connection.prepareStatement(deleteProductSQL)
+                deleteStatement.setInt(1, requestId.toInt())
+                deleteStatement.setInt(2, productId)
+                val deleteRowsAffected = deleteStatement.executeUpdate()
+
+                if (deleteRowsAffected <= 0) {
+                    // If no rows were affected, rollback the transaction and return false
+                    connection.rollback()
+                    return false
+                }
+            } else {
+                // If quantity is greater than 0, update the quantity for the corresponding product
+                val updateQuantitySQL = """
+                UPDATE request_details SET quantity = ? WHERE request_id = ? AND product_id = ?;
+            """.trimIndent()
+                val updateStatement = connection.prepareStatement(updateQuantitySQL)
+                updateStatement.setInt(1, quantity)
+                updateStatement.setInt(2, requestId.toInt())
+                updateStatement.setInt(3, productId)
+                val updateRowsAffected = updateStatement.executeUpdate()
+
+                if (updateRowsAffected <= 0) {
+                    // If no rows were affected, insert the product into request_details
+                    val insertProductSQL = """
+                        INSERT INTO request_details (request_id, product_id, quantity) VALUES (?, ?, ?);
+                    """.trimIndent()
+                    val insertStatement = connection.prepareStatement(insertProductSQL)
+                    insertStatement.setInt(1, requestId.toInt())
+                    insertStatement.setInt(2, productId)
+                    insertStatement.setInt(3, quantity)
+                    val insertRowsAffected = insertStatement.executeUpdate()
+
+                    if (insertRowsAffected <= 0) {
+                        // If no rows were affected, rollback the transaction and return false
+                        connection.rollback()
+                        return false
+                    }
+                }
+            }
+        }
+
+        connection.commit() // Commit the transaction if all updates/deletes are successful
+        return true
+
+    } catch (e: Exception) {
+        e.printStackTrace()
+        connection?.rollback() // Rollback the transaction in case of any exception
+    } finally {
+        connection?.close()
+    }
+
+    return false
 }
 
 
@@ -851,15 +1017,66 @@ fun Application.module() {
         post ("/api/createSoldierRequest"){
             try {
                 val request = call.receive<Map<String, Any>>() // maybe change to Map<String, Any>
-                val confirmationData = createSoldierRequest(request) // True - Update DB successfully else False
+                val respond = createSoldierRequest(request) // True - Update DB successfully else False
 
-                call.respond(confirmationData)
+                call.respond(respond)
 
             } catch (e: Exception) {
                 // Handle exceptions related to request format and respond with BadRequest status
-                call.respond(HttpStatusCode.BadRequest, "Confirmation failed")
+                call.respond(HttpStatusCode.BadRequest, "Request creation failed")
             }
         }
+
+        post ("/api/createEvent"){
+            try {
+                val request = call.receive<Map<String, Any>>() // maybe change to Map<String, Any>
+                val respond = createEvent(request) // True - Update DB successfully else False
+
+                call.respond(respond)
+
+            } catch (e: Exception) {
+                // Handle exceptions related to request format and respond with BadRequest status
+                call.respond(HttpStatusCode.BadRequest, "Event creation failed")
+            }
+        }
+
+        post ("/api/removeRequest/{requestId}"){
+            try {
+                val requestId = call.parameters["requestId"]
+                val respond = removeRequest(requestId)
+
+                val responseMessage = if (respond) {
+                    mapOf("message" to "Removed successfully")
+                } else {
+                    mapOf("message" to "Failed to remove")
+                }
+                call.respond(responseMessage)
+
+            } catch (e: Exception) {
+                // Handle exceptions related to request format and respond with BadRequest status
+                call.respond(HttpStatusCode.BadRequest, "Request remove failed")
+            }
+        }
+
+        post ("/api/updateRequest"){
+            try {
+                val request = call.receive<Map<String, String>>() // maybe change to Map<String, Any>
+                val respond = updateRequest(request) // True - Update DB successfully else False
+
+                val responseMessage = if (respond) {
+                   mapOf("message" to "Update successfully")
+               } else {
+                    mapOf("message" to "Failed to update")
+               }
+                call.respond(responseMessage)
+
+            } catch (e: Exception) {
+                // Handle exceptions related to request format and respond with BadRequest status
+                call.respond(HttpStatusCode.BadRequest, "Event creation failed")
+            }
+        }
+
+
 
         get("/api/profile/{userId}") {
             try {
