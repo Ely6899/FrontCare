@@ -11,7 +11,6 @@ import android.widget.Spinner
 import android.widget.TableLayout
 import android.widget.TableRow
 import android.widget.Toast
-import androidx.core.view.forEach
 import org.json.JSONArray
 import org.json.JSONObject
 import utils.GlobalVar
@@ -20,6 +19,7 @@ import java.io.IOException
 import java.io.InputStreamReader
 import java.net.HttpURLConnection
 import java.net.URL
+import com.google.gson.Gson
 
 class EditSoldierRequest : AppCompatActivity() {
     private lateinit var addItemBtn: Button
@@ -37,6 +37,9 @@ class EditSoldierRequest : AppCompatActivity() {
     //Map of products contained in a specific request
     private lateinit var productMap: MutableMap<String, Int>
 
+    //Used for remembering which items were before editing. Used for case of removal.
+    private lateinit var itemIndexInitial: MutableList<String>
+
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
         setContentView(R.layout.activity_edit_soldier_request)
@@ -50,6 +53,7 @@ class EditSoldierRequest : AppCompatActivity() {
 
         productMap = mutableMapOf()
         productsArray = mutableListOf()
+        itemIndexInitial = mutableListOf()
 
         //Prepare data for inserting as rows to the table.
 
@@ -67,7 +71,7 @@ class EditSoldierRequest : AppCompatActivity() {
             productMap[obj.getString("product_name")] = obj.getInt("quantity")
         }
 
-        //Request the products data from the DB
+        //Request the products data from the DB and product table
         Thread  {
             try {
                 val url = URL("http://${GlobalVar.serverIP}:8080/api/products")
@@ -107,7 +111,7 @@ class EditSoldierRequest : AppCompatActivity() {
         }.start()
 
         addItemBtn.setOnClickListener {
-            addRowToTable(spinnerItems.selectedItem.toString(), etItemQuantity.text.toString())
+            addRowToTable(spinnerItems.selectedItem.toString(), etItemQuantity.text.toString(), false)
         }
 
         /*
@@ -153,6 +157,34 @@ class EditSoldierRequest : AppCompatActivity() {
     }
 
     private fun handleEditConfirmation() {
+        val newProductsMap = mutableMapOf<String, String>()
+        newProductsMap["request_id"] = intent.getStringExtra("request_id").toString()
+
+        for (i in 1 until itemTable.childCount) {
+            val view = itemTable.getChildAt(i)
+            if (view is TableRow) {
+                val currSpinner = view.getChildAt(0) as Spinner
+                val currEditText = view.getChildAt(1) as EditText
+
+                val itemId = productsArray.indexOf(currSpinner.selectedItem.toString()).toString()
+                val itemQuantity = currEditText.text.toString()
+
+                //Handle cumulative item selection
+                if(newProductsMap.containsKey(itemId)){
+                    newProductsMap[itemId] = (newProductsMap[itemId]!!.toInt() + itemQuantity.toInt()).toString()
+                }
+                else{
+                    newProductsMap[itemId] = itemQuantity
+                }
+            }
+        }
+
+        itemIndexInitial.forEach { itemIndex->
+            if(!newProductsMap.containsKey(itemIndex)){
+                newProductsMap[itemIndex] = "0"
+            }
+        }
+
         Thread  {
             try {
                 //val userId = GlobalVar.userId // Replace with your logic to get the user ID
@@ -162,26 +194,8 @@ class EditSoldierRequest : AppCompatActivity() {
                 connection.setRequestProperty("Content-Type", "application/json")
                 connection.connect()
 
-                val newProductsMap = mutableMapOf<String, Int>()
-                newProductsMap["request_id"] = intent.getStringExtra("request_id")!!.toInt()
-
-                itemTable.forEach {view ->
-                    val currRow = view as TableRow
-                    val currSpinner = currRow.getChildAt(0) as Spinner
-                    val currEditText = currRow.getChildAt(1) as EditText
-                    if (currRow.id > 0){
-                        val itemId = productsArray.indexOf(currSpinner.selectedItem.toString()).toString()
-                        val itemQuantity = currEditText.text.toString().toInt()
-                        if(newProductsMap.containsKey(itemId)){
-                            newProductsMap[itemId] = newProductsMap[itemId]!! + itemQuantity
-                        }
-                        else{
-                            newProductsMap[itemId] = itemQuantity
-                        }
-                    }
-                }
-
-                val jsonInputString = JSONObject((newProductsMap as Map<*, *>?)!!).toString().trimIndent()
+                val gson = Gson()
+                val jsonInputString = gson.toJson(newProductsMap)
 
                 // Send JSON as the request body
                 val outputStream = connection.outputStream
@@ -218,7 +232,7 @@ class EditSoldierRequest : AppCompatActivity() {
 
 
 
-    private fun addRowToTable(product: String, quantity: String){
+    private fun addRowToTable(product: String, quantity: String, onCreation: Boolean = true){
         // Create a new row
         val newRow = TableRow(this)
 
@@ -228,14 +242,20 @@ class EditSoldierRequest : AppCompatActivity() {
         val productSpinnerColumn = Spinner(this,  Spinner.MODE_DROPDOWN)
         val adapterColumn = ArrayAdapter(this,
             android.R.layout.simple_spinner_item, productsArray)
-        //adapterColumn.setDropDownViewResource(R.layout.spinner_height_limiter)
         productSpinnerColumn.adapter = adapterColumn
 
         //Set initial location of item in the spinner
-        productSpinnerColumn.setSelection(productsArray.indexOf(product))
+        val itemIndex :Int = productsArray.indexOf(product)
+        productSpinnerColumn.setSelection(itemIndex)
+
+        //Add item index to the index memory for later use
+        if(onCreation && !itemIndexInitial.contains(itemIndex.toString())){
+            itemIndexInitial.add(itemIndex.toString())
+        }
 
         newRow.addView(productSpinnerColumn)
 
+        //Add corresponding quantity field
         val etQuantityColumn = EditText(this)
         etQuantityColumn.inputType=InputType.TYPE_CLASS_NUMBER
         etQuantityColumn.setText(quantity)
@@ -243,6 +263,7 @@ class EditSoldierRequest : AppCompatActivity() {
 
         newRow.addView(etQuantityColumn)
 
+        //Add corresponding remove button which removes row.
         val removeItemBtn = Button(this)
         removeItemBtn.text = "-"
         removeItemBtn.setOnClickListener {

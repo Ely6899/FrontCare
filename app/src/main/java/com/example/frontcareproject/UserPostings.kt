@@ -132,7 +132,7 @@ class UserPostings : AppCompatActivity() {
                         "Details" -> {
                             val filteredArray = (0 until jsonArray.length())
                                 .map { jsonArray.getJSONObject(it) }
-                                .filter { it.getString("request_id") == requestId }
+                                .filter { it.getString("request_id") == newRow.tag.toString() }
                                 .map {
                                     it.toString()
                                 }
@@ -146,13 +146,13 @@ class UserPostings : AppCompatActivity() {
                         "Edit" -> {
                             val filteredArray = (0 until jsonArray.length())
                                 .map { jsonArray.getJSONObject(it) }
-                                .filter { it.getString("request_id") == requestId }
+                                .filter { it.getString("request_id") == newRow.tag.toString() }
                                 .map {
                                     it.toString()
                                 }
 
                             val editIntent = Intent(this@UserPostings, EditSoldierRequest::class.java)
-                            editIntent.putExtra("request_id", newRow.tag as String)
+                            editIntent.putExtra("request_id", newRow.tag.toString())
                             editIntent.putStringArrayListExtra("jsonArray", ArrayList(filteredArray))
 
                             startActivity(editIntent)

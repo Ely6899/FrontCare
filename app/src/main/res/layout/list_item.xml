@@ -7,8 +7,10 @@
     <TextView
         android:id="@+id/text_view"
         android:layout_width="wrap_content"
-        android:layout_height="wrap_content"
+        android:layout_height="50dp"
+        android:gravity="center"
+        android:padding="8dp"
         android:textColor="@android:color/black"
-        android:textSize="25sp"/>
+        android:textSize="17sp"/>
 
 </RelativeLayout>
