@@ -39,6 +39,7 @@
     <string name="edit_request_title">Edit Request</string>
     <string name="from_donor_column">From</string>
     <string name="to_soldier_column">To</string>
+    <string name="products"><u>Products</u></string>
 
     <string-array name="locations_array">
         <item>North</item>
