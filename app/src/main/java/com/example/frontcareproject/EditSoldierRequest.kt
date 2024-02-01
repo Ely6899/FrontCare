@@ -32,7 +32,7 @@ class EditSoldierRequest : AppCompatActivity() {
     private lateinit var productsJSON: JSONObject
 
     //Array of products which will be initialized by DB request
-    private lateinit var productsArray: MutableList<String>
+    private lateinit var productsArray: MutableList<Pair<String, String>>
 
     //Map of products contained in a specific request
     private lateinit var productMap: MutableMap<String, Int>
@@ -88,14 +88,13 @@ class EditSoldierRequest : AppCompatActivity() {
                 // Iterate over the keys and add their corresponding values to the array
                 productsJSON.keys().forEach { key ->
                     val value = productsJSON.getString(key)
-                    productsArray.add(value)
+                    productsArray.add(Pair(key, value))
                 }
 
                 runOnUiThread {
                     //Create spinner with all the products
                     val adapter = ArrayAdapter(this,
-                        android.R.layout.simple_spinner_item, productsArray)
-                    //adapter.setDropDownViewResource(R.layout.spinner_height_limiter)
+                        android.R.layout.simple_spinner_item, productsArray.map { it.second })
                     spinnerItems.adapter = adapter
                     //For each existing product produce a row
                     productMap.keys.forEach {key ->
@@ -166,22 +165,28 @@ class EditSoldierRequest : AppCompatActivity() {
                 val currSpinner = view.getChildAt(0) as Spinner
                 val currEditText = view.getChildAt(1) as EditText
 
-                val itemId = productsArray.indexOf(currSpinner.selectedItem.toString()).toString()
+                //val itemId = productsArray.indexOf(currSpinner.selectedItem.toString())
+
+                //Array index
+                val itemIndex = productsArray.indexOfFirst { it.second == currSpinner.selectedItem.toString() }
+
+                //True DB id
+                val itemDataId = productsArray[itemIndex].first
                 val itemQuantity = currEditText.text.toString()
 
                 //Handle cumulative item selection
-                if(newProductsMap.containsKey(itemId)){
-                    newProductsMap[itemId] = (newProductsMap[itemId]!!.toInt() + itemQuantity.toInt()).toString()
+                if(newProductsMap.containsKey(itemDataId)){
+                    newProductsMap[itemDataId] = (newProductsMap[itemDataId]!!.toInt() + itemQuantity.toInt()).toString()
                 }
                 else{
-                    newProductsMap[itemId] = itemQuantity
+                    newProductsMap[itemDataId] = itemQuantity
                 }
             }
         }
 
-        itemIndexInitial.forEach { itemIndex->
-            if(!newProductsMap.containsKey(itemIndex)){
-                newProductsMap[itemIndex] = "0"
+        itemIndexInitial.forEach { itemDataId->
+            if(!newProductsMap.containsKey(itemDataId)){
+                newProductsMap[itemDataId] = "0"
             }
         }
 
@@ -241,16 +246,17 @@ class EditSoldierRequest : AppCompatActivity() {
 
         val productSpinnerColumn = Spinner(this,  Spinner.MODE_DROPDOWN)
         val adapterColumn = ArrayAdapter(this,
-            android.R.layout.simple_spinner_item, productsArray)
+            android.R.layout.simple_spinner_item, productsArray.map { it.second })
         productSpinnerColumn.adapter = adapterColumn
 
         //Set initial location of item in the spinner
-        val itemIndex :Int = productsArray.indexOf(product)
+        val itemIndex: Int = productsArray.indexOfFirst { it.second == product }
         productSpinnerColumn.setSelection(itemIndex)
+        val productId = productsArray[itemIndex].first
 
         //Add item index to the index memory for later use
-        if(onCreation && !itemIndexInitial.contains(itemIndex.toString())){
-            itemIndexInitial.add(itemIndex.toString())
+        if(onCreation && !itemIndexInitial.contains(productId)){
+            itemIndexInitial.add(productId)
         }
 
         newRow.addView(productSpinnerColumn)
