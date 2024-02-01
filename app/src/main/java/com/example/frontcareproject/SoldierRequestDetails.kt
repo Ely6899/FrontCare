@@ -7,6 +7,7 @@ import android.widget.TextView
 import androidx.appcompat.app.AppCompatActivity
 import org.json.JSONArray
 import android.view.Gravity
+import android.view.View
 import android.widget.Button
 import android.widget.TableLayout
 import android.widget.TableRow
@@ -28,8 +29,8 @@ class SoldierRequestDetails : AppCompatActivity() {
     private lateinit var contactTextView: TextView
     private lateinit var donateButtonView: Button
     private lateinit var productsTableView: TableLayout
+    private var requestId : Int? = null
 
-    @SuppressLint("SetTextI18n")
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
         setContentView(R.layout.activity_soldier_request_details)
@@ -42,6 +43,23 @@ class SoldierRequestDetails : AppCompatActivity() {
         donateButtonView = findViewById(R.id.donateButton)
         productsTableView = findViewById(R.id.productsTable)
 
+        // If we came from history page hide donate button
+        val fromHistory : Boolean = intent.getBooleanExtra("fromHistory", false)
+        if(fromHistory) {
+            donateButtonView.visibility = View.INVISIBLE
+        }
+
+        // Display products in table
+        displayRequestDetails()
+
+        // Add button listener
+        donateButtonView.setOnClickListener{
+            onDonateButtonClick()
+        }
+    }
+
+    @SuppressLint("SetTextI18n")
+    private fun displayRequestDetails() {
         // Retrieve JSON array from the intent
         val jsonStringList = intent.getStringArrayListExtra("jsonArray")
         val jsonArray = JSONArray()
@@ -57,7 +75,7 @@ class SoldierRequestDetails : AppCompatActivity() {
         val jsonObject = jsonArray.getJSONObject(0)
 
         // Retrieve data from the JSON object
-        val requestId = jsonObject.getInt("request_id")
+        requestId = jsonObject.getInt("request_id")
         val requestDate = jsonObject.getString("request_date")
         val firstname = jsonObject.getString("firstname")
         val pickupLocation = jsonObject.getString("pickup_location")
@@ -77,16 +95,25 @@ class SoldierRequestDetails : AppCompatActivity() {
             products[obj.getString("product_name")] = obj.getInt("quantity")
         }
 
-        // Display products in table
-        displayProducts(productsTableView, products)
+        // Go over each item in products map and display them
+        for ((product, quantity) in products) {
+            // create new row
+            val newRow = TableRow(this)
 
-        // Add button listener
-        donateButtonView.setOnClickListener{
-            onDonateButtonClick(requestId)
+            // Create text views
+            val productView = createTextView(product)
+            val quantityView = createTextView("$quantity")
+
+            // Add text views to the row
+            newRow.addView(productView)
+            newRow.addView(quantityView)
+
+            // Add the row to the table
+            productsTableView.addView(newRow)
         }
     }
 
-    private fun onDonateButtonClick(requestId : Int) {
+    private fun onDonateButtonClick() {
         val url = "http://${GlobalVar.serverIP}:8080/api/donation"
 
         // Request in a new Coroutine that is destroyed after leaving this scope
@@ -118,24 +145,6 @@ class SoldierRequestDetails : AppCompatActivity() {
         }
     }
 
-    private fun displayProducts(productsTableView: TableLayout, products: Map<String, Int>) {
-        // Go over each item in products map
-        for ((product, quantity) in products) {
-            // create new row
-            val newRow = TableRow(this)
-
-            // Create text views
-            val productView = createTextView(product)
-            val quantityView = createTextView("$quantity")
-
-            // Add text views to the row
-            newRow.addView(productView)
-            newRow.addView(quantityView)
-
-            // Add the row to the table
-            productsTableView.addView(newRow)
-        }
-    }
     private fun createTextView(text: String): TextView {
         val textView = TextView(this)
         textView.text = text
