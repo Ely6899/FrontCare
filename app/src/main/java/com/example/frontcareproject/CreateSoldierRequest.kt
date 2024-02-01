@@ -26,11 +26,11 @@ import com.google.gson.reflect.TypeToken
 
 class CreateSoldierRequest : AppCompatActivity() {
     private lateinit var productsSpinnerView : Spinner
-    private lateinit var  quantityEditView : EditText
-    private lateinit var  addProductButton : Button
-    private lateinit var  createButton : Button
-    private lateinit var  productsTableView : TableLayout
-    private lateinit var  radioGroup : RadioGroup
+    private lateinit var quantityEditView : EditText
+    private lateinit var addProductButton : Button
+    private lateinit var createButton : Button
+    private lateinit var productsTableView : TableLayout
+    private lateinit var radioGroup : RadioGroup
 
     private var availableProducts : MutableMap<String, String> = mutableMapOf() // create new map to save table entries
     private var productsToSend : MutableMap<Int, Int> = mutableMapOf() // Products in the table
@@ -64,7 +64,6 @@ class CreateSoldierRequest : AppCompatActivity() {
     private fun getProducts() {
         val url = "http://${GlobalVar.serverIP}:8080/api/products"
 
-        //var products: MutableMap<String, String> = mutableMapOf()
         val gson = Gson()
         val type = object : TypeToken<MutableMap<String, String>>() {}.type
 
@@ -146,7 +145,7 @@ class CreateSoldierRequest : AppCompatActivity() {
             // check response code
             if (response.isSuccessful) {
                 // return to requests page activity
-                val intent = Intent(this@CreateSoldierRequest, Profile::class.java)
+                val intent = Intent(this@CreateSoldierRequest, UserPostings::class.java)
                 startActivity(intent)
             } else {
                 println("Request failed with code: ${response.code}")
