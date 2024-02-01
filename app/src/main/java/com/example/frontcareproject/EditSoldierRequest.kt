@@ -29,15 +29,17 @@ class EditSoldierRequest : AppCompatActivity() {
     private lateinit var itemTable: TableLayout
     private lateinit var spinnerItems: Spinner
     private lateinit var etItemQuantity: EditText
+
+
     private lateinit var productsJSON: JSONObject
 
     //Array of products which will be initialized by DB request
     private lateinit var productsArray: MutableList<Pair<String, String>>
 
     //Map of products contained in a specific request
-    private lateinit var productMap: MutableMap<String, Int>
+    private lateinit var requestProductMap: MutableMap<String, Int>
 
-    //Used for remembering which items were before editing. Used for case of removal.
+    //Used for remembering which items were before editing. Used for case of item removal in edit.
     private lateinit var itemIndexInitial: MutableList<String>
 
     override fun onCreate(savedInstanceState: Bundle?) {
@@ -51,27 +53,26 @@ class EditSoldierRequest : AppCompatActivity() {
         spinnerItems = findViewById(R.id.itemsSpinner)
         itemTable = findViewById(R.id.itemTable)
 
-        productMap = mutableMapOf()
+        requestProductMap = mutableMapOf()
         productsArray = mutableListOf()
         itemIndexInitial = mutableListOf()
 
         //Prepare data for inserting as rows to the table.
+        val postingsList = intent.getStringArrayListExtra("jsonArray")
+        val postingsJsonArray = JSONArray()
 
-        val jsonStringList = intent.getStringArrayListExtra("jsonArray")
-        val jsonArray = JSONArray()
-
-        if(jsonStringList != null){
-            for(jsonString in jsonStringList){
-                jsonArray.put(JSONObject(jsonString))
+        if(postingsList != null){
+            for(jsonString in postingsList){
+                postingsJsonArray.put(JSONObject(jsonString))
             }
         }
 
-        for (i in 0 until jsonArray.length()){
-            val obj = jsonArray.getJSONObject((i))
-            productMap[obj.getString("product_name")] = obj.getInt("quantity")
+        for (i in 0 until postingsJsonArray.length()){
+            val obj = postingsJsonArray.getJSONObject((i))
+            requestProductMap[obj.getString("product_name")] = obj.getInt("quantity")
         }
 
-        //Request the products data from the DB and product table
+        //Request the products data from the DB and produce request product table
         Thread  {
             try {
                 val url = URL("http://${GlobalVar.serverIP}:8080/api/products")
@@ -97,30 +98,29 @@ class EditSoldierRequest : AppCompatActivity() {
                         android.R.layout.simple_spinner_item, productsArray.map { it.second })
                     spinnerItems.adapter = adapter
                     //For each existing product produce a row
-                    productMap.keys.forEach {key ->
-                        addRowToTable(key, productMap[key].toString())
+                    requestProductMap.keys.forEach { product ->
+                        addRowToTable(product, requestProductMap[product].toString())
                     }
                 }
                 reader.close()
                 connection.disconnect()
             } catch (e: IOException) {
-                // Handle the exception, e.g., show an error message
+                // Handle the exception
                 e.printStackTrace()
             }
         }.start()
 
+        //Button for adding a new product to the list.
         addItemBtn.setOnClickListener {
             addRowToTable(spinnerItems.selectedItem.toString(), etItemQuantity.text.toString(), false)
         }
 
-        /*
-        TODO(Check the functions below work after they have an API implementation)
-        * */
-
+        //Button for triggering the edit process.
         btnConfirmEdit.setOnClickListener {
             handleEditConfirmation()
         }
 
+        //Button for removing the request.
         btnRemoveRequest.setOnClickListener {
             handleRequestRemoval()
         }
@@ -156,26 +156,27 @@ class EditSoldierRequest : AppCompatActivity() {
     }
 
     private fun handleEditConfirmation() {
+        //A map which holds the new set of items of the request.
         val newProductsMap = mutableMapOf<String, String>()
+
         newProductsMap["request_id"] = intent.getStringExtra("request_id").toString()
 
+        //Iterate through all table rows.
         for (i in 1 until itemTable.childCount) {
             val view = itemTable.getChildAt(i)
-            if (view is TableRow) {
+            if (view is TableRow) { //Valid row
                 val currSpinner = view.getChildAt(0) as Spinner
                 val currEditText = view.getChildAt(1) as EditText
-
-                //val itemId = productsArray.indexOf(currSpinner.selectedItem.toString())
 
                 //Array index
                 val itemIndex = productsArray.indexOfFirst { it.second == currSpinner.selectedItem.toString() }
 
-                //True DB id
+                //True ID from DB
                 val itemDataId = productsArray[itemIndex].first
                 val itemQuantity = currEditText.text.toString()
 
                 //Handle cumulative item selection
-                if(newProductsMap.containsKey(itemDataId)){
+                if(newProductsMap.containsKey(itemDataId)){ //Handle same type in multiple rows.
                     newProductsMap[itemDataId] = (newProductsMap[itemDataId]!!.toInt() + itemQuantity.toInt()).toString()
                 }
                 else{
@@ -184,15 +185,17 @@ class EditSoldierRequest : AppCompatActivity() {
             }
         }
 
+
+        //Handle a product which appeared before edit but removed after it.
         itemIndexInitial.forEach { itemDataId->
             if(!newProductsMap.containsKey(itemDataId)){
                 newProductsMap[itemDataId] = "0"
             }
         }
 
+        //Sending the new data to the server.
         Thread  {
             try {
-                //val userId = GlobalVar.userId // Replace with your logic to get the user ID
                 val url = URL("http://${GlobalVar.serverIP}:8080/api/updateRequest")
                 val connection = url.openConnection() as HttpURLConnection
                 connection.requestMethod = "POST"
@@ -228,15 +231,18 @@ class EditSoldierRequest : AppCompatActivity() {
 
     private fun checkEditRequest(serverAns: String) {
         val jsonResponse = JSONObject(serverAns)
-        if (jsonResponse.optString("message") == "Update successfully"){
+        val responseMsg = jsonResponse.optString("message")
+        if (responseMsg == "Update successfully" || responseMsg == "Removed successfully"){
             startActivity(Intent(this@EditSoldierRequest, UserPostings::class.java))
         }
         else
             Toast.makeText(this," Failed to update request", Toast.LENGTH_LONG).show()
     }
 
-
-
+    /*
+    * Creates new rows to the products table.
+    * onCreation parameter is used for saving initial product ID's to itemIndexInitial
+    * */
     private fun addRowToTable(product: String, quantity: String, onCreation: Boolean = true){
         // Create a new row
         val newRow = TableRow(this)
@@ -252,6 +258,8 @@ class EditSoldierRequest : AppCompatActivity() {
         //Set initial location of item in the spinner
         val itemIndex: Int = productsArray.indexOfFirst { it.second == product }
         productSpinnerColumn.setSelection(itemIndex)
+
+        //True ID from the DB
         val productId = productsArray[itemIndex].first
 
         //Add item index to the index memory for later use
@@ -266,7 +274,6 @@ class EditSoldierRequest : AppCompatActivity() {
         etQuantityColumn.inputType=InputType.TYPE_CLASS_NUMBER
         etQuantityColumn.setText(quantity)
         etQuantityColumn.textAlignment=EditText.TEXT_ALIGNMENT_CENTER
-
         newRow.addView(etQuantityColumn)
 
         //Add corresponding remove button which removes row.

@@ -25,8 +25,12 @@ class UserPostings : AppCompatActivity() {
     private lateinit var dateColumn: TextView
     private lateinit var nameColumn: TextView
     private lateinit var createRequestButton: TextView
+
     private lateinit var postingsTable: TableLayout
-    private lateinit var jsonArray: JSONArray
+
+    //Holds all the user's requests/donations
+    private lateinit var userPostings: JSONArray
+
     private lateinit var optionsArray: Array<String>
 
 
@@ -51,15 +55,16 @@ class UserPostings : AppCompatActivity() {
 
         if (GlobalVar.userType == 1) { //Handle soldier requests
             postingsTitle.text = getString(R.string.requests_history_button)
-            nameColumn.text = "From"
+            nameColumn.text = getString(R.string.from_donor_column)
             fetchHistory("soldierRequestHistory")
         }else{ //Handle donor donations
             postingsTitle.text = getString(R.string.donations_history_button)
-            nameColumn.text = "To"
+            nameColumn.text = getString(R.string.to_soldier_column)
             fetchHistory("donorDonationHistory")
         }
     }
 
+    //Get all postings history of current user connected.
     private fun fetchHistory(apiRequest: String) {
         Thread  {
             try {
@@ -73,36 +78,31 @@ class UserPostings : AppCompatActivity() {
                 val inputStream = connection.inputStream
                 val reader = BufferedReader(InputStreamReader(inputStream))
                 val serverAns = reader.readLine()
-                jsonArray = JSONArray(serverAns)
+                userPostings = JSONArray(serverAns)
 
                 runOnUiThread {
-                    handleHistoryResponse()
+                    //Iterate through elements of the answer representing rows
+                    for (i in 0 until userPostings.length()){
+                        val jsonObject = userPostings.getJSONObject(i)
+                        addRowToTable(jsonObject)
+                    }
                 }
 
                 reader.close()
                 connection.disconnect()
 
             } catch (e: IOException) {
-                // Handle the exception, e.g., show an error message
+                // Handle the exception
                 e.printStackTrace()
             }
         }.start()
-    }
-
-    private fun handleHistoryResponse() {
-        //Iterate through elements of the answer representing rows
-        for (i in 0 until jsonArray.length()){
-            val jsonObject = jsonArray.getJSONObject(i)
-            addRowToTable(jsonObject)
-        }
     }
 
     private fun addRowToTable(jsonObject: JSONObject) {
         val requestId = jsonObject.getString("request_id")
         val existingRow = postingsTable.findViewWithTag<TableRow>(requestId)
 
-        if(existingRow == null){
-            // Create a new row
+        if(existingRow == null){ // Create a new row
             val newRow = TableRow(this)
             newRow.tag = requestId // Set tag to request_id for identification
 
@@ -110,12 +110,18 @@ class UserPostings : AppCompatActivity() {
             newRow.setBackgroundColor(getColor(R.color.tablesBackgroundColor))
 
             if(GlobalVar.userType == 0){ //Donor
+
+                //Add dummyView in case of a donor in order to keep insertion order of elements
                 val dummyView = TextView(this)
                 newRow.addView(dummyView)
+
+                //Collapse unnecessary column
                 postingsTable.setColumnCollapsed(0, true)
             }
-            else{
+            else{ //Soldier
                 val optionsList = ListView(this)
+
+                //Different adapter depending on request status
                 val adapter = if (jsonObject.optString("status") != "closed"){
                     ArrayAdapter(this, R.layout.list_item, R.id.text_view, optionsArray)
                 }else{
@@ -126,35 +132,25 @@ class UserPostings : AppCompatActivity() {
                 optionsList.setBackgroundResource(R.drawable.tables_outline)
 
                 optionsList.onItemClickListener = AdapterView.OnItemClickListener { _, _, position, _ ->
-                    // Handle item clicks
+                    val filteredArray = (0 until userPostings.length())
+                        .map { userPostings.getJSONObject(it) }
+                        .filter { it.getString("request_id") == newRow.tag.toString() }
+                        .map {
+                            it.toString()
+                        }
 
+                    // Handle item clicks
                     when(optionsArray[position]){
                         "Details" -> {
-                            val filteredArray = (0 until jsonArray.length())
-                                .map { jsonArray.getJSONObject(it) }
-                                .filter { it.getString("request_id") == newRow.tag.toString() }
-                                .map {
-                                    it.toString()
-                                }
-
                             val detailsIntent = Intent(this@UserPostings, SoldierRequestDetails::class.java)
                             detailsIntent.putStringArrayListExtra("jsonArray", ArrayList(filteredArray))
                             detailsIntent.putExtra("fromHistory", true)
-
                             startActivity(detailsIntent)
                         }
                         "Edit" -> {
-                            val filteredArray = (0 until jsonArray.length())
-                                .map { jsonArray.getJSONObject(it) }
-                                .filter { it.getString("request_id") == newRow.tag.toString() }
-                                .map {
-                                    it.toString()
-                                }
-
                             val editIntent = Intent(this@UserPostings, EditSoldierRequest::class.java)
                             editIntent.putExtra("request_id", newRow.tag.toString())
                             editIntent.putStringArrayListExtra("jsonArray", ArrayList(filteredArray))
-
                             startActivity(editIntent)
                         }
                         "Confirm" -> {
@@ -165,6 +161,7 @@ class UserPostings : AppCompatActivity() {
                 newRow.addView(optionsList)
             }
 
+            //Holds relevant column data
             val columns = listOf(
                 jsonObject.getString("status"),
                 jsonObject.getString("request_date"),
@@ -172,7 +169,6 @@ class UserPostings : AppCompatActivity() {
                 jsonObject.getString("close_date"))
 
             // Add columns for each piece of information
-
             for (columnData in columns) {
                 val column = TextView(this)
                 column.text = columnData
@@ -183,11 +179,12 @@ class UserPostings : AppCompatActivity() {
                 column.setBackgroundResource(R.drawable.tables_outline)
                 newRow.addView(column)
             }
-
+            //Add entire row to the postings table
             postingsTable.addView(newRow)
         }
     }
 
+    //Handles the row which is confirmed.
     private fun handleDonationConfirmation(rowToHandle: TableRow) {
         Thread  {
             try {
@@ -212,9 +209,15 @@ class UserPostings : AppCompatActivity() {
 
                 runOnUiThread {
                     val jsonNewData = JSONObject(serverAns)
-                    val closeDateField = rowToHandle.getChildAt(4) as? TextView
+                    val optionsList = rowToHandle.getChildAt(0) as? ListView
                     val statusField = rowToHandle.getChildAt(1) as? TextView
+                    val closeDateField = rowToHandle.getChildAt(4) as? TextView
 
+                    if (optionsList != null) {
+                        optionsList.adapter = ArrayAdapter(this, R.layout.list_item, R.id.text_view, optionsArray.slice(IntRange(0,0)))
+                    }
+
+                    //Sets relevant TextView fields after confirming donation.
                     closeDateField!!.text = jsonNewData.optString("close_date")
                     statusField!!.text = jsonNewData.optString("status")
                 }
