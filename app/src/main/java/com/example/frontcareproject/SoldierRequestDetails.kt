@@ -49,7 +49,7 @@ class SoldierRequestDetails : AppCompatActivity() {
             donateButtonView.visibility = View.INVISIBLE
         }
 
-        // Display products in table
+        // Extract request data from intent and display it
         displayRequestDetails()
 
         // Add button listener

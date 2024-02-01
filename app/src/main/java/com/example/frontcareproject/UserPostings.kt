@@ -6,6 +6,7 @@ import androidx.appcompat.app.AppCompatActivity
 import android.os.Bundle
 import android.widget.AdapterView
 import android.widget.ArrayAdapter
+import android.widget.Button
 import android.widget.ListView
 import android.widget.TableLayout
 import android.widget.TableRow
@@ -24,7 +25,7 @@ class UserPostings : AppCompatActivity() {
     private lateinit var statusColumn: TextView
     private lateinit var dateColumn: TextView
     private lateinit var nameColumn: TextView
-    private lateinit var createRequestButton: TextView
+    private lateinit var createRequestButton: Button
 
     private lateinit var postingsTable: TableLayout
 
@@ -48,6 +49,7 @@ class UserPostings : AppCompatActivity() {
         //Used for creating lists of options for each row
         optionsArray = arrayOf("Details", "Edit", "Confirm")
 
+        // Go to create request page
         createRequestButton.setOnClickListener{
             val intent = Intent(this@UserPostings, CreateSoldierRequest::class.java)
             startActivity(intent)

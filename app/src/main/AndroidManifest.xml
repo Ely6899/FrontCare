@@ -16,6 +16,9 @@
         android:theme="@style/Theme.FrontCareProject"
         tools:targetApi="31">
         <activity
+            android:name=".CreateEvent"
+            android:exported="false" />
+        <activity
             android:name=".EditSoldierRequest"
             android:exported="false" />
         <activity

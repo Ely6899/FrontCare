@@ -19,12 +19,20 @@ import java.net.URL
 class UserEvents : AppCompatActivity() {
 
     private lateinit var eventsTable: TableLayout
+    private lateinit var createEventButton : Button
 
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
         setContentView(R.layout.activity_user_events)
 
         eventsTable = findViewById(R.id.eventsTable)
+        createEventButton = findViewById(R.id.createEventButton)
+
+        // Go to create event page
+        createEventButton.setOnClickListener{
+            val intent = Intent(this, CreateEvent::class.java)
+            startActivity(intent)
+        }
 
         //Collapse products and remaining spots columns on initialization
         eventsTable.setColumnCollapsed(5, true)
