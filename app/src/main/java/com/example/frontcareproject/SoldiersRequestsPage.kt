@@ -19,7 +19,7 @@ class SoldiersRequestsPage : AppCompatActivity() {
 
     //vars:
     private lateinit var donationsTable: TableLayout // the table from the xml file
-    private lateinit var jsonArray: JSONArray  // the JSON that is being sent from the server
+    private lateinit var jsonArray: JSONArray  // the JSON of the data that is being sent from the server
 
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
@@ -45,7 +45,7 @@ class SoldiersRequestsPage : AppCompatActivity() {
                 // Process the response into a JSON array:
                 jsonArray = JSONArray(serverResponse)
 
-                runOnUiThread {
+                runOnUiThread { // Android Studio's custom thread for UI
                     // fill up the table with the JSON array:
                     handleSoldiersRequestsResponse()
                 }
@@ -53,7 +53,8 @@ class SoldiersRequestsPage : AppCompatActivity() {
                 reader.close()
                 connection.disconnect()
 
-            } catch (e: IOException) {
+            }
+            catch (e: IOException) {
                 // Handle an exception in case one occurs:
                 e.printStackTrace()
             }
@@ -69,8 +70,6 @@ class SoldiersRequestsPage : AppCompatActivity() {
                 jsonObject.getString("request_id"),
                 jsonObject.getString("request_date"),
                 jsonObject.getString("firstname"),
-                //jsonObject.getString("product_name"),
-                //jsonObject.getInt("quantity").toString(),
                 jsonObject.getString("pickup_location")
             )
         }
@@ -80,8 +79,6 @@ class SoldiersRequestsPage : AppCompatActivity() {
         requestId: String, // Used for identification, so JSONs with the same request_id won't take more than one row
         requestDate: String,
         firstname: String,
-        //productName: String,
-        //quantity: String,
         pickupLocation: String
     ) {
         // try to find a row with the same request_id, will be NULL if none is found:
@@ -99,14 +96,14 @@ class SoldiersRequestsPage : AppCompatActivity() {
 
             // Add the details button to the first column for the current row:
             val detailsButton = Button(this)
-            detailsButton.text = "Details"
+            detailsButton.text = getString(R.string.details_buttons_text)
 
             // Define what happens on button click:
             detailsButton.setOnClickListener {
                 // Filter the JSON array based on event_id, so only relevant JSONs will be sent to the details page,
                 // then, reshape each JSON to a String. The filteredArray will now have an array of String-represented JSONs:
                 var filteredArray = (0 until jsonArray.length())
-                    .map { jsonArray.getJSONObject(it) }
+                    .map { jsonArray.getJSONObject(it) } // it - iterable, for every single json in the jsonArray
                     .filter { it.getString("request_id") == requestId }
                     .map {
                         it.toString()

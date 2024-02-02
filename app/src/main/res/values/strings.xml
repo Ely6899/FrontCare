@@ -40,6 +40,8 @@
     <string name="from_donor_column">From</string>
     <string name="to_soldier_column">To</string>
     <string name="products"><u>Products</u></string>
+    <string name="details_buttons_text">Details</string>
+
 
     <string-array name="locations_array">
         <item>North</item>

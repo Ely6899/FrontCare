@@ -31,6 +31,12 @@
         app:layout_constraintStart_toStartOf="parent"
         app:layout_constraintTop_toBottomOf="@+id/SoldiersRequestsPageTitle">
 
+
+        <HorizontalScrollView
+            android:id="@+id/scrollEvents"
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content">
+
         <TableLayout
             android:id="@+id/donationsTable"
             android:layout_width="wrap_content"
@@ -87,7 +93,7 @@
             <!-- Data rows will be added dynamically -->
 
         </TableLayout>
-
+        </HorizontalScrollView>
     </ScrollView>
 
 </androidx.constraintlayout.widget.ConstraintLayout>

@@ -96,7 +96,7 @@ class DonorsEventsPage : AppCompatActivity() {
 
             // Add the details button to the first column for the current row:
             val detailsButton = Button(this)
-            detailsButton.text = "Details"
+            detailsButton.text = getString(R.string.details_buttons_text)
 
             // Define what happens on button click:
             detailsButton.setOnClickListener {
