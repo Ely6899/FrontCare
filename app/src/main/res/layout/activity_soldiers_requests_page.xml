@@ -12,7 +12,7 @@
         android:layout_width="wrap_content"
         android:layout_height="wrap_content"
         android:layout_centerHorizontal="true"
-        android:text="Choose a donation:"
+        android:text="@string/soldiers_requests_page_title"
         android:textColor="@android:color/black"
         android:textSize="18sp"
         app:layout_constraintBottom_toTopOf="@+id/horizontalScrollView"
@@ -54,7 +54,7 @@
                     android:background="@drawable/tables_outline"
                     android:gravity="center"
                     android:padding="8dp"
-                    android:text="Details"
+                    android:text="@string/details_buttons_column_text"
                     android:layout_width="wrap_content"
                     android:maxLines="1"
                     android:ellipsize="end" />
@@ -63,7 +63,7 @@
                     android:background="@drawable/tables_outline"
                     android:gravity="center"
                     android:padding="8dp"
-                    android:text="Request Date"
+                    android:text="@string/request_date_column_text"
                     android:layout_width="wrap_content"
                     android:maxLines="1"
                     android:ellipsize="end" />
@@ -72,7 +72,7 @@
                     android:background="@drawable/tables_outline"
                     android:gravity="center"
                     android:padding="8dp"
-                    android:text="First Name"
+                    android:text="@string/first_name_column_text"
                     android:layout_width="wrap_content"
                     android:maxLines="1"
                     android:ellipsize="end" />
@@ -81,7 +81,7 @@
                     android:background="@drawable/tables_outline"
                     android:gravity="center"
                     android:padding="8dp"
-                    android:text="Pickup Location"
+                    android:text="@string/pickup_location_column_text"
                     android:layout_width="wrap_content"
                     android:maxLines="1"
                     android:ellipsize="end" />

@@ -12,7 +12,7 @@
         android:layout_width="wrap_content"
         android:layout_height="wrap_content"
         android:layout_centerHorizontal="true"
-        android:text="Donors Events"
+        android:text="@string/donors_events_page_title"
         android:textColor="@android:color/black"
         android:textSize="18sp"
         app:layout_constraintTop_toTopOf="parent"
@@ -31,6 +31,11 @@
         app:layout_constraintEnd_toEndOf="parent"
         app:layout_constraintStart_toStartOf="parent">
 
+        <HorizontalScrollView
+            android:id="@+id/scrollEvents"
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content">
+
         <TableLayout
             android:id="@+id/eventsTable"
             android:layout_width="wrap_content"
@@ -47,7 +52,7 @@
                     android:background="@drawable/tables_outline"
                     android:gravity="center"
                     android:padding="5dp"
-                    android:text="Details"
+                    android:text="@string/details_buttons_column_text"
                     android:layout_width="wrap_content"
                     android:maxLines="1"
                     android:ellipsize="end" />
@@ -56,7 +61,7 @@
                     android:background="@drawable/tables_outline"
                     android:gravity="center"
                     android:padding="5dp"
-                    android:text="Event Date"
+                    android:text="@string/event_date_column_text"
                     android:layout_width="wrap_content"
                     android:maxLines="1"
                     android:ellipsize="end" />
@@ -65,7 +70,7 @@
                     android:background="@drawable/tables_outline"
                     android:gravity="center"
                     android:padding="5dp"
-                    android:text="Event Location"
+                    android:text="@string/event_location_column_text"
                     android:layout_width="wrap_content"
                     android:maxLines="1"
                     android:ellipsize="end" />
@@ -74,7 +79,7 @@
                     android:background="@drawable/tables_outline"
                     android:gravity="center"
                     android:padding="5dp"
-                    android:text="Remaining Spots"
+                    android:text="@string/remaining_spots_column_text"
                     android:layout_width="wrap_content"
                     android:maxLines="1"
                     android:ellipsize="end" />
@@ -83,6 +88,7 @@
             <!-- Data rows will be added dynamically -->
 
         </TableLayout>
+        </HorizontalScrollView>
 
     </ScrollView>
 

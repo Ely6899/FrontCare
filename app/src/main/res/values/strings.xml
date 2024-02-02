@@ -42,6 +42,17 @@
     <string name="products"><u>Products</u></string>
     <string name="details_buttons_text">Details</string>
 
+    //maor: strings for the donors event page, you can take some for your own tables with similar columns titles:
+    <string name="donors_events_page_title">Donors Events</string>
+    <string name="details_buttons_column_text">Details</string>
+    <string name="event_date_column_text">Event Date</string>
+    <string name="event_location_column_text">Event Location</string>
+    <string name="remaining_spots_column_text">Remaining Spots</string>
+    <string name="soldiers_requests_page_title">Choose a donation:</string>
+    <string name="request_date_column_text">Request Date</string>
+    <string name="first_name_column_text">First Name</string>
+    <string name="pickup_location_column_text">Pickup Location</string>
+
 
     <string-array name="locations_array">
         <item>North</item>
