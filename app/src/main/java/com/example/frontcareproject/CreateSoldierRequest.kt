@@ -12,6 +12,7 @@ import android.widget.Spinner
 import android.widget.TableLayout
 import android.widget.TableRow
 import android.widget.TextView
+import android.widget.Toast
 import androidx.appcompat.app.AppCompatActivity
 import androidx.lifecycle.lifecycleScope
 import kotlinx.coroutines.Dispatchers
@@ -108,7 +109,10 @@ class CreateSoldierRequest : AppCompatActivity() {
     private fun onCreateButtonClick() {
         // If none radio button is selected return
         val selectedRadioButtonId = radioGroup.checkedRadioButtonId
-        if (selectedRadioButtonId == -1) {
+
+        //checks weather the table has no products and the customer marked a location
+        if (selectedRadioButtonId == -1 || productsToSend.isEmpty()) {
+            Toast.makeText(this, "Invalid request", Toast.LENGTH_SHORT).show()
             return
         }
 
@@ -123,7 +127,7 @@ class CreateSoldierRequest : AppCompatActivity() {
         // convert Products map to jsonArray
         val gson = Gson()
         val jsonProducts = gson.toJson(productsToSend)
-
+        println(jsonProducts)
         // Request in a new Coroutine that is destroyed after leaving this scope
         lifecycleScope.launch(Dispatchers.IO) {
             val client = OkHttpClient()
@@ -156,8 +160,7 @@ class CreateSoldierRequest : AppCompatActivity() {
     private fun onAddProductButtonClick() {
         val productName = productsSpinnerView.selectedItem.toString()
         val quantity = quantityEditView.text.toString().toInt()
-
-        if (productName.isNotEmpty() && quantity >= 0) {
+        if (productName.isNotEmpty() && quantity > 0) {
             // find product ID by name.
             val productId = availableProducts.entries.find { it.value == productName }?.key?.toInt()
 
