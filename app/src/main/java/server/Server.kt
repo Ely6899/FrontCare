@@ -237,7 +237,9 @@ fun getSoldiersRequests(): List<Map<String, Any>> {
  */
 fun getDonorsEvents(donorId: String?): List<Map<String, Any>> {
     val resultList = mutableListOf<Map<String, Any>>()
-    var sqlFiller = "" // var that will be added to the sql query to determine if its for events history or donors events
+    var sqlFiller = "WHERE donation_events.event_date >= CURRENT_DATE();" // var that will be added to the sql query to determine if its for events history or donors events
+    //if donorid = 0 ,it means we want to get all the events for the events page , otherwise we only want to receive the events of a specific donor.
+
     if(donorId != "0")
     {
         sqlFiller = "WHERE donation_events.donor_id = $donorId;"
@@ -558,6 +560,7 @@ fun eventRegistration(data: Map<String, String>): Boolean {
         } else {
             // User is already registered for the event, do not proceed
             println("User is already registered for the event.")
+            return false
         }
 
     } catch (e: Exception) {
@@ -626,7 +629,7 @@ fun createSoldierRequest(data: Map<String, Any>): Boolean{
 
     val userId = data["userId"].toString()
     val location = data["location"].toString()
-    val products = data["products"] as Map<Int, Int>
+    val products = data["products"] as Map<String, Int>
 
     var connection: Connection? = null
 
@@ -662,13 +665,16 @@ fun createSoldierRequest(data: Map<String, Any>): Boolean{
 
             for ((productId, quantity) in products) {
                 insertRequestDetailsStatement.setInt(1, requestId)
-                insertRequestDetailsStatement.setInt(2, productId)
+                insertRequestDetailsStatement.setInt(2, productId.toInt())
                 insertRequestDetailsStatement.setInt(3, quantity)
                 insertRequestDetailsStatement.executeUpdate()
             }
 
             return true
         }
+
+        return false
+
     } catch (e: Exception) {
         e.printStackTrace()
     } finally {
@@ -1019,7 +1025,13 @@ fun Application.module() {
                 val request = call.receive<Map<String, Any>>() // maybe change to Map<String, Any>
                 val respond = createSoldierRequest(request) // True - Update DB successfully else False
 
-                call.respond(respond)
+                val responseMessage = if (respond) {
+                    mapOf("message" to "Request created successfully")
+                } else {
+                    mapOf("message" to "Failed to create a Request")
+                }
+
+                call.respond(responseMessage)
 
             } catch (e: Exception) {
                 // Handle exceptions related to request format and respond with BadRequest status
