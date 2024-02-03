@@ -132,12 +132,11 @@ class UserEvents : AppCompatActivity() {
             val editEventButton = Button(this)
             if(GlobalVar.userType == 1){
                 if (passedDate)
-                    editEventButton.visibility = View.GONE
-                else{
-                    editEventButton.text = "Leave"
-                    editEventButton.setOnClickListener {
-                        handleEventRemoval(newRow)
-                    }
+                    editEventButton.isEnabled = false
+
+                editEventButton.text = getString(R.string.leave_button)
+                editEventButton.setOnClickListener {
+                    handleEventRemoval(newRow)
                 }
             }
             else{
@@ -167,8 +166,7 @@ class UserEvents : AppCompatActivity() {
     private fun handleEventRemoval(rowToHandle: TableRow) {
         Thread  {
             try {
-                /*TODO("Change the relevant API")*/
-                val url = URL("http://${GlobalVar.serverIP}:8080/api/donationConfirmation")
+                val url = URL("http://${GlobalVar.serverIP}:8080/api/cancelEventRegistration")
                 val connection = url.openConnection() as HttpURLConnection
                 connection.requestMethod = "POST"
                 connection.setRequestProperty("Content-Type", "application/json")

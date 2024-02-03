@@ -52,6 +52,7 @@
     <string name="request_date_column_text">Request Date</string>
     <string name="first_name_column_text">First Name</string>
     <string name="pickup_location_column_text">Pickup Location</string>
+    <string name="leave_button">Leave</string>
 
 
     <string-array name="locations_array">
