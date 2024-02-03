@@ -3,6 +3,7 @@ package com.example.frontcareproject
 import android.content.Intent
 import androidx.appcompat.app.AppCompatActivity
 import android.os.Bundle
+import android.view.View
 import android.widget.Button
 import android.widget.TableLayout
 import android.widget.TableRow
@@ -15,6 +16,9 @@ import java.io.IOException
 import java.io.InputStreamReader
 import java.net.HttpURLConnection
 import java.net.URL
+import java.text.SimpleDateFormat
+import java.util.Date
+import java.text.ParseException
 
 class UserEvents : AppCompatActivity() {
 
@@ -114,12 +118,33 @@ class UserEvents : AppCompatActivity() {
                 )
             }
 
-            val editEventButton = Button(this)
-            editEventButton.text = getString(R.string.edit_button_history_tables)
-            editEventButton.setOnClickListener {
-                handleEditEvent()
+            val pattern = "yyyy-MM-dd" // Specify the pattern of the date string
+
+            val formatter = SimpleDateFormat(pattern)
+            var passedDate = true
+            try {
+                val parsedDate: Date = formatter.parse(jsonObject.getString("event_date"))!!
+                passedDate = Date().after(parsedDate)
+            } catch (e: ParseException) {
+                println("Error parsing date: ${e.message}")
             }
 
+            val editEventButton = Button(this)
+            if(GlobalVar.userType == 1){
+                if (passedDate)
+                    editEventButton.isEnabled = false
+
+                editEventButton.text = getString(R.string.leave_button)
+                editEventButton.setOnClickListener {
+                    handleEventRemoval(newRow)
+                }
+            }
+            else{
+                editEventButton.text = getString(R.string.edit_button_history_tables)
+//                editEventButton.setOnClickListener {
+//                    //handleEditEvent()
+//                }
+            }
             newRow.addView(editEventButton)
 
             // Add columns for each piece of information
@@ -138,9 +163,48 @@ class UserEvents : AppCompatActivity() {
         }
     }
 
-    private fun handleEditEvent() {
-        startActivity(Intent(this@UserEvents, EditEvent::class.java))
+    private fun handleEventRemoval(rowToHandle: TableRow) {
+        Thread  {
+            try {
+                val url = URL("http://${GlobalVar.serverIP}:8080/api/cancelEventRegistration")
+                val connection = url.openConnection() as HttpURLConnection
+                connection.requestMethod = "POST"
+                connection.setRequestProperty("Content-Type", "application/json")
+                connection.doOutput = true
+
+                // Construct the JSON payload with email and password
+                val jsonInputString = """{"userId": "${GlobalVar.userId}", "eventId": "${rowToHandle.tag}"}"""
+
+                // Send JSON as the request body
+                val outputStream = connection.outputStream
+                outputStream.write(jsonInputString.toByteArray(Charsets.UTF_8))
+                outputStream.close()
+
+                // Read the response
+                val inputStream = connection.inputStream
+                val reader = BufferedReader(InputStreamReader(inputStream))
+                val serverAns = reader.readLine()
+
+                runOnUiThread {
+                    rowToHandle.visibility = View.GONE
+                }
+
+                reader.close()
+                connection.disconnect()
+
+            } catch (e: IOException) {
+                // Handle the exception, e.g., show an error message
+                e.printStackTrace()
+            }
+        }.start()
     }
+
+    /*
+    * TODO(Implement editing of event for donor)
+    * */
+//    private fun handleEditEvent() {
+//        startActivity(Intent(this@UserEvents, EditEvent::class.java))
+//    }
 
     private fun appendProductInfoToRow(existingRow: TableRow, productName: String) {
         // Find the column for productName and quantity in the existing row

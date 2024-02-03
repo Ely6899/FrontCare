@@ -112,12 +112,61 @@ class EditSoldierRequest : AppCompatActivity() {
 
         //Button for adding a new product to the list.
         addItemBtn.setOnClickListener {
-            addRowToTable(spinnerItems.selectedItem.toString(), etItemQuantity.text.toString(), false)
+            if(etItemQuantity.text.toString() != "" && etItemQuantity.text.toString().isNotEmpty() && etItemQuantity.text.toString().toInt() > 0)
+                addRowToTable(spinnerItems.selectedItem.toString(), etItemQuantity.text.toString(), false)
+            else
+                Toast.makeText(this, "Enter more then 1 item", Toast.LENGTH_SHORT).show()
         }
 
         //Button for triggering the edit process.
         btnConfirmEdit.setOnClickListener {
-            handleEditConfirmation()
+            val rowCount = itemTable.childCount
+            //A map which holds the new set of items of the request.
+            val newProductsMap = mutableMapOf<String, String>()
+            var validity = (rowCount > 1)
+
+            newProductsMap["request_id"] = intent.getStringExtra("request_id").toString()
+
+            if (validity){
+                //Iterate through all table rows.
+                for (i in 1 until rowCount) {
+                    val view = itemTable.getChildAt(i)
+                    if (view is TableRow) { //Valid row
+                        val currSpinner = view.getChildAt(0) as Spinner
+                        val currEditText = view.getChildAt(1) as EditText
+
+                        //Array index
+                        val itemIndex = productsArray.indexOfFirst { it.second == currSpinner.selectedItem.toString() }
+
+                        //True ID from DB
+                        val itemDataId = productsArray[itemIndex].first
+                        val itemQuantity = currEditText.text.toString()
+                        if(currEditText.text.toString() == "" || currEditText.text.toString().isEmpty()){
+                            validity = false
+                            break
+                        }
+
+                        //Handle cumulative item selection
+                        if(newProductsMap.containsKey(itemDataId)){ //Handle same type in multiple rows.
+                            newProductsMap[itemDataId] = (newProductsMap[itemDataId]!!.toInt() + itemQuantity.toInt()).toString()
+                        }
+                        else{
+                            newProductsMap[itemDataId] = itemQuantity
+                        }
+                    }
+                }
+
+                //Handle a product which appeared before edit but removed after it.
+                itemIndexInitial.forEach { itemDataId->
+                    if(!newProductsMap.containsKey(itemDataId)){
+                        newProductsMap[itemDataId] = "0"
+                    }
+                }
+            }
+            if (validity)
+                handleEditConfirmation()
+            else
+                Toast.makeText(this, "Enter at least 1 item!", Toast.LENGTH_SHORT).show()
         }
 
         //Button for removing the request.

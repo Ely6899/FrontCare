@@ -4,10 +4,11 @@ import android.content.Intent
 import android.graphics.Color
 import androidx.appcompat.app.AppCompatActivity
 import android.os.Bundle
+import android.view.View
 import android.widget.AdapterView
 import android.widget.ArrayAdapter
 import android.widget.Button
-import android.widget.ListView
+import android.widget.Spinner
 import android.widget.TableLayout
 import android.widget.TableRow
 import android.widget.TextView
@@ -47,7 +48,7 @@ class UserPostings : AppCompatActivity() {
         createRequestButton = findViewById(R.id.createRequestButton)
 
         //Used for creating lists of options for each row
-        optionsArray = arrayOf("Details", "Edit", "Confirm")
+        optionsArray = arrayOf("Options", "Details", "Edit", "Confirm")
 
         // Go to create request page
         createRequestButton.setOnClickListener{
@@ -121,46 +122,74 @@ class UserPostings : AppCompatActivity() {
                 postingsTable.setColumnCollapsed(0, true)
             }
             else{ //Soldier
-                val optionsList = ListView(this)
+                val optionsSpinner = Spinner(this)
 
                 //Different adapter depending on request status
-                val adapter = if (jsonObject.optString("status") != "closed"){
-                    ArrayAdapter(this, R.layout.list_item, R.id.text_view, optionsArray)
-                }else{
-                    ArrayAdapter(this, R.layout.list_item, R.id.text_view, optionsArray.slice(IntRange(0,0)))
+                when (jsonObject.optString("status")){
+                    "open" -> {
+                        optionsSpinner.adapter = ArrayAdapter(this, R.layout.spinner_item, R.id.text_view, optionsArray.slice(IntRange(0,2)))
+                    }
+
+                    "pending" -> {
+                        optionsSpinner.adapter = ArrayAdapter(this, R.layout.spinner_item, R.id.text_view, optionsArray)
+                    }
+
+                    "closed" -> {
+                        optionsSpinner.adapter = ArrayAdapter(this, R.layout.spinner_item, R.id.text_view, optionsArray.slice(IntRange(0,1)))
+                    }
                 }
+                optionsSpinner.setBackgroundResource(R.drawable.tables_outline)
 
-                optionsList.adapter = adapter
-                optionsList.setBackgroundResource(R.drawable.tables_outline)
-
-                optionsList.onItemClickListener = AdapterView.OnItemClickListener { _, _, position, _ ->
-                    val filteredArray = (0 until userPostings.length())
+                val filteredArray = (0 until userPostings.length())
                         .map { userPostings.getJSONObject(it) }
                         .filter { it.getString("request_id") == newRow.tag.toString() }
                         .map {
                             it.toString()
                         }
 
-                    // Handle item clicks
-                    when(optionsArray[position]){
-                        "Details" -> {
-                            val detailsIntent = Intent(this@UserPostings, SoldierRequestDetails::class.java)
-                            detailsIntent.putStringArrayListExtra("jsonArray", ArrayList(filteredArray))
-                            detailsIntent.putExtra("fromHistory", true)
-                            startActivity(detailsIntent)
-                        }
-                        "Edit" -> {
-                            val editIntent = Intent(this@UserPostings, EditSoldierRequest::class.java)
-                            editIntent.putExtra("request_id", newRow.tag.toString())
-                            editIntent.putStringArrayListExtra("jsonArray", ArrayList(filteredArray))
-                            startActivity(editIntent)
-                        }
-                        "Confirm" -> {
-                            handleDonationConfirmation(newRow)
+                optionsSpinner.setSelection(0)
+                optionsSpinner.onItemSelectedListener = object: AdapterView.OnItemSelectedListener {
+                    override fun onNothingSelected(parent: AdapterView<*>?) {
+                        // Do nothing
+                    }
+
+                    override fun onItemSelected(
+                        parent: AdapterView<*>?,
+                        view: View?,
+                        position: Int,
+                        id: Long
+                    ) {
+                        //val selection = parent?.getItemAtPosition(position)
+                        when (position) {
+                            1 -> { //Details
+                                val detailsIntent =
+                                    Intent(this@UserPostings, SoldierRequestDetails::class.java)
+                                detailsIntent.putStringArrayListExtra(
+                                    "jsonArray",
+                                    ArrayList(filteredArray)
+                                )
+                                detailsIntent.putExtra("fromHistory", true)
+                                startActivity(detailsIntent)
+                            }
+
+                            2 -> { //Edit
+                                val editIntent =
+                                    Intent(this@UserPostings, EditSoldierRequest::class.java)
+                                editIntent.putExtra("request_id", newRow.tag.toString())
+                                editIntent.putStringArrayListExtra(
+                                    "jsonArray",
+                                    ArrayList(filteredArray)
+                                )
+                                startActivity(editIntent)
+                            }
+
+                            3 -> { //Confirm
+                                handleDonationConfirmation(newRow)
+                            }
                         }
                     }
                 }
-                newRow.addView(optionsList)
+                newRow.addView(optionsSpinner)
             }
 
             //Holds relevant column data
@@ -211,12 +240,12 @@ class UserPostings : AppCompatActivity() {
 
                 runOnUiThread {
                     val jsonNewData = JSONObject(serverAns)
-                    val optionsList = rowToHandle.getChildAt(0) as? ListView
+                    val optionsSpinner = rowToHandle.getChildAt(0) as? Spinner
                     val statusField = rowToHandle.getChildAt(1) as? TextView
                     val closeDateField = rowToHandle.getChildAt(4) as? TextView
 
-                    if (optionsList != null) {
-                        optionsList.adapter = ArrayAdapter(this, R.layout.list_item, R.id.text_view, optionsArray.slice(IntRange(0,0)))
+                    if (optionsSpinner != null) {
+                        optionsSpinner.adapter = ArrayAdapter(this, R.layout.spinner_item, R.id.text_view, optionsArray.slice(IntRange(0,0)))
                     }
 
                     //Sets relevant TextView fields after confirming donation.
