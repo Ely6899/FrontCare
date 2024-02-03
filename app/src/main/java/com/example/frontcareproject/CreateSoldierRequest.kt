@@ -24,6 +24,7 @@ import okhttp3.RequestBody.Companion.toRequestBody
 import utils.GlobalVar
 import com.google.gson.Gson
 import com.google.gson.reflect.TypeToken
+import okhttp3.internal.notify
 
 class CreateSoldierRequest : AppCompatActivity() {
     private lateinit var productsSpinnerView : Spinner
@@ -33,7 +34,9 @@ class CreateSoldierRequest : AppCompatActivity() {
     private lateinit var productsTableView : TableLayout
     private lateinit var radioGroup : RadioGroup
 
-    private var availableProducts : MutableMap<String, String> = mutableMapOf() // create new map to save table entries
+    private var availableProducts : MutableMap<String, String> = mutableMapOf() // create new map to save available products and their ids
+    private var adapterList : MutableList<String> = mutableListOf()
+    private lateinit var adapter : ArrayAdapter<String>
     private var productsToSend : MutableMap<Int, Int> = mutableMapOf() // Products in the table
 
 
@@ -86,12 +89,13 @@ class CreateSoldierRequest : AppCompatActivity() {
                 runOnUiThread {
                     // transform json back to map
                     availableProducts = gson.fromJson(response.body?.string(), type)
+                    adapterList = availableProducts.values.toMutableList() // take only the names of the products.
 
                     // use adapter to put the items in the spinner
-                    val adapter = ArrayAdapter(
+                    adapter = ArrayAdapter(
                         this@CreateSoldierRequest,
                         android.R.layout.simple_spinner_item,
-                        availableProducts.values.toList() // take only the names of the products.
+                        adapterList
                     )
 
                     // Specify the layout to use when the list of choices appears
@@ -107,12 +111,16 @@ class CreateSoldierRequest : AppCompatActivity() {
     }
 
     private fun onCreateButtonClick() {
-        // If none radio button is selected return
+        // Check if no location is picked.
         val selectedRadioButtonId = radioGroup.checkedRadioButtonId
+        if (selectedRadioButtonId == -1) {
+            Toast.makeText(this, "Please select a location", Toast.LENGTH_SHORT).show()
+            return
+        }
 
-        //checks weather the table has no products and the customer marked a location
-        if (selectedRadioButtonId == -1 || productsToSend.isEmpty()) {
-            Toast.makeText(this, "Invalid request", Toast.LENGTH_SHORT).show()
+        // Check if products list is empty
+        if (productsToSend.isEmpty()) {
+            Toast.makeText(this, "Please add products to your list", Toast.LENGTH_SHORT).show()
             return
         }
 
@@ -127,7 +135,7 @@ class CreateSoldierRequest : AppCompatActivity() {
         // convert Products map to jsonArray
         val gson = Gson()
         val jsonProducts = gson.toJson(productsToSend)
-        println(jsonProducts)
+
         // Request in a new Coroutine that is destroyed after leaving this scope
         lifecycleScope.launch(Dispatchers.IO) {
             val client = OkHttpClient()
@@ -158,35 +166,63 @@ class CreateSoldierRequest : AppCompatActivity() {
     }
 
     private fun onAddProductButtonClick() {
-        val productName = productsSpinnerView.selectedItem.toString()
-        val quantity = quantityEditView.text.toString().toInt()
-        if (productName.isNotEmpty() && quantity > 0) {
-            // find product ID by name.
-            val productId = availableProducts.entries.find { it.value == productName }?.key?.toInt()
-
-            // Put in map
-            if (productId != null)
-                productsToSend[productId] = quantity
-
-            // create new table row
-            val newRow = TableRow(this)
-
-            // Create text views
-            val productView = createTextView(productName)
-            val quantityView = createTextView("$quantity")
-
-            // Add text views to the row
-            newRow.addView(productView)
-            newRow.addView(quantityView)
-
-            // Add the row to the table
-            productsTableView.addView(newRow)
-
-            // Clear edit texts
-            quantityEditView.text.clear()
+        // Check if spinner is empty
+        if (adapterList.isEmpty()) {
+            Toast.makeText(this, "There are no more items to add", Toast.LENGTH_SHORT).show()
+            return
         }
+
+        // Get string inputs
+        val productName = productsSpinnerView.selectedItem.toString()
+        val quantityString = quantityEditView.text.toString()
+
+        // check if quantity input is empty
+        if (quantityString.isEmpty()) {
+            Toast.makeText(this, "Quantity is empty", Toast.LENGTH_SHORT).show()
+            return
+        }
+
+        // parse to Int
+        val quantityInt = quantityString.toInt()
+
+        // Now check valid input
+        if (quantityInt < 0 || quantityInt > 100000) {
+            Toast.makeText(this, "Quantity should be between 1 and 100000", Toast.LENGTH_SHORT).show()
+            return
+        }
+
+        // Find product ID by name.
+        val productId = availableProducts.entries.find { it.value == productName }?.key?.toInt()
+
+        // Put in map of table products
+        if (productId != null)
+            productsToSend[productId] = quantityInt
+
+        // Remove product from the adapter list and update
+        adapterList.remove(productName)
+        adapter.notifyDataSetChanged()
+
+        // create new table row
+        val newRow = TableRow(this)
+
+        // Create text views
+        val productView = createTextView(productName)
+        val quantityView = createTextView("$quantityInt")
+
+        // Add text views to the row
+        newRow.addView(productView)
+        newRow.addView(quantityView)
+
+        // Add the row to the table
+        productsTableView.addView(newRow)
+
+        // Clear edit texts
+        quantityEditView.text.clear()
     }
 
+    /**
+     *  Gets a string and returns a TextView object with a fixed style
+     */
     private fun createTextView(text: String): TextView {
         val textView = TextView(this)
         textView.text = text
