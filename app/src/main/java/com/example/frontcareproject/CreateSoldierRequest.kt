@@ -111,10 +111,8 @@ class CreateSoldierRequest : AppCompatActivity() {
     }
 
     private fun onCreateButtonClick() {
-        // If none radio button is selected return
+        // Check if no location is picked.
         val selectedRadioButtonId = radioGroup.checkedRadioButtonId
-
-        // Check if location is empty.
         if (selectedRadioButtonId == -1) {
             Toast.makeText(this, "Please select a location", Toast.LENGTH_SHORT).show()
             return

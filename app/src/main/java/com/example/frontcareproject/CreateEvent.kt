@@ -1,14 +1,19 @@
 package com.example.frontcareproject
 
 import android.content.Intent
+import android.os.Build
 import androidx.appcompat.app.AppCompatActivity
 import android.os.Bundle
 import android.widget.ArrayAdapter
 import android.widget.Button
+import android.widget.DatePicker
 import android.widget.EditText
 import android.widget.ListView
 import android.widget.RadioButton
 import android.widget.RadioGroup
+import android.widget.Toast
+import androidx.annotation.RequiresApi
+import androidx.core.util.isEmpty
 import androidx.lifecycle.lifecycleScope
 import com.google.gson.Gson
 import com.google.gson.reflect.TypeToken
@@ -19,18 +24,20 @@ import okhttp3.OkHttpClient
 import okhttp3.Request
 import okhttp3.RequestBody.Companion.toRequestBody
 import utils.GlobalVar
+import java.time.LocalDate
 
 class CreateEvent : AppCompatActivity() {
     private lateinit var productsListView : ListView
     private lateinit var radioGroup : RadioGroup
     private lateinit var createButton : Button
     private lateinit var maximumSpotsText : EditText
-    private lateinit var eventDateText : EditText
+    private lateinit var datePicker : DatePicker
     private lateinit var eventAddressText : EditText
 
     private var availableProducts : MutableMap<String, String> = mutableMapOf()
 
 
+    @RequiresApi(Build.VERSION_CODES.O)
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
         setContentView(R.layout.activity_create_event)
@@ -39,7 +46,8 @@ class CreateEvent : AppCompatActivity() {
         radioGroup = findViewById(R.id.radioGroup)
         createButton = findViewById(R.id.createButton)
         maximumSpotsText = findViewById(R.id.maximumSpotsText)
-        eventDateText = findViewById(R.id.eventDateText)
+        datePicker = findViewById(R.id.datePicker)
+
         eventAddressText = findViewById(R.id.eventAddressText)
 
         // Get availableProducts from server
@@ -86,15 +94,17 @@ class CreateEvent : AppCompatActivity() {
                     productsListView.adapter = adapter
                 }
             } else {
-                println("Request failed with code: ${response.code}")
+                Toast.makeText(this@CreateEvent, "Request failed with code: ${response.code}", Toast.LENGTH_SHORT).show()
             }
         }
     }
 
+    @RequiresApi(Build.VERSION_CODES.O)
     private fun onCreateButtonClick() {
-        // If none radio button is selected return
+        // Check if no location is picked.
         val selectedRadioButtonId = radioGroup.checkedRadioButtonId
         if (selectedRadioButtonId == -1) {
+            Toast.makeText(this, "Please select a location", Toast.LENGTH_SHORT).show()
             return
         }
 
@@ -105,15 +115,51 @@ class CreateEvent : AppCompatActivity() {
 
         // Get the texts of the inputs
         val location = selectedRadioButton.text.toString()
-        val maximumSpots = maximumSpotsText.text.toString().toInt()
-        val eventDate = eventDateText.text.toString()
+        val maximumSpotsString = maximumSpotsText.text.toString()
         val eventAddress = eventAddressText.text.toString()
+
+        // Check text inputs
+        if (maximumSpotsString.isEmpty() || eventAddress.isEmpty()) {
+            Toast.makeText(this, "Please fill in all the fields", Toast.LENGTH_SHORT).show()
+            return
+        }
+
+        // parse to Int
+        val maximumSpots = maximumSpotsString.toInt()
+
+        // Now check valid input
+        if (maximumSpots < 0 || maximumSpots > 10000) {
+            Toast.makeText(this, "Maximum spots should be between 1 and 10000", Toast.LENGTH_SHORT).show()
+            return
+        }
+
+        // Get picked date
+        val day = datePicker.dayOfMonth
+        val month = datePicker.month + 1 // Month is zero-based
+        val year = datePicker.year
+
+        // Check date
+        val currentDate = LocalDate.now()
+        val pickedDate = LocalDate.of(year, month, day)
+        if (pickedDate.isBefore(currentDate)) {
+            Toast.makeText(this, "Please choose a future date", Toast.LENGTH_SHORT).show()
+            return
+        }
+
+        // Format date
+        val eventDate = "$year-$month-$day"
 
         // get checked items positions
         val checkedItemPositions = productsListView.checkedItemPositions
-        val productsToSend = mutableListOf<Int>()
 
-        // put their ids in a list
+        // Check if no items are checked
+        if (checkedItemPositions.isEmpty()) {
+            Toast.makeText(this, "Please select at least 1 item from the list", Toast.LENGTH_SHORT).show()
+            return
+        }
+
+        // put their ids in a list (Position = ID)
+        val productsToSend = mutableListOf<Int>()
         for (i in 0 until checkedItemPositions.size()) {
             val position = checkedItemPositions.keyAt(i)
             if (checkedItemPositions.valueAt(i)) {
@@ -149,7 +195,7 @@ class CreateEvent : AppCompatActivity() {
                 val intent = Intent(this@CreateEvent, UserEvents::class.java)
                 startActivity(intent)
             } else {
-                println("Request failed with code: ${response.code}")
+                Toast.makeText(this@CreateEvent, "Request failed with code: ${response.code}", Toast.LENGTH_SHORT).show()
             }
         }
     }
