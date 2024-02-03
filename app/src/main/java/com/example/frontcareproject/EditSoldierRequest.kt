@@ -34,7 +34,7 @@ class EditSoldierRequest : AppCompatActivity() {
     private lateinit var productsJSON: JSONObject
 
     //Array of products which will be initialized by DB request
-    private lateinit var productsArray: MutableList<Pair<String, String>>
+    private lateinit var productsList: MutableList<Pair<String, String>>
 
     //Map of products contained in a specific request
     private lateinit var requestProductMap: MutableMap<String, Int>
@@ -54,7 +54,7 @@ class EditSoldierRequest : AppCompatActivity() {
         itemTable = findViewById(R.id.itemTable)
 
         requestProductMap = mutableMapOf()
-        productsArray = mutableListOf()
+        productsList = mutableListOf()
         itemIndexInitial = mutableListOf()
 
         //Prepare data for inserting as rows to the table.
@@ -67,12 +67,13 @@ class EditSoldierRequest : AppCompatActivity() {
             }
         }
 
+        //Save the existing request products.
         for (i in 0 until postingsJsonArray.length()){
             val obj = postingsJsonArray.getJSONObject((i))
             requestProductMap[obj.getString("product_name")] = obj.getInt("quantity")
         }
 
-        //Request the products data from the DB and produce request product table
+        //Request the products data from the DB and create request product table
         Thread  {
             try {
                 val url = URL("http://${GlobalVar.serverIP}:8080/api/products")
@@ -86,18 +87,18 @@ class EditSoldierRequest : AppCompatActivity() {
                 val reader = BufferedReader(InputStreamReader(inputStream))
                 productsJSON = JSONObject(reader.readLine())
 
-                // Iterate over the keys and add their corresponding values to the array
+                // Iterate over the keys and add the (id, name) pairs to the list
                 productsJSON.keys().forEach { key ->
                     val value = productsJSON.getString(key)
-                    productsArray.add(Pair(key, value))
+                    productsList.add(Pair(key, value))
                 }
 
                 runOnUiThread {
                     //Create spinner with all the products
                     val adapter = ArrayAdapter(this,
-                        android.R.layout.simple_spinner_item, productsArray.map { it.second })
+                        android.R.layout.simple_spinner_item, productsList.map { it.second })
                     spinnerItems.adapter = adapter
-                    //For each existing product produce a row
+                    //For each existing product create a row
                     requestProductMap.keys.forEach { product ->
                         addRowToTable(product, requestProductMap[product].toString())
                     }
@@ -105,7 +106,6 @@ class EditSoldierRequest : AppCompatActivity() {
                 reader.close()
                 connection.disconnect()
             } catch (e: IOException) {
-                // Handle the exception
                 e.printStackTrace()
             }
         }.start()
@@ -123,7 +123,7 @@ class EditSoldierRequest : AppCompatActivity() {
             val rowCount = itemTable.childCount
             //A map which holds the new set of items of the request.
             val newProductsMap = mutableMapOf<String, String>()
-            var validity = (rowCount > 1)
+            var validity: Boolean = (rowCount > 1)
 
             newProductsMap["request_id"] = intent.getStringExtra("request_id").toString()
 
@@ -136,10 +136,10 @@ class EditSoldierRequest : AppCompatActivity() {
                         val currEditText = view.getChildAt(1) as EditText
 
                         //Array index
-                        val itemIndex = productsArray.indexOfFirst { it.second == currSpinner.selectedItem.toString() }
+                        val itemIndex = productsList.indexOfFirst { it.second == currSpinner.selectedItem.toString() }
 
                         //True ID from DB
-                        val itemDataId = productsArray[itemIndex].first
+                        val itemDataId = productsList[itemIndex].first
                         val itemQuantity = currEditText.text.toString()
                         if(currEditText.text.toString() == "" || currEditText.text.toString().isEmpty()){
                             validity = false
@@ -150,7 +150,7 @@ class EditSoldierRequest : AppCompatActivity() {
                         if(newProductsMap.containsKey(itemDataId)){ //Handle same type in multiple rows.
                             newProductsMap[itemDataId] = (newProductsMap[itemDataId]!!.toInt() + itemQuantity.toInt()).toString()
                         }
-                        else{
+                        else{ //Item appears for the first time
                             newProductsMap[itemDataId] = itemQuantity
                         }
                     }
@@ -163,8 +163,8 @@ class EditSoldierRequest : AppCompatActivity() {
                     }
                 }
             }
-            if (validity)
-                handleEditConfirmation()
+            if (validity) //If all checks are valid.
+                handleEditConfirmation(newProductsMap)
             else
                 Toast.makeText(this, "Enter at least 1 item!", Toast.LENGTH_SHORT).show()
         }
@@ -175,6 +175,7 @@ class EditSoldierRequest : AppCompatActivity() {
         }
     }
 
+    //Removes the specific request
     private fun handleRequestRemoval() {
         Thread  {
             try {
@@ -204,44 +205,8 @@ class EditSoldierRequest : AppCompatActivity() {
         }.start()
     }
 
-    private fun handleEditConfirmation() {
-        //A map which holds the new set of items of the request.
-        val newProductsMap = mutableMapOf<String, String>()
-
-        newProductsMap["request_id"] = intent.getStringExtra("request_id").toString()
-
-        //Iterate through all table rows.
-        for (i in 1 until itemTable.childCount) {
-            val view = itemTable.getChildAt(i)
-            if (view is TableRow) { //Valid row
-                val currSpinner = view.getChildAt(0) as Spinner
-                val currEditText = view.getChildAt(1) as EditText
-
-                //Array index
-                val itemIndex = productsArray.indexOfFirst { it.second == currSpinner.selectedItem.toString() }
-
-                //True ID from DB
-                val itemDataId = productsArray[itemIndex].first
-                val itemQuantity = currEditText.text.toString()
-
-                //Handle cumulative item selection
-                if(newProductsMap.containsKey(itemDataId)){ //Handle same type in multiple rows.
-                    newProductsMap[itemDataId] = (newProductsMap[itemDataId]!!.toInt() + itemQuantity.toInt()).toString()
-                }
-                else{
-                    newProductsMap[itemDataId] = itemQuantity
-                }
-            }
-        }
-
-
-        //Handle a product which appeared before edit but removed after it.
-        itemIndexInitial.forEach { itemDataId->
-            if(!newProductsMap.containsKey(itemDataId)){
-                newProductsMap[itemDataId] = "0"
-            }
-        }
-
+    // Collects edited data and sends it to the server to update the DB.
+    private fun handleEditConfirmation(newProductsMap: MutableMap<String, String>) {
         //Sending the new data to the server.
         Thread  {
             try {
@@ -278,6 +243,7 @@ class EditSoldierRequest : AppCompatActivity() {
         }.start()
     }
 
+    //Checks if the edit/remove have passed through the server.
     private fun checkEditRequest(serverAns: String) {
         val jsonResponse = JSONObject(serverAns)
         val responseMsg = jsonResponse.optString("message")
@@ -301,15 +267,15 @@ class EditSoldierRequest : AppCompatActivity() {
 
         val productSpinnerColumn = Spinner(this,  Spinner.MODE_DROPDOWN)
         val adapterColumn = ArrayAdapter(this,
-            android.R.layout.simple_spinner_item, productsArray.map { it.second })
+            android.R.layout.simple_spinner_item, productsList.map { it.second })
         productSpinnerColumn.adapter = adapterColumn
 
         //Set initial location of item in the spinner
-        val itemIndex: Int = productsArray.indexOfFirst { it.second == product }
+        val itemIndex: Int = productsList.indexOfFirst { it.second == product }
         productSpinnerColumn.setSelection(itemIndex)
 
         //True ID from the DB
-        val productId = productsArray[itemIndex].first
+        val productId = productsList[itemIndex].first
 
         //Add item index to the index memory for later use
         if(onCreation && !itemIndexInitial.contains(productId)){

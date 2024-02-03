@@ -32,6 +32,10 @@ class UserEvents : AppCompatActivity() {
         eventsTable = findViewById(R.id.eventsTable)
         createEventButton = findViewById(R.id.createEventButton)
 
+        if(GlobalVar.userType == 1){
+            createEventButton.visibility = View.GONE
+        }
+
         // Go to create event page
         createEventButton.setOnClickListener{
             val intent = Intent(this, CreateEvent::class.java)
@@ -39,6 +43,7 @@ class UserEvents : AppCompatActivity() {
         }
 
         //Collapse products and remaining spots columns on initialization
+        //These columns are only relevant to donor.
         eventsTable.setColumnCollapsed(5, true)
         eventsTable.setColumnCollapsed(6, true)
 
@@ -80,7 +85,6 @@ class UserEvents : AppCompatActivity() {
         //Iterate through elements of the answer representing rows
         for (i in 0 until jsonAnswer.length()){
             val rowObject = jsonAnswer.getJSONObject(i)
-
             addRowToTable(rowObject)
         }
     }
@@ -123,6 +127,7 @@ class UserEvents : AppCompatActivity() {
             val formatter = SimpleDateFormat(pattern)
             var passedDate = true
             try {
+                //Check if the event is outdated. Used for preventing from leaving outdated events for soldiers.
                 val parsedDate: Date = formatter.parse(jsonObject.getString("event_date"))!!
                 passedDate = Date().after(parsedDate)
             } catch (e: ParseException) {
@@ -131,7 +136,7 @@ class UserEvents : AppCompatActivity() {
 
             val editEventButton = Button(this)
             if(GlobalVar.userType == 1){
-                if (passedDate)
+                if (passedDate) //If event is outdated, prevent soldier from leaving by disabling the button.
                     editEventButton.isEnabled = false
 
                 editEventButton.text = getString(R.string.leave_button)
@@ -141,6 +146,7 @@ class UserEvents : AppCompatActivity() {
             }
             else{
                 editEventButton.text = getString(R.string.edit_button_history_tables)
+                /*TODO(Implement event edit for the donor user.)*/
 //                editEventButton.setOnClickListener {
 //                    //handleEditEvent()
 //                }
@@ -148,7 +154,6 @@ class UserEvents : AppCompatActivity() {
             newRow.addView(editEventButton)
 
             // Add columns for each piece of information
-
             for (columnData in columns) {
                 val column = TextView(this)
                 column.text = columnData
@@ -156,13 +161,15 @@ class UserEvents : AppCompatActivity() {
                 column.setPadding(8, 8, 8, 8)
                 // Set black border for the TextView
                 column.setBackgroundResource(R.drawable.tables_outline)
+                // Put column data to the row.
                 newRow.addView(column)
             }
-
+            //Add the entire event row to the table.
             eventsTable.addView(newRow)
         }
     }
 
+    //Handles soldier leaving a specific event.
     private fun handleEventRemoval(rowToHandle: TableRow) {
         Thread  {
             try {
@@ -172,7 +179,6 @@ class UserEvents : AppCompatActivity() {
                 connection.setRequestProperty("Content-Type", "application/json")
                 connection.doOutput = true
 
-                // Construct the JSON payload with email and password
                 val jsonInputString = """{"userId": "${GlobalVar.userId}", "eventId": "${rowToHandle.tag}"}"""
 
                 // Send JSON as the request body
@@ -186,7 +192,9 @@ class UserEvents : AppCompatActivity() {
                 val serverAns = reader.readLine()
 
                 runOnUiThread {
-                    rowToHandle.visibility = View.GONE
+                    //Remove the row after server successfully confirms removal from the DB
+                    eventsTable.removeView(rowToHandle)
+                    //rowToHandle.visibility = View.GONE
                 }
 
                 reader.close()
@@ -206,6 +214,7 @@ class UserEvents : AppCompatActivity() {
 //        startActivity(Intent(this@UserEvents, EditEvent::class.java))
 //    }
 
+    //Appends to an existing row products from the same event_id. Only relevant for donor data.
     private fun appendProductInfoToRow(existingRow: TableRow, productName: String) {
         // Find the column for productName and quantity in the existing row
         val productInfoColumn = existingRow.getChildAt(5) as? TextView

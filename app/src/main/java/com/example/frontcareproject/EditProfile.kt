@@ -38,7 +38,7 @@ class EditProfile : AppCompatActivity() {
 
         //Enable location spinner
         spinnerLocation = findViewById(R.id.spinnerLocationEdit)
-        if (GlobalVar.userType == 0){
+        if (GlobalVar.userType == 0){ //Donor
             // Create an ArrayAdapter using the string array and a default spinner layout.
             ArrayAdapter.createFromResource(
                 this,
@@ -51,7 +51,7 @@ class EditProfile : AppCompatActivity() {
                 spinnerLocation.adapter = adapter
             }
         }
-        else
+        else //Soldier
             spinnerLocation.visibility = View.GONE
 
 
@@ -63,6 +63,7 @@ class EditProfile : AppCompatActivity() {
         }
     }
 
+    //Send the new data after confirming edit to the server.
     private fun sendNewData(){
         Thread  {
             try {
@@ -102,21 +103,23 @@ class EditProfile : AppCompatActivity() {
                 connection.disconnect()
 
             } catch (e: IOException) {
-                // Handle the exception, e.g., show an error message
                 e.printStackTrace()
             }
         }.start()
     }
 
+    //Handles server response for the edit request of the profile data.
     private fun handleEditProfileRequest(serverAns: String) {
         val jsonResponse = JSONObject(serverAns)
         if (jsonResponse.optString("message") == "Update successfully"){
+            //Enter the profile screen after update is complete from the server side.
             startActivity(Intent(this@EditProfile, Profile::class.java))
         }
         else
             Toast.makeText(this," Failed to update details", Toast.LENGTH_LONG).show()
     }
 
+    //Gets the current profile data of the user before edit.
     private fun fetchProfileData() {
         Thread  {
             try {
@@ -139,12 +142,12 @@ class EditProfile : AppCompatActivity() {
                 connection.disconnect()
 
             } catch (e: IOException) {
-                // Handle the exception, e.g., show an error message
                 e.printStackTrace()
             }
         }.start()
     }
 
+    //Handles editing the fields according to the server response for the user.
     private fun handleProfileResponse(serverAns: String) {
         try {
             // Parse the JSON response
@@ -163,8 +166,6 @@ class EditProfile : AppCompatActivity() {
 
         } catch (e: Exception) {
             // Handle the case where parsing the JSON fails
-            // For example, show a Toast message or log an error
-            // Toast.makeText(this, "Failed to parse server response", Toast.LENGTH_SHORT).show()
             println("Failed to parse server response. Error: ${e.message}")
         }
     }

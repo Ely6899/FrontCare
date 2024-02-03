@@ -47,7 +47,11 @@ class UserPostings : AppCompatActivity() {
         dateColumn = findViewById(R.id.tvDateColumn)
         createRequestButton = findViewById(R.id.createRequestButton)
 
-        //Used for creating lists of options for each row
+        if(GlobalVar.userType == 0){
+            createRequestButton.visibility = View.GONE
+        }
+
+        //Used for creating spinner of options for each row
         optionsArray = arrayOf("Options", "Details", "Edit", "Confirm")
 
         // Go to create request page
@@ -90,7 +94,6 @@ class UserPostings : AppCompatActivity() {
                         addRowToTable(jsonObject)
                     }
                 }
-
                 reader.close()
                 connection.disconnect()
 
@@ -101,13 +104,14 @@ class UserPostings : AppCompatActivity() {
         }.start()
     }
 
+    //Adds a row to the table which represents a posting of the user.
     private fun addRowToTable(jsonObject: JSONObject) {
         val requestId = jsonObject.getString("request_id")
         val existingRow = postingsTable.findViewWithTag<TableRow>(requestId)
 
         if(existingRow == null){ // Create a new row
             val newRow = TableRow(this)
-            newRow.tag = requestId // Set tag to request_id for identification
+            newRow.tag = requestId // Set tag to request_id for identification of the row
 
             // Set gray background for the TableRow
             newRow.setBackgroundColor(getColor(R.color.tablesBackgroundColor))
@@ -140,6 +144,7 @@ class UserPostings : AppCompatActivity() {
                 }
                 optionsSpinner.setBackgroundResource(R.drawable.tables_outline)
 
+                //Filter the array for requests which match the requestId of the row.
                 val filteredArray = (0 until userPostings.length())
                         .map { userPostings.getJSONObject(it) }
                         .filter { it.getString("request_id") == newRow.tag.toString() }
@@ -147,39 +152,25 @@ class UserPostings : AppCompatActivity() {
                             it.toString()
                         }
 
-                optionsSpinner.setSelection(0)
+                //Listen to spinner item clicks
                 optionsSpinner.onItemSelectedListener = object: AdapterView.OnItemSelectedListener {
                     override fun onNothingSelected(parent: AdapterView<*>?) {
                         // Do nothing
                     }
 
-                    override fun onItemSelected(
-                        parent: AdapterView<*>?,
-                        view: View?,
-                        position: Int,
-                        id: Long
-                    ) {
-                        //val selection = parent?.getItemAtPosition(position)
+                    override fun onItemSelected(parent: AdapterView<*>?, view: View?, position: Int, id: Long) {
                         when (position) {
                             1 -> { //Details
-                                val detailsIntent =
-                                    Intent(this@UserPostings, SoldierRequestDetails::class.java)
-                                detailsIntent.putStringArrayListExtra(
-                                    "jsonArray",
-                                    ArrayList(filteredArray)
-                                )
+                                val detailsIntent = Intent(this@UserPostings, SoldierRequestDetails::class.java)
+                                detailsIntent.putStringArrayListExtra("jsonArray", ArrayList(filteredArray))
                                 detailsIntent.putExtra("fromHistory", true)
                                 startActivity(detailsIntent)
                             }
 
                             2 -> { //Edit
-                                val editIntent =
-                                    Intent(this@UserPostings, EditSoldierRequest::class.java)
+                                val editIntent = Intent(this@UserPostings, EditSoldierRequest::class.java)
                                 editIntent.putExtra("request_id", newRow.tag.toString())
-                                editIntent.putStringArrayListExtra(
-                                    "jsonArray",
-                                    ArrayList(filteredArray)
-                                )
+                                editIntent.putStringArrayListExtra("jsonArray", ArrayList(filteredArray))
                                 startActivity(editIntent)
                             }
 
@@ -189,6 +180,7 @@ class UserPostings : AppCompatActivity() {
                         }
                     }
                 }
+                //Add spinner to the row as the first element
                 newRow.addView(optionsSpinner)
             }
 
@@ -208,6 +200,7 @@ class UserPostings : AppCompatActivity() {
                 column.setTextColor(Color.BLACK)
                 // Set black border for the TextView
                 column.setBackgroundResource(R.drawable.tables_outline)
+                //Add column data to the row
                 newRow.addView(column)
             }
             //Add entire row to the postings table
@@ -240,12 +233,15 @@ class UserPostings : AppCompatActivity() {
 
                 runOnUiThread {
                     val jsonNewData = JSONObject(serverAns)
+
+                    //Get relevant views to update in the row
                     val optionsSpinner = rowToHandle.getChildAt(0) as? Spinner
                     val statusField = rowToHandle.getChildAt(1) as? TextView
                     val closeDateField = rowToHandle.getChildAt(4) as? TextView
 
                     if (optionsSpinner != null) {
-                        optionsSpinner.adapter = ArrayAdapter(this, R.layout.spinner_item, R.id.text_view, optionsArray.slice(IntRange(0,0)))
+                        // Display only the options and details for the row which is confirmed
+                        optionsSpinner.adapter = ArrayAdapter(this, R.layout.spinner_item, R.id.text_view, optionsArray.slice(IntRange(0,1)))
                     }
 
                     //Sets relevant TextView fields after confirming donation.
