@@ -566,7 +566,7 @@ fun eventRegistration(data: Map<String, String>): Boolean {
         } else {
             // User is already registered for the event, do not proceed
             println("User is already registered for the event.")
-            connection?.rollback() // Rollback the transaction in case of an exception
+            //connection?.rollback() // Rollback the transaction in case of an exception
             return false
         }
 
@@ -577,7 +577,7 @@ fun eventRegistration(data: Map<String, String>): Boolean {
         connection?.close()
     }
 
-    connection?.rollback()
+    //connection?.rollback()
     return false
 }
 
@@ -667,7 +667,7 @@ fun createSoldierRequest(data: Map<String, Any>): Boolean {
 
 
         if (requestId == null) {
-            connection?.rollback()
+            //connection?.rollback()
             return false
         }
         // Insert into request_details table for each product
@@ -684,7 +684,7 @@ fun createSoldierRequest(data: Map<String, Any>): Boolean {
             insertRequestDetailsStatement.setInt(3, quantity)
             rowsAffected = insertRequestDetailsStatement.executeUpdate()
             if (rowsAffected <= 0) {
-                connection?.rollback()
+                //connection?.rollback()
                 return false
             }
         }
@@ -730,7 +730,7 @@ fun createEvent(data: Map<String, Any>): Boolean {
         var rowsAffected = insertSoldierRequestStatement.executeUpdate()
 
         if (rowsAffected <= 0) {
-            connection?.rollback()
+            //connection?.rollback()
             return false
         }
 
@@ -742,7 +742,7 @@ fun createEvent(data: Map<String, Any>): Boolean {
         }
 
         if (eventId == null) {
-            connection?.rollback()
+            //connection?.rollback()
             return false
         }
         // Insert into event_details table
@@ -758,7 +758,7 @@ fun createEvent(data: Map<String, Any>): Boolean {
             insertRequestDetailsStatement.setInt(2, productId)
             rowsAffected = insertRequestDetailsStatement.executeUpdate()
             if (rowsAffected <= 0) {
-                connection?.rollback()
+                //connection?.rollback()
                 return false
             }
         }
@@ -799,7 +799,7 @@ fun removeRequest(requestId: String?): Boolean {
         return if (rowsAffectedSoldierRequests > 0 && rowsAffectedRequestDetails > 0) {
             true
         } else {
-            connection?.rollback()
+            //connection?.rollback()
             false
         }
 
@@ -866,7 +866,7 @@ fun updateRequest(data: Map<String, String>): Boolean {
 
                 if (deleteRowsAffected <= 0) {
                     // If no rows were affected, rollback the transaction and return false
-                    connection.rollback()
+                    //connection.rollback()
                     return false
                 }
             } else {
@@ -893,7 +893,7 @@ fun updateRequest(data: Map<String, String>): Boolean {
 
                     if (insertRowsAffected <= 0) {
                         // If no rows were affected, rollback the transaction and return false
-                        connection.rollback()
+                       // connection.rollback()
                         return false
                     }
                 }
@@ -942,7 +942,7 @@ fun cancelEventRegistration(data: Map<String, String>): Boolean {
         return if (rowsAffectedDonationEvents > 0 && rowsAffectedEventParticipant > 0) {
             true
         } else {
-            connection?.rollback() // Rollback the transaction in case of an exception
+            //connection?.rollback() // Rollback the transaction in case of an exception
             false
         }
 
