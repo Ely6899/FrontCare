@@ -173,7 +173,7 @@ class UserEvents : AppCompatActivity() {
                 connection.doOutput = true
 
                 // Construct the JSON payload with email and password
-                val jsonInputString = """{"userId": "${GlobalVar.userId}", "event_id": "${rowToHandle.tag}"}"""
+                val jsonInputString = """{"userId": "${GlobalVar.userId}", "eventId": "${rowToHandle.tag}"}"""
 
                 // Send JSON as the request body
                 val outputStream = connection.outputStream
