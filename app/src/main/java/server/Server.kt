@@ -22,7 +22,8 @@ import java.math.BigInteger
 import java.security.MessageDigest
 
 // mysql server credentials
-val mysql_url = "jdbc:mysql://uxd6gaqgeoenekcj:0CqlD3oWHl1SBg9lqWLJ@bm1cdufjqwhe4cgtldeh-mysql.services.clever-cloud.com:3306/bm1cdufjqwhe4cgtldeh"
+val mysql_url =
+    "jdbc:mysql://uxd6gaqgeoenekcj:0CqlD3oWHl1SBg9lqWLJ@bm1cdufjqwhe4cgtldeh-mysql.services.clever-cloud.com:3306/bm1cdufjqwhe4cgtldeh"
 val mysql_user = "uxd6gaqgeoenekcj"
 val mysql_password = "0CqlD3oWHl1SBg9lqWLJ"
 
@@ -59,32 +60,33 @@ fun hashMD5(password: String): String {
 //This function gets userId and returns the user's profile data
 fun getUserProfile(userId: String?): Map<String, Any> {
     DriverManager.getConnection(mysql_url, mysql_user, mysql_password).use { connection ->
-        connection.prepareStatement("SELECT is_soldier,firstname,lastname,username,location,email_address,phone_number FROM users WHERE user_id = ?").use { statement ->
-            // Set the value for the parameter in the prepared statement
-            statement.setString(1, userId)
+        connection.prepareStatement("SELECT is_soldier,firstname,lastname,username,location,email_address,phone_number FROM users WHERE user_id = ?")
+            .use { statement ->
+                // Set the value for the parameter in the prepared statement
+                statement.setString(1, userId)
 
-            statement.executeQuery().use { resultSet ->
-                return if (resultSet.next()) {
-                    val rowMap = mutableMapOf<String, Any>()
-                    rowMap["is_soldier"] = resultSet.getInt("is_soldier")
-                    rowMap["firstname"] = resultSet.getString("firstname")
-                    rowMap["lastname"] = resultSet.getString("lastname")
-                    rowMap["userName"] = resultSet.getString("username")
-                    rowMap["location"] = resultSet.getString("location")
-                    rowMap["email_address"] = resultSet.getString("email_address")
-                    rowMap["phone_number"] = resultSet.getString("phone_number")
-                    rowMap
-                } else {
-                    // If no result is found, return an empty map or handle it as needed
-                    emptyMap()
+                statement.executeQuery().use { resultSet ->
+                    return if (resultSet.next()) {
+                        val rowMap = mutableMapOf<String, Any>()
+                        rowMap["is_soldier"] = resultSet.getInt("is_soldier")
+                        rowMap["firstname"] = resultSet.getString("firstname")
+                        rowMap["lastname"] = resultSet.getString("lastname")
+                        rowMap["userName"] = resultSet.getString("username")
+                        rowMap["location"] = resultSet.getString("location")
+                        rowMap["email_address"] = resultSet.getString("email_address")
+                        rowMap["phone_number"] = resultSet.getString("phone_number")
+                        rowMap
+                    } else {
+                        // If no result is found, return an empty map or handle it as needed
+                        emptyMap()
+                    }
                 }
             }
-        }
     }
 }
 
-//This function gets username&password and check if the user is in the system, if so returns is ID and Type
-fun authenticateUser(username: String?, password: String?): Pair<Int?, Int?>{
+//This function gets username&password and checks if the user is in the system, if so returns their ID and Type
+fun authenticateUser(username: String?, password: String?): Pair<Int?, Int?> {
 
     var connection: Connection? = null
     var userId: Int? = null
@@ -94,7 +96,8 @@ fun authenticateUser(username: String?, password: String?): Pair<Int?, Int?>{
 
         connection = DriverManager.getConnection(mysql_url, mysql_user, mysql_password)
 
-        val statement: PreparedStatement = connection.prepareStatement("SELECT user_id, is_soldier FROM users WHERE username = ? AND password = ?")
+        val statement: PreparedStatement =
+            connection.prepareStatement("SELECT user_id, is_soldier FROM users WHERE username = ? AND password = ?")
 
         val hashPassword = hashMD5(password.toString())
         statement.setString(1, username)
@@ -112,7 +115,7 @@ fun authenticateUser(username: String?, password: String?): Pair<Int?, Int?>{
     return Pair(userId, userType)
 }
 
-//This function register a new user in the system
+//This function register a new user in the system and returns the userid
 fun userRegistration(data: Map<String, String>): Int? {
     // Extract email and password from the received payload
     val userType = data["userType"]
@@ -127,8 +130,7 @@ fun userRegistration(data: Map<String, String>): Int? {
     val hashPassword = hashMD5(password.toString())
 
     //checks if usertype is soldier ,if true we dont fill location
-    if(userType == "1")
-    {
+    if (userType == "1") {
         location = "null"
     }
     var connection: Connection? = null
@@ -172,10 +174,7 @@ fun userRegistration(data: Map<String, String>): Int? {
 
 }
 
-/*
-TODO: REVIEW THIS FUNCTION WITH THE BOYS
- */
-//This function returns all the soldiers requests ,for the soldier requests feed
+//This function returns all the soldiers requests ,for the soldier requests page
 fun getSoldiersRequests(): List<Map<String, Any>> {
     val resultList = mutableListOf<Map<String, Any>>()
 
@@ -232,16 +231,16 @@ fun getSoldiersRequests(): List<Map<String, Any>> {
 }
 
 /*
- This function returns all the donors events for the donors events feed
+ This function returns all the donors events for the donors events page
  Unless,the donorId is different from 0 , if so it returns only the events this particular donor created , for the history events page
  */
 fun getDonorsEvents(donorId: String?): List<Map<String, Any>> {
     val resultList = mutableListOf<Map<String, Any>>()
-    var sqlFiller = "WHERE donation_events.event_date >= CURRENT_DATE();" // var that will be added to the sql query to determine if its for events history or donors events
+    var sqlFiller =
+        "WHERE donation_events.event_date >= CURRENT_DATE();" // var that will be added to the sql query to determine if its for events history or donors events
     //if donorid = 0 ,it means we want to get all the events for the events page , otherwise we only want to receive the events of a specific donor.
 
-    if(donorId != "0")
-    {
+    if (donorId != "0") {
         sqlFiller = "WHERE donation_events.donor_id = $donorId;"
     }
 
@@ -297,15 +296,19 @@ fun getDonorsEvents(donorId: String?): List<Map<String, Any>> {
     return resultList
 }
 
-//This function returns the
-fun getHistory(userId: String?,userType:String?): List<Map<String, Any>> {
+/*
+ This function returns the the solider request history or donor donation history according to the input it receives
+ if the usertype is soldier it returns solider request history, else donor donation history
+ */
+fun getHistory(userId: String?, userType: String?): List<Map<String, Any>> {
     val resultList = mutableListOf<Map<String, Any>>()
 
-    val sqlFiller = when (userType) { // var that will be added to the sql query to determine if its for events history or donors events
-        "soldier" -> "users ON soldier_requests.donor_id = users.user_id WHERE soldier_requests.soldier_id = ?"
-        "donor" -> "users ON soldier_requests.soldier_id = users.user_id WHERE soldier_requests.donor_id = ?"
-        else -> return resultList // if there is a problem return an empty result
-    }
+    val sqlFiller =
+        when (userType) { // var that will be added to the sql query to determine if its for events history or donors events
+            "soldier" -> "users ON soldier_requests.donor_id = users.user_id WHERE soldier_requests.soldier_id = ?"
+            "donor" -> "users ON soldier_requests.soldier_id = users.user_id WHERE soldier_requests.donor_id = ?"
+            else -> return resultList // if there is a problem return an empty result
+        }
 
     try {
         // Establish the database connection
@@ -372,6 +375,7 @@ fun getHistory(userId: String?,userType:String?): List<Map<String, Any>> {
     return resultList
 }
 
+//This function returns the history of the events a soldier registered to
 fun getSoldierEventsHistory(userId: String?): List<Map<String, Any>> {
     val resultList = mutableListOf<Map<String, Any>>()
 
@@ -421,6 +425,8 @@ fun getSoldierEventsHistory(userId: String?): List<Map<String, Any>> {
 
     return resultList
 }
+
+//This function updates the user information on the DB
 fun updateUserInformation(data: Map<String, String>): Boolean {
     val userId = data["userId"]
     val phoneNumber = data["phoneNumber"]
@@ -439,8 +445,8 @@ fun updateUserInformation(data: Map<String, String>): Boolean {
         WHERE user_id = ?;
     """.trimIndent()
 
-    if(rawPassword != "")
-    {
+    //if the password value is not empty so we want to update the user's password
+    if (rawPassword != "") {
         sql = """
         UPDATE users
         SET phone_number = ?,
@@ -452,7 +458,7 @@ fun updateUserInformation(data: Map<String, String>): Boolean {
     """.trimIndent()
 
         // Hash the password using MD5
-         hashPassword = hashMD5(rawPassword.toString())
+        hashPassword = hashMD5(rawPassword.toString())
     }
 
     var connection: Connection? = null
@@ -465,11 +471,10 @@ fun updateUserInformation(data: Map<String, String>): Boolean {
         statement.setString(2, email)
         statement.setString(3, userName)
         statement.setString(4, location)
-        if(rawPassword != "") {
+        if (rawPassword != "") {
             statement.setString(5, hashPassword)
             statement.setInt(6, userId?.toInt() ?: 0)
-        }else
-        {
+        } else {
             statement.setInt(5, userId?.toInt() ?: 0)
         }
 
@@ -484,6 +489,8 @@ fun updateUserInformation(data: Map<String, String>): Boolean {
 
     return false
 }
+
+//This function updates on the DB which donor donated to a specific soldier
 fun donorDonation(data: Map<String, String>): Boolean {
     val userId = data["userId"]
     val requestId = data["requestId"]
@@ -515,16 +522,15 @@ fun donorDonation(data: Map<String, String>): Boolean {
     return false
 }
 
-/*
-TODO: NEED TO CHECK IF THIS FUNC WORKS AFTER IDAN IS DONE
- */
+//This function register a soldier to an event
 fun eventRegistration(data: Map<String, String>): Boolean {
     val userId = data["userId"]
     val eventId = data["eventId"]
 
     val checkSql = "SELECT COUNT(*) FROM event_participants WHERE event_id = ? AND user_id = ?;"
     val insertSql = "INSERT INTO event_participants (event_id, user_id) VALUES (?, ?);"
-    val updateSql = "UPDATE donation_events SET remaining_spot = (remaining_spot - 1) WHERE remaining_spot > 0 AND event_id = ?;"
+    val updateSql =
+        "UPDATE donation_events SET remaining_spot = (remaining_spot - 1) WHERE remaining_spot > 0 AND event_id = ?;"
 
     var connection: Connection? = null
 
@@ -560,6 +566,7 @@ fun eventRegistration(data: Map<String, String>): Boolean {
         } else {
             // User is already registered for the event, do not proceed
             println("User is already registered for the event.")
+            connection?.rollback() // Rollback the transaction in case of an exception
             return false
         }
 
@@ -569,13 +576,12 @@ fun eventRegistration(data: Map<String, String>): Boolean {
     } finally {
         connection?.close()
     }
-    /*
-       TODO: RAZ - CHECK THAT ROLLBACK CANCELS THE ACTION IN THE DB
-     */
+
     connection?.rollback()
     return false
 }
 
+//This function updates on the DB a soldier's confirmation upon receiving a donation
 fun donationConfirmation(data: Map<String, String>): Map<String, Any> {
     val sqlResult = mutableMapOf<String, Any>()
     val userId = data["userId"]
@@ -625,7 +631,8 @@ fun donationConfirmation(data: Map<String, String>): Map<String, Any> {
     return sqlResult
 }
 
-fun createSoldierRequest(data: Map<String, Any>): Boolean{
+//This function creates a new soldier request
+fun createSoldierRequest(data: Map<String, Any>): Boolean {
 
     val userId = data["userId"].toString()
     val location = data["location"].toString()
@@ -645,7 +652,11 @@ fun createSoldierRequest(data: Map<String, Any>): Boolean{
         val insertSoldierRequestStatement = connection.prepareStatement(insertSoldierRequestSQL, 1)
         insertSoldierRequestStatement.setInt(1, userId.toInt())
         insertSoldierRequestStatement.setString(2, location)
-        insertSoldierRequestStatement.executeUpdate()
+        var rowsAffected = insertSoldierRequestStatement.executeUpdate()
+
+        if (rowsAffected <= 0) {
+            return false
+        }
 
         // Get the generated request_id
         val generatedKeys = insertSoldierRequestStatement.generatedKeys
@@ -654,26 +665,31 @@ fun createSoldierRequest(data: Map<String, Any>): Boolean{
             requestId = generatedKeys.getInt(1)
         }
 
-        if (requestId != null) {
-            // Insert into request_details table for each product
-            val insertRequestDetailsSQL = """
+
+        if (requestId == null) {
+            connection?.rollback()
+            return false
+        }
+        // Insert into request_details table for each product
+        val insertRequestDetailsSQL = """
                 INSERT INTO request_details (request_id, product_id, quantity)
                 VALUES (?, ?, ?);
             """.trimIndent()
 
-            val insertRequestDetailsStatement = connection.prepareStatement(insertRequestDetailsSQL)
+        val insertRequestDetailsStatement = connection.prepareStatement(insertRequestDetailsSQL)
 
-            for ((productId, quantity) in products) {
-                insertRequestDetailsStatement.setInt(1, requestId)
-                insertRequestDetailsStatement.setInt(2, productId.toInt())
-                insertRequestDetailsStatement.setInt(3, quantity)
-                insertRequestDetailsStatement.executeUpdate()
+        for ((productId, quantity) in products) {
+            insertRequestDetailsStatement.setInt(1, requestId)
+            insertRequestDetailsStatement.setInt(2, productId.toInt())
+            insertRequestDetailsStatement.setInt(3, quantity)
+            rowsAffected = insertRequestDetailsStatement.executeUpdate()
+            if (rowsAffected <= 0) {
+                connection?.rollback()
+                return false
             }
-
-            return true
         }
 
-        return false
+        return true
 
     } catch (e: Exception) {
         e.printStackTrace()
@@ -684,7 +700,8 @@ fun createSoldierRequest(data: Map<String, Any>): Boolean{
     return false
 }
 
-fun createEvent(data: Map<String, Any>): Boolean{
+//This function creates a new donor's event
+fun createEvent(data: Map<String, Any>): Boolean {
 
     val userId = data["userId"].toString()
     val eventDate = data["eventDate"].toString()
@@ -710,7 +727,12 @@ fun createEvent(data: Map<String, Any>): Boolean{
         insertSoldierRequestStatement.setString(3, eventLocation)
         insertSoldierRequestStatement.setString(4, eventAddress)
         insertSoldierRequestStatement.setInt(5, eventSpots.toInt())
-        insertSoldierRequestStatement.executeUpdate()
+        var rowsAffected = insertSoldierRequestStatement.executeUpdate()
+
+        if (rowsAffected <= 0) {
+            connection?.rollback()
+            return false
+        }
 
         // Get the generated eventId
         val generatedKeys = insertSoldierRequestStatement.generatedKeys
@@ -719,23 +741,30 @@ fun createEvent(data: Map<String, Any>): Boolean{
             eventId = generatedKeys.getInt(1)
         }
 
-        if (eventId != null) {
-            // Insert into event_details table
-            val insertEventDetailsSQL = """
+        if (eventId == null) {
+            connection?.rollback()
+            return false
+        }
+        // Insert into event_details table
+        val insertEventDetailsSQL = """
                 INSERT INTO event_details (event_id, product_id)
                 VALUES (?, ?);
             """.trimIndent()
 
-            val insertRequestDetailsStatement = connection.prepareStatement(insertEventDetailsSQL)
+        val insertRequestDetailsStatement = connection.prepareStatement(insertEventDetailsSQL)
 
-            for (productId in products) {
-                insertRequestDetailsStatement.setInt(1, eventId)
-                insertRequestDetailsStatement.setInt(2, productId)
-                insertRequestDetailsStatement.executeUpdate()
+        for (productId in products) {
+            insertRequestDetailsStatement.setInt(1, eventId)
+            insertRequestDetailsStatement.setInt(2, productId)
+            rowsAffected = insertRequestDetailsStatement.executeUpdate()
+            if (rowsAffected <= 0) {
+                connection?.rollback()
+                return false
             }
-
-            return true
         }
+
+        return true
+
     } catch (e: Exception) {
         e.printStackTrace()
     } finally {
@@ -744,7 +773,10 @@ fun createEvent(data: Map<String, Any>): Boolean{
 
     return false
 }
-
+/*
+This function deleted a soldier request from the DB
+this can happen when a soldiers decided that they want to delete their request
+*/
 fun removeRequest(requestId: String?): Boolean {
     val deleteSoldierRequestSQL = "DELETE FROM soldier_requests WHERE request_id = ?"
     val deleteRequestDetailsSQL = "DELETE FROM request_details WHERE request_id = ?"
@@ -764,7 +796,13 @@ fun removeRequest(requestId: String?): Boolean {
         deleteSoldierRequestStatement.setInt(1, requestId?.toIntOrNull() ?: 0)
         val rowsAffectedSoldierRequests = deleteSoldierRequestStatement.executeUpdate()
 
-        return rowsAffectedSoldierRequests > 0 && rowsAffectedRequestDetails > 0
+        return if (rowsAffectedSoldierRequests > 0 && rowsAffectedRequestDetails > 0) {
+            true
+        } else {
+            connection?.rollback()
+            false
+        }
+
     } catch (e: Exception) {
         e.printStackTrace()
     } finally {
@@ -774,7 +812,7 @@ fun removeRequest(requestId: String?): Boolean {
     return false
 }
 
-
+//This function returns all the products ids and names from the DB
 fun getProducts(): MutableMap<String, String> {
     val productsMap = mutableMapOf<String, String>()
     try {
@@ -786,7 +824,8 @@ fun getProducts(): MutableMap<String, String> {
 
             // Process the result set and populate the list of maps
             while (resultSet.next()) {
-                productsMap[resultSet.getInt("product_id").toString()] = resultSet.getString("product_name")
+                productsMap[resultSet.getInt("product_id").toString()] =
+                    resultSet.getString("product_name")
             }
         }
     } catch (e: Exception) {
@@ -796,6 +835,7 @@ fun getProducts(): MutableMap<String, String> {
     return productsMap
 }
 
+//This function updates a request details on the DB
 fun updateRequest(data: Map<String, String>): Boolean {
     val requestId = data["request_id"].toString()
     val productsMap = data.filterKeys { it != "request_id" }
@@ -873,6 +913,47 @@ fun updateRequest(data: Map<String, String>): Boolean {
     return false
 }
 
+//This function cancel a registration of a soldier to an event
+fun cancelEventRegistration(data: Map<String, String>): Boolean {
+    val userId = data["userId"].toString()
+    val eventId = data["eventId"].toString()
+
+    val deleteEventParticipantSQL =
+        "DELETE FROM event_participants WHERE event_id = ? AND user_id = ?;"
+    val updateDonationEventsSQL =
+        "UPDATE donation_events SET remaining_spot = (remaining_spot + 1) WHERE event_id = ?;"
+
+    var connection: Connection? = null
+
+    try {
+        connection = DriverManager.getConnection(mysql_url, mysql_user, mysql_password)
+
+        // Delete from event_details table
+        val deleteEventParticipantStatement = connection.prepareStatement(deleteEventParticipantSQL)
+        deleteEventParticipantStatement.setInt(1, eventId.toInt())
+        deleteEventParticipantStatement.setInt(2, userId.toInt())
+        val rowsAffectedEventParticipant = deleteEventParticipantStatement.executeUpdate()
+
+        // update remaining_spot on donation_events table
+        val updateDonationEventsStatement = connection.prepareStatement(updateDonationEventsSQL)
+        updateDonationEventsStatement.setInt(1, eventId.toInt())
+        val rowsAffectedDonationEvents = updateDonationEventsStatement.executeUpdate()
+
+        return if (rowsAffectedDonationEvents > 0 && rowsAffectedEventParticipant > 0) {
+            true
+        } else {
+            connection?.rollback() // Rollback the transaction in case of an exception
+            false
+        }
+
+    } catch (e: Exception) {
+        e.printStackTrace()
+    } finally {
+        connection?.close()
+    }
+
+    return false
+}
 
 // Define the Ktor application module
 fun Application.module() {
@@ -893,11 +974,11 @@ fun Application.module() {
 
     // Define the routing configuration for the application
     routing {
-        // Define a route for handling POST requests to "/api/login"
+        // Define a route for handling POST requests for user login
         post("/api/login") {
             try {
                 // Receive the JSON payload from the request and deserialize it to a Map<String, String>
-                val request = call.receive<Map<String, String>>() // maybe change to Map<String, Any>
+                val request = call.receive<Map<String, String>>()
 
                 // Extract email and password from the received payload
                 val username = request["username"]
@@ -909,7 +990,11 @@ fun Application.module() {
                 val userType = userPair.second
 
                 val responseMessage = if (userId != null && userType != null) {
-                    mapOf("message" to "Login successful", "userId" to userId, "userType" to userType)
+                    mapOf(
+                        "message" to "Login successful",
+                        "userId" to userId,
+                        "userType" to userType
+                    )
                 } else {
                     mapOf("message" to "Invalid username or password")
                 }
@@ -923,11 +1008,12 @@ fun Application.module() {
             }
         }
 
-        post ("/api/register"){
+        // Define a route for handling POST requests for user registration
+        post("/api/register") {
             try {
                 // Receive the JSON payload from the request and deserialize it to a Map<String, String>
-                val request = call.receive<Map<String, String>>() // maybe change to Map<String, Any>
-
+                val request =
+                    call.receive<Map<String, String>>()
 
                 val userId = userRegistration(request)
 
@@ -946,11 +1032,14 @@ fun Application.module() {
             }
         }
 
-        post ("/api/updateProfile"){
+        // Define a route for handling POST requests for update user profile
+        post("/api/updateProfile") {
             try {
                 // Receive the JSON payload from the request and deserialize it to a Map<String, String>
-                val request = call.receive<Map<String, String>>() // maybe change to Map<String, Any>
-                val isUpdated = updateUserInformation(request) // True - Update successfully else False
+                val request =
+                    call.receive<Map<String, String>>()
+                val isUpdated =
+                    updateUserInformation(request) // True - Update successfully else False
 
                 val responseMessage = if (isUpdated) {
                     mapOf("message" to "Update successfully")
@@ -967,9 +1056,11 @@ fun Application.module() {
             }
         }
 
-        post ("/api/donation"){
+        // Define a route for handling POST requests for a donor to donate
+        post("/api/donation") {
             try {
-                val request = call.receive<Map<String, String>>() // maybe change to Map<String, Any>
+                val request =
+                    call.receive<Map<String, String>>()
                 val isUpdated = donorDonation(request) // True - Update DB successfully else False
 
                 val responseMessage = if (isUpdated) {
@@ -987,10 +1078,13 @@ fun Application.module() {
             }
         }
 
-        post ("/api/eventRegistration"){
+        // Define a route for handling POST requests for a soldier to register to an event
+        post("/api/eventRegistration") {
             try {
-                val request = call.receive<Map<String, String>>() // maybe change to Map<String, Any>
-                val isRegistered = eventRegistration(request) // True - Update DB successfully else False
+                val request =
+                    call.receive<Map<String, String>>()
+                val isRegistered =
+                    eventRegistration(request) // True - Update DB successfully else False
 
                 val responseMessage = if (isRegistered) {
                     mapOf("message" to "Event registration successfully")
@@ -1007,10 +1101,13 @@ fun Application.module() {
             }
         }
 
-        post ("/api/donationConfirmation"){
+        // Define a route for handling POST requests for a soldier to confirm a donation
+        post("/api/donationConfirmation") {
             try {
-                val request = call.receive<Map<String, String>>() // maybe change to Map<String, Any>
-                val confirmationData = donationConfirmation(request) // True - Update DB successfully else False
+                val request =
+                    call.receive<Map<String, String>>()
+                val confirmationData =
+                    donationConfirmation(request) // True - Update DB successfully else False
 
                 call.respond(confirmationData)
 
@@ -1020,10 +1117,12 @@ fun Application.module() {
             }
         }
 
-        post ("/api/createSoldierRequest"){
+        // Define a route for handling POST requests for a soldier to create a solider request
+        post("/api/createSoldierRequest") {
             try {
-                val request = call.receive<Map<String, Any>>() // maybe change to Map<String, Any>
-                val respond = createSoldierRequest(request) // True - Update DB successfully else False
+                val request = call.receive<Map<String, Any>>()
+                val respond =
+                    createSoldierRequest(request) // True - Update DB successfully else False
 
                 val responseMessage = if (respond) {
                     mapOf("message" to "Request created successfully")
@@ -1039,12 +1138,19 @@ fun Application.module() {
             }
         }
 
-        post ("/api/createEvent"){
+        // Define a route for handling POST requests for a donor to create a donation event
+        post("/api/createEvent") {
             try {
-                val request = call.receive<Map<String, Any>>() // maybe change to Map<String, Any>
+                val request = call.receive<Map<String, Any>>()
                 val respond = createEvent(request) // True - Update DB successfully else False
 
-                call.respond(respond)
+                val responseMessage = if (respond) {
+                    mapOf("message" to "Event created successfully")
+                } else {
+                    mapOf("message" to "Failed to create an event")
+                }
+
+                call.respond(responseMessage)
 
             } catch (e: Exception) {
                 // Handle exceptions related to request format and respond with BadRequest status
@@ -1052,9 +1158,13 @@ fun Application.module() {
             }
         }
 
-        post ("/api/removeRequest/{requestId}"){
+        // Define a route for handling POST requests for a soldier to remove a soldier request
+        post("/api/removeRequest/{requestId}") {
             try {
                 val requestId = call.parameters["requestId"]
+                if (requestId == null) {
+                    call.respond(mapOf("message" to "Invalid path parameter"))
+                }
                 val respond = removeRequest(requestId)
 
                 val responseMessage = if (respond) {
@@ -1070,52 +1180,85 @@ fun Application.module() {
             }
         }
 
-        post ("/api/updateRequest"){
+        // Define a route for handling POST requests for a soldier to update a soldier request
+        post("/api/updateRequest") {
             try {
-                val request = call.receive<Map<String, String>>() // maybe change to Map<String, Any>
+                val request =
+                    call.receive<Map<String, String>>()
                 val respond = updateRequest(request) // True - Update DB successfully else False
 
                 val responseMessage = if (respond) {
-                   mapOf("message" to "Update successfully")
-               } else {
+                    mapOf("message" to "Update successfully")
+                } else {
                     mapOf("message" to "Failed to update")
-               }
+                }
                 call.respond(responseMessage)
 
             } catch (e: Exception) {
                 // Handle exceptions related to request format and respond with BadRequest status
-                call.respond(HttpStatusCode.BadRequest, "Event creation failed")
+                call.respond(HttpStatusCode.BadRequest, "Update request failed")
             }
         }
 
+        // Define a route for handling POST requests for a soldier to cancel is event registration
+        post("/api/cancelEventRegistration") {
+            try {
+                val request = call.receive<Map<String, String>>()
+                val respond =
+                    cancelEventRegistration(request) // True - Update DB successfully else False
 
+                val responseMessage = if (respond) {
+                    mapOf("message" to "Canceled successfully")
+                } else {
+                    mapOf("message" to "Failed to cancel")
+                }
+                call.respond(responseMessage)
 
+            } catch (e: Exception) {
+                // Handle exceptions related to request format and respond with BadRequest status
+                call.respond(HttpStatusCode.BadRequest, "Cancel failed")
+            }
+        }
+
+        //--------------------------------GET REQUESTS-----------------------------------------------------
+
+        // Define a route for handling GET requests for getting user profile
         get("/api/profile/{userId}") {
             try {
                 // Retrieve the userId from the path parameters
                 val userId = call.parameters["userId"]
+                if (userId == null) {
+                    call.respond(mapOf("message" to "Invalid path parameter"))
+                }
                 val profileData = getUserProfile(userId)
 
                 // Respond with the user profile data in JSON format
                 call.respond(profileData)
             } catch (e: Exception) {
                 // Handle exceptions related to the database query and respond with InternalServerError status
-                call.respond(HttpStatusCode.InternalServerError, "Error fetching user profile from the database")
+                call.respond(
+                    HttpStatusCode.InternalServerError,
+                    "Error fetching user profile from the database"
+                )
             }
         }
 
+        // Define a route for handling GET requests for getting all soldiers requests for soldier requests page
         get("/api/soldiersRequests") {
             try {
-
                 val requestsData = getSoldiersRequests()
                 call.respond(requestsData)
 
             } catch (e: Exception) {
                 // Handle exceptions related to the database query and respond with InternalServerError status
-                call.respond(HttpStatusCode.InternalServerError, "Error fetching soldiers requests from the database")
+                call.respond(
+                    HttpStatusCode.InternalServerError,
+                    "Error fetching soldiers requests from the database"
+                )
             }
         }
 
+        // Define a route for handling GET requests for getting all donors events for donors events page
         get("/api/donorsEvents") {
             try {
                 val eventsData = getDonorsEvents("0")
@@ -1123,10 +1266,14 @@ fun Application.module() {
 
             } catch (e: Exception) {
                 // Handle exceptions related to the database query and respond with InternalServerError status
-                call.respond(HttpStatusCode.InternalServerError, "Error fetching donors events from the database")
+                call.respond(
+                    HttpStatusCode.InternalServerError,
+                    "Error fetching donors events from the database"
+                )
             }
         }
 
+        // Define a route for handling GET requests for getting all the products from DB
         get("/api/products") {
             try {
                 val products = getProducts()
@@ -1134,59 +1281,90 @@ fun Application.module() {
 
             } catch (e: Exception) {
                 // Handle exceptions related to the database query and respond with InternalServerError status
-                call.respond(HttpStatusCode.InternalServerError, "Error fetching products from the database")
+                call.respond(
+                    HttpStatusCode.InternalServerError,
+                    "Error fetching products from the database"
+                )
             }
         }
 
+        // Define a route for handling GET requests for getting a soldier requests history
         get("/api/soldierRequestHistory/{userId}") {
             try {
-
                 val userId = call.parameters["userId"]
-                val historyData = getHistory(userId,"soldier")
+                if (userId == null) {
+                    call.respond(mapOf("message" to "Invalid path parameter"))
+                }
+
+                val historyData = getHistory(userId, "soldier")
 
                 call.respond(historyData)
             } catch (e: Exception) {
                 // Handle exceptions related to the database query and respond with InternalServerError status
-                call.respond(HttpStatusCode.InternalServerError, "Error fetching history data from the database")
+                call.respond(
+                    HttpStatusCode.InternalServerError,
+                    "Error fetching history data from the database"
+                )
             }
         }
 
+        // Define a route for handling GET requests for getting a soldier events participation history
         get("/api/soldierEventsHistory/{userId}") {
             try {
-
                 val userId = call.parameters["userId"]
+                if (userId == null) {
+                    call.respond(mapOf("message" to "Invalid path parameter"))
+                }
+
                 val historyData = getSoldierEventsHistory(userId)
 
                 call.respond(historyData)
             } catch (e: Exception) {
                 // Handle exceptions related to the database query and respond with InternalServerError status
-                call.respond(HttpStatusCode.InternalServerError, "Error fetching history data from the database")
+                call.respond(
+                    HttpStatusCode.InternalServerError,
+                    "Error fetching history data from the database"
+                )
             }
         }
 
+        // Define a route for handling GET requests for getting a donor donation history
         get("/api/donorDonationHistory/{userId}") {
             try {
-
                 val userId = call.parameters["userId"]
-                val historyData = getHistory(userId,"donor")
+                if (userId == null) {
+                    call.respond(mapOf("message" to "Invalid path parameter"))
+                }
+
+                val historyData = getHistory(userId, "donor")
 
                 call.respond(historyData)
             } catch (e: Exception) {
                 // Handle exceptions related to the database query and respond with InternalServerError status
-                call.respond(HttpStatusCode.InternalServerError, "Error fetching history data from the database")
+                call.respond(
+                    HttpStatusCode.InternalServerError,
+                    "Error fetching history data from the database"
+                )
             }
         }
 
+        // Define a route for handling GET requests for getting a donor's donation events history
         get("/api/donorEventsHistory/{userId}") {
             try {
-
                 val userId = call.parameters["userId"]
+                if (userId == null) {
+                    call.respond(mapOf("message" to "Invalid path parameter"))
+                }
+
                 val historyData = getDonorsEvents(userId)
 
                 call.respond(historyData)
             } catch (e: Exception) {
                 // Handle exceptions related to the database query and respond with InternalServerError status
-                call.respond(HttpStatusCode.InternalServerError, "Error fetching history data from the database")
+                call.respond(
+                    HttpStatusCode.InternalServerError,
+                    "Error fetching history data from the database"
+                )
             }
         }
 

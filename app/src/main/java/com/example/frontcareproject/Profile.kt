@@ -66,6 +66,7 @@ class Profile : AppCompatActivity() {
             profileImage.setImageDrawable(defaultProfilePicture)
         }
 
+
         //Maor's addition to custom redirecting buttons:
         redirectBtnS = findViewById(R.id.btnSoldiersRequests)
         redirectBtnS.setOnClickListener()
@@ -77,9 +78,18 @@ class Profile : AppCompatActivity() {
         redirectBtnD = findViewById(R.id.btnDonorsList)
         redirectBtnD.setOnClickListener()
         {
-            // Navigate to the SoldiersRequestsPage
+            // Navigate to the DonorsEventsPage
             val intent = Intent(this@Profile, DonorsEventsPage::class.java)
             startActivity(intent)
+        }
+
+        //disable buttons based on user's type: soldiers cant see SoldiersRequestsPage and donors cant see DonorsEventsPage
+        if(GlobalVar.userType == 1) {
+            redirectBtnS.visibility = View.INVISIBLE
+        }
+        else
+        {
+            redirectBtnD.visibility = View.INVISIBLE
         }
 
         btnToEdit = findViewById(R.id.btnGoToEdit)
