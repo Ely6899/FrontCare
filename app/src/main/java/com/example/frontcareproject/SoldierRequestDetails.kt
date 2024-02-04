@@ -84,9 +84,14 @@ class SoldierRequestDetails : AppCompatActivity() {
 
         // Display user data
         requestDateTextView.text = "Request Date: $requestDate"
-        firstnameTextView.text = "Soldier Name: $firstname"
         pickupLocationTextView.text = "Pickup Location: $pickupLocation"
         contactTextView.text = "Email: $emailAddress \nPhone number: $phoneNumber"
+
+        // If we we are soldier display Donor name because we are seeing request history details
+        if(GlobalVar.userType == 1)
+            firstnameTextView.text = "Donor Name: $firstname"
+        else
+            firstnameTextView.text = "Soldier Name: $firstname"
 
         // Get products and put them in map
         val products = mutableMapOf<String, Int>()
