@@ -52,7 +52,7 @@ class UserPostings : AppCompatActivity() {
         }
 
         //Used for creating spinner of options for each row
-        optionsArray = arrayOf("Options", "Details", "Edit", "Confirm")
+        optionsArray = arrayOf("Options", "Details", "Edit", "Confirm", "Deny")
 
         // Go to create request page
         createRequestButton.setOnClickListener{
@@ -135,7 +135,7 @@ class UserPostings : AppCompatActivity() {
                     }
 
                     "pending" -> {
-                        optionsSpinner.adapter = ArrayAdapter(this, R.layout.spinner_item, R.id.text_view, optionsArray)
+                        optionsSpinner.adapter = ArrayAdapter(this, R.layout.spinner_item, R.id.text_view, arrayOf(optionsArray[0], optionsArray[1], optionsArray[3], optionsArray[4]))
                     }
 
                     "closed" -> {
@@ -159,23 +159,27 @@ class UserPostings : AppCompatActivity() {
                     }
 
                     override fun onItemSelected(parent: AdapterView<*>?, view: View?, position: Int, id: Long) {
-                        when (position) {
-                            1 -> { //Details
+                        when (parent!!.getItemAtPosition(position).toString()) {
+                            "Details" -> { //Details
                                 val detailsIntent = Intent(this@UserPostings, SoldierRequestDetails::class.java)
                                 detailsIntent.putStringArrayListExtra("jsonArray", ArrayList(filteredArray))
                                 detailsIntent.putExtra("fromHistory", true)
                                 startActivity(detailsIntent)
                             }
 
-                            2 -> { //Edit
+                            "Edit" -> { //Edit
                                 val editIntent = Intent(this@UserPostings, EditSoldierRequest::class.java)
                                 editIntent.putExtra("request_id", newRow.tag.toString())
                                 editIntent.putStringArrayListExtra("jsonArray", ArrayList(filteredArray))
                                 startActivity(editIntent)
                             }
 
-                            3 -> { //Confirm
+                            "Confirm" -> { //Confirm
                                 handleDonationConfirmation(newRow)
+                            }
+
+                            "Deny" -> { //Deny
+                                //handleDonationDenial(newRow)
                             }
                         }
                     }
@@ -258,4 +262,55 @@ class UserPostings : AppCompatActivity() {
             }
         }.start()
     }
+
+    /*
+    private fun handleDonationDenial(rowToHandle: TableRow) {
+        Thread  {
+            try {
+                val url = URL("http://${GlobalVar.serverIP}:8080/api/donationDenial")
+                val connection = url.openConnection() as HttpURLConnection
+                connection.requestMethod = "POST"
+                connection.setRequestProperty("Content-Type", "application/json")
+                connection.doOutput = true
+
+                // Construct the JSON payload with email and password
+                val jsonInputString = """{"userId": "${GlobalVar.userId}", "requestId": "${rowToHandle.tag}"}"""
+
+                // Send JSON as the request body
+                val outputStream = connection.outputStream
+                outputStream.write(jsonInputString.toByteArray(Charsets.UTF_8))
+                outputStream.close()
+
+                // Read the response
+                val inputStream = connection.inputStream
+                val reader = BufferedReader(InputStreamReader(inputStream))
+                val serverAns = reader.readLine()
+
+                runOnUiThread {
+                    val jsonNewData = JSONObject(serverAns)
+
+                    //Get relevant views to update in the row
+                    val optionsSpinner = rowToHandle.getChildAt(0) as? Spinner
+                    val statusField = rowToHandle.getChildAt(1) as? TextView
+                    val nameField = rowToHandle.getChildAt(3) as? TextView
+
+                    if (optionsSpinner != null) {
+                        // Display only the options and details for the row which is denied
+                        optionsSpinner.adapter = ArrayAdapter(this, R.layout.spinner_item, R.id.text_view, optionsArray.slice(IntRange(0,2)))
+                    }
+
+                    //Sets relevant TextView fields after denying donation
+                    statusField!!.text = jsonNewData.optString("firstname")
+                    statusField!!.text = jsonNewData.optString("status")
+                }
+
+                reader.close()
+                connection.disconnect()
+
+            } catch (e: IOException) {
+                // Handle the exception, e.g., show an error message
+                e.printStackTrace()
+            }
+        }.start()
+    } */
 }

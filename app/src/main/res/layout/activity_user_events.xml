@@ -58,6 +58,7 @@
                         android:gravity="center"
                         android:padding="8dp"
                         android:text="@string/organizer_element"
+                        android:textColor="@color/black"
                         android:layout_width="wrap_content"
                         android:maxLines="1"
                         android:ellipsize="end" />
@@ -68,6 +69,7 @@
                         android:gravity="center"
                         android:padding="8dp"
                         android:text="@string/date_element"
+                        android:textColor="@color/black"
                         android:layout_width="wrap_content"
                         android:maxLines="1"
                         android:ellipsize="end" />
@@ -78,6 +80,7 @@
                         android:gravity="center"
                         android:padding="8dp"
                         android:text="@string/register_location"
+                        android:textColor="@color/black"
                         android:layout_width="wrap_content"
                         android:maxLines="1"
                         android:ellipsize="end" />
@@ -88,30 +91,10 @@
                         android:gravity="center"
                         android:padding="8dp"
                         android:text="@string/address_element"
+                        android:textColor="@color/black"
                         android:layout_width="wrap_content"
                         android:maxLines="1"
                         android:ellipsize="end" />
-
-                    <TextView
-                        android:id="@+id/tvProductsColumn"
-                        android:background="@drawable/tables_outline"
-                        android:gravity="center"
-                        android:padding="8dp"
-                        android:text="@string/products_element"
-                        android:layout_width="wrap_content"
-                        android:maxLines="1"
-                        android:ellipsize="end" />
-
-                    <TextView
-                        android:id="@+id/tvRemainingColumn"
-                        android:background="@drawable/tables_outline"
-                        android:gravity="center"
-                        android:padding="8dp"
-                        android:text="@string/remaining_element"
-                        android:layout_width="wrap_content"
-                        android:maxLines="1"
-                        android:ellipsize="end" />
-
                 </TableRow>
                 <!-- Data rows will be added dynamically -->
             </TableLayout>

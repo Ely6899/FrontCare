@@ -1,13 +1,19 @@
 package com.example.frontcareproject
 
+import android.annotation.SuppressLint
 import android.content.Intent
+import android.graphics.Color
 import androidx.appcompat.app.AppCompatActivity
 import android.os.Bundle
 import android.view.View
+import android.widget.AdapterView
+import android.widget.ArrayAdapter
 import android.widget.Button
+import android.widget.Spinner
 import android.widget.TableLayout
 import android.widget.TableRow
 import android.widget.TextView
+import android.widget.Toast
 import org.json.JSONArray
 import org.json.JSONObject
 import utils.GlobalVar
@@ -25,14 +31,19 @@ class UserEvents : AppCompatActivity() {
     private lateinit var eventsTable: TableLayout
     private lateinit var createEventButton : Button
 
+    private lateinit var userEvents: JSONArray
+
+    private lateinit var optionsArray: Array<String>
+
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
         setContentView(R.layout.activity_user_events)
 
         eventsTable = findViewById(R.id.eventsTable)
         createEventButton = findViewById(R.id.createEventButton)
+        optionsArray = arrayOf("Options", "Details", "Edit", "Leave")
 
-        if(GlobalVar.userType == 1){
+        if(GlobalVar.userType == 1){ //Soldier
             createEventButton.visibility = View.GONE
         }
 
@@ -41,11 +52,6 @@ class UserEvents : AppCompatActivity() {
             val intent = Intent(this, CreateEvent::class.java)
             startActivity(intent)
         }
-
-        //Collapse products and remaining spots columns on initialization
-        //These columns are only relevant to donor.
-        eventsTable.setColumnCollapsed(5, true)
-        eventsTable.setColumnCollapsed(6, true)
 
         if(GlobalVar.userType == 1){fetchHistory("soldierEventsHistory")}
         else {fetchHistory("donorEventsHistory")}
@@ -64,9 +70,14 @@ class UserEvents : AppCompatActivity() {
                 val inputStream = connection.inputStream
                 val reader = BufferedReader(InputStreamReader(inputStream))
                 val serverAns = reader.readLine()
+                userEvents = JSONArray(serverAns)
 
                 runOnUiThread {
-                    handleEventResponse(serverAns)
+                    //Iterate through elements of the answer representing rows
+                    for (i in 0 until userEvents.length()){
+                        val jsonObject = userEvents.getJSONObject(i)
+                        addRowToTable(jsonObject)
+                    }
                 }
 
                 reader.close()
@@ -79,24 +90,12 @@ class UserEvents : AppCompatActivity() {
         }.start()
     }
 
-    private fun handleEventResponse(serverAns: String) {
-        val jsonAnswer = JSONArray(serverAns)
-
-        //Iterate through elements of the answer representing rows
-        for (i in 0 until jsonAnswer.length()){
-            val rowObject = jsonAnswer.getJSONObject(i)
-            addRowToTable(rowObject)
-        }
-    }
-
+    @SuppressLint("SimpleDateFormat")
     private fun addRowToTable(jsonObject: JSONObject) {
         val eventId = jsonObject.getString("event_id")
         val existingRow = eventsTable.findViewWithTag<TableRow>(eventId)
 
-        if (existingRow != null && GlobalVar.userType == 0) {
-            // If row with the same request_id exists, append product info to the existing row
-            appendProductInfoToRow(existingRow, jsonObject.getString("product_name"))
-        } else {
+        if (existingRow == null) { //Create a new row
             // Create a new row
             val newRow = TableRow(this)
             newRow.tag = eventId // Set tag to request_id for identification
@@ -111,19 +110,15 @@ class UserEvents : AppCompatActivity() {
                 jsonObject.getString("event_address")
             ).toMutableList()
 
-            if(GlobalVar.userType == 0){
-                //Show the products and remaining spots columns if donor
-                eventsTable.setColumnCollapsed(5, false)
-                eventsTable.setColumnCollapsed(6, false)
-
-                columns += listOf(
-                    jsonObject.getString("product_name"),
-                    jsonObject.getInt("remaining_spot").toString()
-                )
-            }
+            //Filter the array for requests which match the requestId of the row.
+            val filteredArray = (0 until userEvents.length())
+                .map { userEvents.getJSONObject(it) }
+                .filter { it.getString("event_id") == newRow.tag.toString() }
+                .map {
+                    it.toString()
+                }
 
             val pattern = "yyyy-MM-dd" // Specify the pattern of the date string
-
             val formatter = SimpleDateFormat(pattern)
             var passedDate = true
             try {
@@ -134,31 +129,71 @@ class UserEvents : AppCompatActivity() {
                 println("Error parsing date: ${e.message}")
             }
 
-            val editEventButton = Button(this)
-            if(GlobalVar.userType == 1){
-                if (passedDate) //If event is outdated, prevent soldier from leaving by disabling the button.
-                    editEventButton.isEnabled = false
+            val optionsSpinner = Spinner(this)
+            if(GlobalVar.userType == 1) { //Soldier events
+                val soldierOptions:Array<String> = if(passedDate) {
+                    arrayOf(optionsArray[0], optionsArray[1])
+                } else{ //With leave option if date is not expired
+                    arrayOf(optionsArray[0], optionsArray[1], optionsArray[3])
+                }
 
-                editEventButton.text = getString(R.string.leave_button)
-                editEventButton.setOnClickListener {
-                    handleEventRemoval(newRow)
+                optionsSpinner.adapter = ArrayAdapter(
+                    this,
+                    R.layout.spinner_item,
+                    R.id.text_view, soldierOptions)
+            }
+            else{ //Donor
+                val donorOptions:Array<String> = if(passedDate) {
+                    arrayOf(optionsArray[0], optionsArray[1])
+                } else{ //With edit option if date is not expired
+                    arrayOf(optionsArray[0], optionsArray[1], optionsArray[2])
+                }
+
+                optionsSpinner.adapter = ArrayAdapter(
+                    this,
+                    R.layout.spinner_item,
+                    R.id.text_view, donorOptions)
+            }
+
+            optionsSpinner.setBackgroundResource(R.drawable.tables_outline)
+
+            optionsSpinner.onItemSelectedListener = object: AdapterView.OnItemSelectedListener{
+                override fun onNothingSelected(parent: AdapterView<*>?) {
+                    // Do nothing
+                }
+
+                override fun onItemSelected(parent: AdapterView<*>?, view: View?, position: Int, id: Long) {
+                    when (parent!!.getItemAtPosition(position).toString()) {
+                        "Details" -> { //Details
+                            val detailsIntent = Intent(this@UserEvents, EventDetails::class.java)
+                            detailsIntent.putStringArrayListExtra("jsonArray", ArrayList(filteredArray))
+                            detailsIntent.putExtra("fromHistory", true)
+                            startActivity(detailsIntent)
+                        }
+
+                        "Edit" -> { //Edit
+                            val editIntent = Intent(this@UserEvents, EditEvent::class.java)
+                            editIntent.putExtra("event_id", newRow.tag.toString())
+                            editIntent.putStringArrayListExtra("jsonArray", ArrayList(filteredArray))
+                            startActivity(editIntent)
+                        }
+
+                        "Leave" -> {
+                            handleEventRemoval(newRow)
+                        }
+                    }
                 }
             }
-            else{
-                editEventButton.text = getString(R.string.edit_button_history_tables)
-                /*TODO(Implement event edit for the donor user.)*/
-//                editEventButton.setOnClickListener {
-//                    //handleEditEvent()
-//                }
-            }
-            newRow.addView(editEventButton)
+
+            newRow.addView(optionsSpinner)
 
             // Add columns for each piece of information
             for (columnData in columns) {
                 val column = TextView(this)
                 column.text = columnData
                 column.gravity = android.view.Gravity.CENTER
-                column.setPadding(8, 8, 8, 8)
+                column.setPadding(6, 6, 6, 6)
+                column.setTextColor(Color.BLACK)
                 // Set black border for the TextView
                 column.setBackgroundResource(R.drawable.tables_outline)
                 // Put column data to the row.
@@ -193,8 +228,10 @@ class UserEvents : AppCompatActivity() {
 
                 runOnUiThread {
                     //Remove the row after server successfully confirms removal from the DB
-                    eventsTable.removeView(rowToHandle)
-                    //rowToHandle.visibility = View.GONE
+                    if(JSONObject(serverAns).optString("message") == "Canceled successfully")
+                        eventsTable.removeView(rowToHandle)
+                    else
+                        Toast.makeText(this, "Failed to leave event!", Toast.LENGTH_LONG).show()
                 }
 
                 reader.close()
@@ -205,22 +242,6 @@ class UserEvents : AppCompatActivity() {
                 e.printStackTrace()
             }
         }.start()
-    }
-
-    /*
-    * TODO(Implement editing of event for donor)
-    * */
-//    private fun handleEditEvent() {
-//        startActivity(Intent(this@UserEvents, EditEvent::class.java))
-//    }
-
-    //Appends to an existing row products from the same event_id. Only relevant for donor data.
-    private fun appendProductInfoToRow(existingRow: TableRow, productName: String) {
-        // Find the column for productName and quantity in the existing row
-        val productInfoColumn = existingRow.getChildAt(5) as? TextView
-
-        // Append new product info to the existing column
-        "${productInfoColumn?.text}, $productName".also { productInfoColumn?.text = it }
     }
 }
 

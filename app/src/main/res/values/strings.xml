@@ -53,6 +53,9 @@
     <string name="first_name_column_text">First Name</string>
     <string name="pickup_location_column_text">Pickup Location</string>
     <string name="leave_button">Leave</string>
+    <string name="edit__event_title">Edit your event</string>
+    <string name="button_edit_event">Edit event</string>
+    <string name="describe_product_list">Choose products for the event</string>
 
 
     <string-array name="locations_array">
