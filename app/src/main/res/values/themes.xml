@@ -5,5 +5,23 @@
         <!-- <item name="colorPrimary">@color/my_light_primary</item> -->
     </style>
 
-    <style name="Theme.FrontCareProject" parent="Base.Theme.FrontCareProject" />
+
+    <style name="Theme.FrontCareProject" parent="Base.Theme.FrontCareProject">
+        <item name="android:windowBackground">@color/backGroundColor</item>
+        <!-- <item name="android:buttonStyle">@style/AppButton</item> -->
+    </style>
+
+    <!-- Button style -->
+    <style name="AppButton" parent="Widget.Material3.Button">
+        <item name="android:background">@color/buttonColor</item>
+        <item name="android:textColor">@color/buttonTextColor</item>
+        <item name="cornerFamily">rounded</item>
+        <item name="cornerSize">50%</item>
+        <!-- Add other button attributes as needed -->
+    </style>
+
+    <style name="ShapeAppearance.AppButton" parent="ShapeAppearance.Material3.SmallComponent">
+
+    </style>
+
 </resources>
