@@ -20,9 +20,7 @@ import androidx.core.content.ContextCompat
 
 class LoginActivity : AppCompatActivity() {
 
-    /*
-    TODO: document code
-     */
+
     private lateinit var typeText: TextView
     private lateinit var tverrormsg: TextView
     private lateinit var etUserName : EditText
