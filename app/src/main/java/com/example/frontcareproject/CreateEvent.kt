@@ -163,7 +163,7 @@ class CreateEvent : AppCompatActivity() {
         for (i in 0 until checkedItemPositions.size()) {
             val position = checkedItemPositions.keyAt(i)
             if (checkedItemPositions.valueAt(i)) {
-                productsToSend.add(position)
+                productsToSend.add(position+1)
             }
         }
 
