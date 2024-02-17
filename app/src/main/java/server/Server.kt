@@ -28,10 +28,6 @@ val mysql_user = "uxd6gaqgeoenekcj"
 val mysql_password = "0CqlD3oWHl1SBg9lqWLJ"
 
 
-/*
-TODO: RAZ - DOCUMENT ALL functions
- */
-
 fun main() {
     // start an embedded Netty server on port 8080 and configure it with the defined module
     embeddedServer(Netty, port = 8080) {
@@ -389,13 +385,19 @@ fun getSoldierEventsHistory(userId: String?): List<Map<String, Any>> {
                     users.lastname,
                     donation_events.event_date,
                     donation_events.event_location,
-                    donation_events.event_address
+                    donation_events.event_address,
+                    donation_events.remaining_spot,
+                    products.product_name
                 FROM
                     donation_events
                 JOIN
-                    users ON  donation_events.donor_id = users.user_id
+                    users ON donation_events.donor_id = users.user_id
 				JOIN 
 					event_participants ON event_participants.event_id = donation_events.event_id
+                JOIN
+                    event_details ON  donation_events.event_id = event_details.event_id
+                JOIN
+                    products ON products.product_id = event_details.product_id
 				WHERE event_participants.user_id = ?;
             """.trimIndent()
 
@@ -773,6 +775,7 @@ fun createEvent(data: Map<String, Any>): Boolean {
 
     return false
 }
+
 /*
 This function deleted a soldier request from the DB
 this can happen when a soldiers decided that they want to delete their request
@@ -893,7 +896,7 @@ fun updateRequest(data: Map<String, String>): Boolean {
 
                     if (insertRowsAffected <= 0) {
                         // If no rows were affected, rollback the transaction and return false
-                       // connection.rollback()
+                        // connection.rollback()
                         return false
                     }
                 }
@@ -955,6 +958,176 @@ fun cancelEventRegistration(data: Map<String, String>): Boolean {
     return false
 }
 
+fun soldierRequestReject(data: Map<String, String>): MutableMap<String, String> {
+    val sqlResult = mutableMapOf<String, String>()
+    val requestId = data["requestId"]
+
+    val updateSql = """
+        UPDATE soldier_requests
+        SET donor_id = null,
+            status = 'open'
+        WHERE request_id = ? AND status = 'pending';
+    """.trimIndent()
+
+    val selectSql = """
+        SELECT donor_id, status
+        FROM soldier_requests
+        WHERE request_id = ?;
+    """.trimIndent()
+
+    var connection: Connection? = null
+
+    try {
+        connection = DriverManager.getConnection(mysql_url, mysql_user, mysql_password)
+
+        // Execute the update statement
+        val updateStatement = connection.prepareStatement(updateSql)
+        updateStatement.setInt(1, requestId?.toInt() ?: 0)
+        updateStatement.executeUpdate()
+
+        // Execute the select statement to retrieve the updated values
+        val selectStatement = connection.prepareStatement(selectSql)
+        selectStatement.setInt(1, requestId?.toInt() ?: 0)
+
+        val resultSet = selectStatement.executeQuery()
+        if (resultSet.next()) {
+            val donorId: String? = resultSet.getString("donor_id")
+            sqlResult["firstname"] = donorId ?: "Unknown"
+            sqlResult["status"] = resultSet.getString("status")
+        }
+
+    } catch (e: Exception) {
+        e.printStackTrace()
+    } finally {
+        connection?.close()
+    }
+
+    return sqlResult
+}
+
+fun updateEvent(data: Map<String, String>): Boolean {
+    val eventId = data["event_id"].toString()
+    val eventLocation = data["event_location"]
+    val eventAddress = data["event_address"]
+    val productsMap = data.filterKeys { it != "event_id" }
+        .mapKeys { it.key.toIntOrNull() ?: 0 }
+        .filter { it.key > 0 && it.value.toIntOrNull() != null }
+        .mapValues { it.value.toInt() }
+
+    println(productsMap)
+    if (productsMap.isEmpty()) {
+        // If there are no valid product quantities, return false
+        return false
+    }
+    var connection: Connection? = null
+
+    try {
+        connection = DriverManager.getConnection(mysql_url, mysql_user, mysql_password)
+        connection?.autoCommit = false // Disable auto-commit to handle transactions
+
+        val updateQuantitySQL = """
+        UPDATE donation_events
+        SET event_location = ?,
+            event_address = ?
+        WHERE event_id = ?;
+    """.trimIndent()
+        val updateStatement = connection.prepareStatement(updateQuantitySQL)
+        updateStatement.setString(1, eventLocation)
+        updateStatement.setString(2, eventAddress)
+        updateStatement.setInt(3, eventId.toInt())
+        val updateRowsAffected = updateStatement.executeUpdate()
+
+        for ((productId, quantity) in productsMap) {
+            if (quantity == 0) {
+                // If quantity is 0, delete the corresponding product from request_details
+                val deleteProductSQL = """
+                DELETE FROM event_details WHERE event_id = ? AND product_id = ?;
+            """.trimIndent()
+                val deleteStatement = connection.prepareStatement(deleteProductSQL)
+                deleteStatement.setInt(1, eventId.toInt())
+                deleteStatement.setInt(2, productId)
+                val deleteRowsAffected = deleteStatement.executeUpdate()
+
+                if (deleteRowsAffected <= 0) {
+                    // If no rows were affected, rollback the transaction and return false
+                    //connection.rollback()
+                    return false
+                }
+            } else {
+
+                // If no rows were affected, insert the product into request_details
+                val insertProductSQL = """
+                        INSERT INTO event_details (event_id, product_id) VALUES (?, ?);
+                    """.trimIndent()
+                val insertStatement = connection.prepareStatement(insertProductSQL)
+                insertStatement.setInt(1, eventId.toInt())
+                insertStatement.setInt(2, productId)
+                val insertRowsAffected = insertStatement.executeUpdate()
+
+                if (insertRowsAffected <= 0) {
+                    // If no rows were affected, rollback the transaction and return false
+                    // connection.rollback()
+                    return false
+                }
+            }
+        }
+
+        connection.commit() // Commit the transaction if all updates/deletes are successful
+        return true
+
+    } catch (e: Exception) {
+        e.printStackTrace()
+        connection?.rollback() // Rollback the transaction in case of any exception
+    } finally {
+        connection?.close()
+    }
+
+    return false
+}
+
+fun removeEvent(eventId: String?): Boolean {
+    val deleteDonorEventSQL = "DELETE FROM donation_events WHERE event_id = ?"
+    val deleteEventDetailsSQL = "DELETE FROM event_details WHERE event_id = ?"
+    val deleteEventParticipantsSQL = "DELETE FROM event_participants WHERE event_id = ?"
+
+    var connection: Connection? = null
+
+    try {
+        connection = DriverManager.getConnection(mysql_url, mysql_user, mysql_password)
+
+        // Delete from event_details table
+        val deleteEventDetailsStatement = connection.prepareStatement(deleteEventDetailsSQL)
+        deleteEventDetailsStatement.setInt(1, eventId?.toIntOrNull() ?: 0)
+        val rowsAffectedEventDetails = deleteEventDetailsStatement.executeUpdate()
+
+        // Delete from donation_events table
+        val deleteDonorEventStatement = connection.prepareStatement(deleteDonorEventSQL)
+        deleteDonorEventStatement.setInt(1, eventId?.toIntOrNull() ?: 0)
+        val rowsAffectedDonorEvent = deleteDonorEventStatement.executeUpdate()
+
+        // Delete from event_participants table
+        val deleteEventParticipantsStatement =
+            connection.prepareStatement(deleteEventParticipantsSQL)
+        deleteEventParticipantsStatement.setInt(1, eventId?.toIntOrNull() ?: 0)
+        val rowsAffectedEventParticipants = deleteEventParticipantsStatement.executeUpdate()
+
+        return if (rowsAffectedDonorEvent > 0 && rowsAffectedEventDetails > 0 && rowsAffectedEventParticipants >= 0) {
+            true
+        } else {
+            //connection?.rollback()
+            false
+        }
+
+    } catch (e: Exception) {
+        e.printStackTrace()
+    } finally {
+        connection?.close()
+    }
+
+    return false
+}
+
+
 // Define the Ktor application module
 fun Application.module() {
     // Install the ContentNegotiation feature with Jackson as the JSON serializer/deserializer
@@ -974,6 +1147,8 @@ fun Application.module() {
 
     // Define the routing configuration for the application
     routing {
+        //--------------------------------POST REQUESTS-----------------------------------------------------
+
         // Define a route for handling POST requests for user login
         post("/api/login") {
             try {
@@ -1217,6 +1392,63 @@ fun Application.module() {
             } catch (e: Exception) {
                 // Handle exceptions related to request format and respond with BadRequest status
                 call.respond(HttpStatusCode.BadRequest, "Cancel failed")
+            }
+        }
+
+        // Define a route for handling POST requests for a soldier to reject donor's donation
+        post("/api/soldierRequestReject") {
+            try {
+                val request = call.receive<Map<String, String>>()
+                val respond =
+                    soldierRequestReject(request) // True - Update DB successfully else False
+
+                call.respond(respond)
+
+            } catch (e: Exception) {
+                // Handle exceptions related to request format and respond with BadRequest status
+                call.respond(HttpStatusCode.BadRequest, "Reject failed")
+            }
+        }
+
+        // Define a route for handling POST requests for update an event details
+        post("/api/updateEvent") {
+            try {
+                val request = call.receive<Map<String, String>>()
+                val respond =
+                    updateEvent(request) // True - Update DB successfully else False
+
+                val responseMessage = if (respond) {
+                    mapOf("message" to "Updated successfully")
+                } else {
+                    mapOf("message" to "Failed to update")
+                }
+                call.respond(responseMessage)
+
+            } catch (e: Exception) {
+                // Handle exceptions related to request format and respond with BadRequest status
+                call.respond(HttpStatusCode.BadRequest, "Update failed")
+            }
+        }
+
+        // Define a route for handling POST requests to delete an event
+        post("/api/removeEvent/{eventId}") {
+            try {
+                val eventId = call.parameters["eventId"]
+                if (eventId == null) {
+                    call.respond(mapOf("message" to "Invalid path parameter"))
+                }
+                val respond = removeEvent(eventId)
+
+                val responseMessage = if (respond) {
+                    mapOf("message" to "Removed successfully")
+                } else {
+                    mapOf("message" to "Failed to remove")
+                }
+                call.respond(responseMessage)
+
+            } catch (e: Exception) {
+                // Handle exceptions related to request format and respond with BadRequest status
+                call.respond(HttpStatusCode.BadRequest, "Event remove failed")
             }
         }
 

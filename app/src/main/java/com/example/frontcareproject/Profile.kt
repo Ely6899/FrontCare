@@ -9,9 +9,6 @@ import android.widget.TableRow
 import android.widget.TextView
 import androidx.core.content.ContextCompat
 import utils.GlobalVar
-import kotlinx.coroutines.Dispatchers
-import kotlinx.coroutines.GlobalScope
-import kotlinx.coroutines.launch
 import org.json.JSONObject
 import java.io.BufferedReader
 import java.io.IOException
@@ -56,13 +53,13 @@ class Profile : AppCompatActivity() {
         fetchProfileData()
 
         // set profile image by usertype
-        if(GlobalVar.userType == 1) {
-            val defaultProfilePicture: Drawable? = ContextCompat.getDrawable(this, R.drawable.soldier_default_image)
+        if (GlobalVar.userType == 1) {
+            val defaultProfilePicture: Drawable? =
+                ContextCompat.getDrawable(this, R.drawable.soldier_default_image)
             profileImage.setImageDrawable(defaultProfilePicture)
-        }
-        else
-        {
-            val defaultProfilePicture: Drawable? = ContextCompat.getDrawable(this, R.drawable.donor_default_image)
+        } else {
+            val defaultProfilePicture: Drawable? =
+                ContextCompat.getDrawable(this, R.drawable.donor_default_image)
             profileImage.setImageDrawable(defaultProfilePicture)
         }
 
@@ -84,16 +81,14 @@ class Profile : AppCompatActivity() {
         }
 
         //disable buttons based on user's type: soldiers cant see SoldiersRequestsPage and donors cant see DonorsEventsPage
-        if(GlobalVar.userType == 1) {
+        if (GlobalVar.userType == 1) {
             redirectBtnS.visibility = View.INVISIBLE
-        }
-        else
-        {
+        } else {
             redirectBtnD.visibility = View.INVISIBLE
         }
 
         btnToEdit = findViewById(R.id.btnGoToEdit)
-        btnToEdit.setOnClickListener{
+        btnToEdit.setOnClickListener {
             startActivity(Intent(this@Profile, EditProfile::class.java))
         }
 
@@ -101,13 +96,13 @@ class Profile : AppCompatActivity() {
         btnToEventsHistory = findViewById(R.id.btnEventHistory)
 
         //Change button text according to user type connected
-        if (GlobalVar.userType == 1){
+        if (GlobalVar.userType == 1) {
             btnToPostingsHistory.text = getString(R.string.requests_history_button)
-        } else{
+        } else {
             btnToPostingsHistory.text = getString(R.string.donations_history_button)
         }
 
-        btnToPostingsHistory.setOnClickListener{
+        btnToPostingsHistory.setOnClickListener {
             startActivity(Intent(this@Profile, UserPostings::class.java))
         }
 
@@ -117,7 +112,7 @@ class Profile : AppCompatActivity() {
     }
 
     private fun fetchProfileData() {
-        Thread  {
+        Thread {
             try {
                 val userId = GlobalVar.userId // Replace with your logic to get the user ID
                 val url = URL("http://${GlobalVar.serverIP}:8080/api/profile/$userId")
@@ -146,9 +141,6 @@ class Profile : AppCompatActivity() {
     }
 
 
-    /*
-    TODO: RAZ - NEED TO UPDATE THE FIELDS ACCORDING TO THE DB
-     */
     private fun handleProfileResponse(response: String) {
         try {
             println("Server Response: $response")
@@ -159,28 +151,26 @@ class Profile : AppCompatActivity() {
             // Check if the response indicates a successful login
 
             //optString is used ,This method returns an empty string if the key is not found.
-            val is_soldier = jsonResponse.optString("is_soldier")
+            val isSoldier = jsonResponse.optString("is_soldier")
             val firstname = jsonResponse.optString("firstname")
             val lastname = jsonResponse.optString("lastname")
             val location = jsonResponse.optString("location")
-            val email_address = jsonResponse.optString("email_address")
+            val emailAddress = jsonResponse.optString("email_address")
             val phone_number = jsonResponse.optString("phone_number")
 
 
-            if (firstname.isNotEmpty() && lastname.isNotEmpty() && email_address.isNotEmpty() && phone_number.isNotEmpty()) {
-                if(is_soldier == "0")
-                {//donor
+            if (firstname.isNotEmpty() && lastname.isNotEmpty() && emailAddress.isNotEmpty() && phone_number.isNotEmpty()) {
+                if (isSoldier == "0") {//donor
                     firstNameData.text = firstname
                     lastNameData.text = lastname
-                    emailData.text = email_address
+                    emailData.text = emailAddress
                     locationData.text = location
                     phoneNumber.text = phone_number
-                }
-                else{
+                } else {
                     //soldier
                     firstNameData.text = firstname
                     lastNameData.text = lastname
-                    emailData.text = email_address
+                    emailData.text = emailAddress
                     phoneNumber.text = phone_number
                     val profileLocationTextView = findViewById<TextView>(R.id.ProfileLocation)
                     profileLocationTextView.visibility = View.GONE // hide location field
