@@ -383,6 +383,8 @@ fun getSoldierEventsHistory(userId: String?): List<Map<String, Any>> {
                     donation_events.event_id,
                     users.firstname,
                     users.lastname,
+                    users.email_address,
+                    users.phone_number,
                     donation_events.event_date,
                     donation_events.event_location,
                     donation_events.event_address,
@@ -417,6 +419,12 @@ fun getSoldierEventsHistory(userId: String?): List<Map<String, Any>> {
                 rowMap["event_date"] = resultSet.getString("event_date")
                 rowMap["event_location"] = resultSet.getString("event_location")
                 rowMap["event_address"] = resultSet.getString("event_address")
+                rowMap["remaining_spot"] = resultSet.getInt("remaining_spot")
+                rowMap["product_name"] = resultSet.getString("product_name")
+                val emailAddress: String? = resultSet.getString("email_address")
+                rowMap["email_address"] = emailAddress ?: "Unknown"
+                val phoneNumber: String? = resultSet.getString("phone_number")
+                rowMap["phone_number"] = phoneNumber ?: "Unknown"
                 resultList.add(rowMap)
             }
         }

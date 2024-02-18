@@ -179,7 +179,7 @@ class UserPostings : AppCompatActivity() {
                             }
 
                             "Deny" -> { //Deny
-                                //handleDonationDenial(newRow)
+                                handleDonationRejection(newRow)
                             }
                         }
                     }
@@ -263,18 +263,17 @@ class UserPostings : AppCompatActivity() {
         }.start()
     }
 
-    /*
-    private fun handleDonationDenial(rowToHandle: TableRow) {
+    private fun handleDonationRejection(rowToHandle: TableRow) {
         Thread  {
             try {
-                val url = URL("http://${GlobalVar.serverIP}:8080/api/donationDenial")
+                val url = URL("http://${GlobalVar.serverIP}:8080/api/soldierRequestReject")
                 val connection = url.openConnection() as HttpURLConnection
                 connection.requestMethod = "POST"
                 connection.setRequestProperty("Content-Type", "application/json")
                 connection.doOutput = true
 
                 // Construct the JSON payload with email and password
-                val jsonInputString = """{"userId": "${GlobalVar.userId}", "requestId": "${rowToHandle.tag}"}"""
+                val jsonInputString = """{"requestId": "${rowToHandle.tag}"}"""
 
                 // Send JSON as the request body
                 val outputStream = connection.outputStream
@@ -300,7 +299,7 @@ class UserPostings : AppCompatActivity() {
                     }
 
                     //Sets relevant TextView fields after denying donation
-                    statusField!!.text = jsonNewData.optString("firstname")
+                    nameField!!.text = jsonNewData.optString("firstname")
                     statusField!!.text = jsonNewData.optString("status")
                 }
 
@@ -312,5 +311,5 @@ class UserPostings : AppCompatActivity() {
                 e.printStackTrace()
             }
         }.start()
-    } */
+    }
 }
