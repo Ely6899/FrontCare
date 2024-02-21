@@ -12,6 +12,8 @@ import java.io.InputStreamReader
 import java.net.HttpURLConnection
 import java.net.URL
 import android.content.Intent
+import android.view.View
+import android.widget.ImageView
 import org.json.JSONObject
 import android.widget.Toast
 import androidx.core.content.ContextCompat
@@ -76,6 +78,20 @@ class LoginActivity : AppCompatActivity() {
                     e.printStackTrace()
                 }
             }.start()
+        }
+
+        //making the actionBar functional:
+        //making the back icon have a back functionality:
+        val backIcon = findViewById<ImageView>(R.id.back_icon)
+        val sideBarIcon = findViewById<ImageView>(R.id.sidebar_icon)
+        sideBarIcon.visibility = View.INVISIBLE
+        backIcon.setOnClickListener {
+            GlobalVar.navigateToPage(Intent(this, MainActivity::class.java))
+        }
+        // Set the callback
+        GlobalVar.navigateCallback = { intent ->
+            startActivity(intent)
+            finish()
         }
     }
 

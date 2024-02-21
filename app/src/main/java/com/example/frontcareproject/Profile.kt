@@ -42,6 +42,19 @@ class Profile : AppCompatActivity() {
         super.onCreate(savedInstanceState)
         setContentView(R.layout.activity_profile)
 
+        //making the actionBar functional:
+        //making the back icon have a back functionality:
+        val backIcon = findViewById<ImageView>(R.id.back_icon)
+        backIcon.setOnClickListener {
+            GlobalVar.navigateToPage(Intent(this, LoginActivity::class.java))
+        }
+        // Set the callback
+        GlobalVar.navigateCallback = { intent ->
+            startActivity(intent)
+            finish()
+        }
+
+
         firstNameData = findViewById(R.id.ShowProfileFirstName)
         lastNameData = findViewById(R.id.ShowProfileLastName)
         emailData = findViewById(R.id.ShowProfileEmail)
@@ -110,6 +123,8 @@ class Profile : AppCompatActivity() {
             startActivity(Intent(this@Profile, UserEvents::class.java))
         }
     }
+
+
 
     private fun fetchProfileData() {
         Thread {

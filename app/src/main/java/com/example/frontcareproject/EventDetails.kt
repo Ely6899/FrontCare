@@ -6,6 +6,7 @@ import androidx.appcompat.app.AppCompatActivity
 import android.os.Bundle
 import android.widget.ArrayAdapter
 import android.widget.Button
+import android.widget.ImageView
 import android.widget.ListView
 import android.widget.TextView
 import androidx.lifecycle.lifecycleScope
@@ -48,6 +49,25 @@ class EventDetails : AppCompatActivity() {
         // Add button listener
         participateButton.setOnClickListener{
             onParticipateButtonClick()
+        }
+
+        //making the actionBar functional:
+        //making the back icon have a back functionality:
+        val backIcon = findViewById<ImageView>(R.id.back_icon)
+        backIcon.setOnClickListener {
+            // If we came from history page we go back there
+            val fromHistory : Boolean = intent.getBooleanExtra("fromHistory", false)
+            if (fromHistory)
+                GlobalVar.navigateToPage(Intent(this, UserEvents::class.java))
+            else
+            {
+                GlobalVar.navigateToPage(Intent(this, DonorsEventsPage::class.java))
+            }
+        }
+        // Set the callback
+        GlobalVar.navigateCallback = { intent ->
+            startActivity(intent)
+            finish()
         }
     }
 

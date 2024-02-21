@@ -6,6 +6,7 @@ import android.view.Gravity
 import android.widget.ArrayAdapter
 import android.widget.Button
 import android.widget.EditText
+import android.widget.ImageView
 import android.widget.RadioButton
 import android.widget.RadioGroup
 import android.widget.Spinner
@@ -62,6 +63,18 @@ class CreateSoldierRequest : AppCompatActivity() {
         // Create button event listener
         createButton.setOnClickListener{
             onCreateButtonClick()
+        }
+
+        //making the actionBar functional:
+        //making the back icon have a back functionality:
+        val backIcon = findViewById<ImageView>(R.id.back_icon)
+        backIcon.setOnClickListener {
+            GlobalVar.navigateToPage(Intent(this, UserPostings::class.java))
+        }
+        // Set the callback
+        GlobalVar.navigateCallback = { intent ->
+            startActivity(intent)
+            finish()
         }
     }
 

@@ -7,6 +7,7 @@ import android.view.View
 import android.widget.ArrayAdapter
 import android.widget.Button
 import android.widget.EditText
+import android.widget.ImageView
 import android.widget.Spinner
 import android.widget.Toast
 import org.json.JSONObject
@@ -60,6 +61,18 @@ class EditProfile : AppCompatActivity() {
 
         btnEditProfile.setOnClickListener{
             sendNewData()
+        }
+
+        //making the actionBar functional:
+        //making the back icon have a back functionality:
+        val backIcon = findViewById<ImageView>(R.id.back_icon)
+        backIcon.setOnClickListener {
+            GlobalVar.navigateToPage(Intent(this, Profile::class.java))
+        }
+        // Set the callback
+        GlobalVar.navigateCallback = { intent ->
+            startActivity(intent)
+            finish()
         }
     }
 
