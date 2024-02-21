@@ -4,7 +4,13 @@
     xmlns:tools="http://schemas.android.com/tools"
     android:layout_width="match_parent"
     android:layout_height="match_parent"
-    tools:context=".EditProfile">
+    tools:context=".EditProfile"
+    tools:layout_editor_absoluteX="0dp"
+    tools:layout_editor_absoluteY="0dp">
+
+    <include
+        android:id="@+id/toolbar1"
+        layout="@layout/toolbar" />
 
     <TextView
         android:id="@+id/tvEditProfileTitle"
@@ -12,11 +18,13 @@
         android:layout_height="wrap_content"
         android:text="@string/edit_profile_title"
         android:textAlignment="center"
-        android:textSize="25sp"
         android:textColor="@color/black"
+        android:textSize="25sp"
+        android:layout_marginTop="80dp"
+        app:layout_constraintTop_toBottomOf="@id/toolbar1"
 
         app:layout_constraintTop_toTopOf="parent"
-        >
+        tools:layout_editor_absoluteX="0dp">
 
     </TextView>
 
@@ -26,36 +34,39 @@
         android:layout_height="wrap_content"
         android:stretchColumns="1"
 
-        app:layout_constraintTop_toBottomOf="@id/tvEditProfileTitle">
+        app:layout_constraintTop_toBottomOf="@id/tvEditProfileTitle"
+        tools:layout_editor_absoluteX="0dp">
 
         <TableRow
             android:id="@+id/editPhoneRow"
             android:layout_width="match_parent"
             android:layout_height="wrap_content"
-            android:layout_marginBottom="10dp"
-            >
+            tools:layout_editor_absoluteX="0dp"
+            tools:layout_editor_absoluteY="34dp">
+
             <TextView
                 android:id="@+id/tvEditPhone"
                 android:layout_width="wrap_content"
                 android:layout_height="wrap_content"
+                android:labelFor="@+id/etEditPhone"
                 android:text="@string/register_phone"
                 android:textAlignment="center"
-                android:textSize="20sp"
                 android:textColor="@color/black"
-                android:labelFor="@+id/etEditPhone"
-                >
-            </TextView>
+                android:textSize="20sp"
+                tools:layout_editor_absoluteX="0dp"
+                tools:layout_editor_absoluteY="43dp"></TextView>
 
             <EditText
                 android:id="@+id/etEditPhone"
-                android:textColor="@color/black"
+                android:autofillHints="phone"
+                android:inputType="phone"
+                android:labelFor="@id/tvEditPhone"
                 android:maxLength="10"
                 android:textAlignment="center"
+                android:textColor="@color/black"
                 android:textSize="20sp"
-                android:inputType="phone"
-                android:autofillHints="phone"
-                android:labelFor="@id/tvEditPhone"
-                >
+                tools:layout_editor_absoluteX="134dp"
+                tools:layout_editor_absoluteY="34dp">
 
             </EditText>
 
@@ -65,30 +76,32 @@
             android:id="@+id/editUsernameRow"
             android:layout_width="match_parent"
             android:layout_height="wrap_content"
-            android:layout_marginBottom="10dp"
-            >
+            tools:layout_editor_absoluteX="0dp"
+            tools:layout_editor_absoluteY="91dp">
+
             <TextView
                 android:id="@+id/tvEditUsername"
                 android:layout_width="wrap_content"
                 android:layout_height="wrap_content"
+                android:labelFor="@+id/etEditUsername"
                 android:text="@string/register_username"
                 android:textAlignment="center"
-                android:textSize="20sp"
                 android:textColor="@color/black"
-                android:labelFor="@+id/etEditUsername"
-                >
-            </TextView>
+                android:textSize="20sp"
+                tools:layout_editor_absoluteX="0dp"
+                tools:layout_editor_absoluteY="101dp"></TextView>
 
             <EditText
                 android:id="@+id/etEditUsername"
-                android:textColor="@color/black"
+                android:autofillHints="text"
+                android:inputType="text"
+                android:labelFor="@id/tvEditUsername"
                 android:maxLength="10"
                 android:textAlignment="center"
+                android:textColor="@color/black"
                 android:textSize="20sp"
-                android:inputType="text"
-                android:autofillHints="text"
-                android:labelFor="@id/tvEditUsername"
-                >
+                tools:layout_editor_absoluteX="134dp"
+                tools:layout_editor_absoluteY="91dp">
 
             </EditText>
 
@@ -98,30 +111,32 @@
             android:id="@+id/editEmailRow"
             android:layout_width="match_parent"
             android:layout_height="wrap_content"
-            android:layout_marginBottom="10dp"
-            >
+            tools:layout_editor_absoluteX="0dp"
+            tools:layout_editor_absoluteY="149dp">
+
             <TextView
                 android:id="@+id/tvEditEmail"
                 android:layout_width="wrap_content"
                 android:layout_height="wrap_content"
+                android:labelFor="@+id/etEditEmail"
                 android:text="@string/register_email"
                 android:textAlignment="center"
-                android:textSize="20sp"
                 android:textColor="@color/black"
-                android:labelFor="@+id/etEditEmail"
-                >
-            </TextView>
+                android:textSize="20sp"
+                tools:layout_editor_absoluteX="0dp"
+                tools:layout_editor_absoluteY="159dp"></TextView>
 
             <EditText
                 android:id="@+id/etEditEmail"
-                android:textColor="@color/black"
+                android:autofillHints="emailAddress"
+                android:inputType="textEmailAddress"
+                android:labelFor="@id/tvEditEmail"
                 android:maxLength="32"
                 android:textAlignment="textStart"
+                android:textColor="@color/black"
                 android:textSize="20sp"
-                android:inputType="textEmailAddress"
-                android:autofillHints="emailAddress"
-                android:labelFor="@id/tvEditEmail"
-                >
+                tools:layout_editor_absoluteX="134dp"
+                tools:layout_editor_absoluteY="149dp">
 
             </EditText>
 
@@ -131,30 +146,32 @@
             android:id="@+id/editPasswordRow"
             android:layout_width="match_parent"
             android:layout_height="wrap_content"
-            android:layout_marginBottom="10dp"
-            >
+            tools:layout_editor_absoluteX="0dp"
+            tools:layout_editor_absoluteY="207dp">
+
             <TextView
                 android:id="@+id/tvEditPassword"
                 android:layout_width="wrap_content"
                 android:layout_height="wrap_content"
+                android:labelFor="@+id/etEditPassword"
                 android:text="@string/register_password"
                 android:textAlignment="center"
-                android:textSize="20sp"
                 android:textColor="@color/black"
-                android:labelFor="@+id/etEditPassword"
-                >
-            </TextView>
+                android:textSize="20sp"
+                tools:layout_editor_absoluteX="0dp"
+                tools:layout_editor_absoluteY="217dp"></TextView>
 
             <EditText
                 android:id="@+id/etEditPassword"
-                android:textColor="@color/black"
+                android:autofillHints="password"
+                android:inputType="textPassword"
+                android:labelFor="@id/tvEditPassword"
                 android:maxLength="10"
                 android:textAlignment="center"
+                android:textColor="@color/black"
                 android:textSize="20sp"
-                android:inputType="textPassword"
-                android:autofillHints="password"
-                android:labelFor="@id/tvEditPassword"
-                >
+                tools:layout_editor_absoluteX="134dp"
+                tools:layout_editor_absoluteY="207dp">
 
             </EditText>
 
@@ -168,7 +185,8 @@
         android:spinnerMode="dropdown"
         android:textAlignment="center"
 
-        app:layout_constraintTop_toBottomOf="@+id/tableEdit">
+        app:layout_constraintTop_toBottomOf="@+id/tableEdit"
+        tools:layout_editor_absoluteX="0dp">
 
     </Spinner>
 
@@ -181,7 +199,6 @@
 
         android:textSize="25sp"
         app:layout_constraintEnd_toEndOf="parent"
-        app:layout_constraintHorizontal_bias="0.5"
         app:layout_constraintStart_toStartOf="parent"
         app:layout_constraintTop_toBottomOf="@+id/spinnerLocationEdit">
 

@@ -55,11 +55,11 @@ class Profile : AppCompatActivity() {
         // set profile image by usertype
         if (GlobalVar.userType == 1) {
             val defaultProfilePicture: Drawable? =
-                ContextCompat.getDrawable(this, R.drawable.soldier_default_image)
+                ContextCompat.getDrawable(this, R.drawable.soldier_default_image_no_bg)
             profileImage.setImageDrawable(defaultProfilePicture)
         } else {
             val defaultProfilePicture: Drawable? =
-                ContextCompat.getDrawable(this, R.drawable.donor_default_image)
+                ContextCompat.getDrawable(this, R.drawable.donor_default_image_no_bg)
             profileImage.setImageDrawable(defaultProfilePicture)
         }
 

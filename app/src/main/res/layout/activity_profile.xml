@@ -5,17 +5,18 @@
     android:layout_width="match_parent"
     android:layout_height="match_parent"
     tools:context=".Profile">
+    <include layout="@layout/toolbar"/>
 
     <TextView
         android:id="@+id/SoldierProfileTitle"
         android:layout_width="wrap_content"
         android:layout_height="wrap_content"
 
-        android:layout_marginStart="124dp"
-        android:layout_marginTop="4dp"
+        android:layout_marginTop="60dp"
         android:text="@string/profile_title"
         android:textAlignment="center"
         android:textSize="30sp"
+        app:layout_constraintEnd_toEndOf="parent"
         app:layout_constraintStart_toStartOf="parent"
         app:layout_constraintTop_toTopOf="parent" />
 

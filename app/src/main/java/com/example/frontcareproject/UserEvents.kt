@@ -90,7 +90,7 @@ class UserEvents : AppCompatActivity() {
         }.start()
     }
 
-    @SuppressLint("SimpleDateFormat")
+    @SuppressLint("SimpleDateFormat", "ResourceAsColor")
     private fun addRowToTable(jsonObject: JSONObject) {
         val eventId = jsonObject.getString("event_id")
         val existingRow = eventsTable.findViewWithTag<TableRow>(eventId)
@@ -156,6 +156,7 @@ class UserEvents : AppCompatActivity() {
             }
 
             optionsSpinner.setBackgroundResource(R.drawable.tables_outline)
+            optionsSpinner.setBackgroundColor(R.color.spinnerColor)
 
             optionsSpinner.onItemSelectedListener = object: AdapterView.OnItemSelectedListener{
                 override fun onNothingSelected(parent: AdapterView<*>?) {

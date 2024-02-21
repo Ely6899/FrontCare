@@ -6,8 +6,11 @@
     android:layout_height="match_parent"
 
     tools:context=".UserEvents">
-
+    <include
+        android:id="@+id/toolbar1"
+        layout="@layout/toolbar" />
     <TextView
+        android:layout_marginTop="80dp"
         android:id="@+id/tvEventHistoryTitle"
         android:layout_width="match_parent"
         android:layout_height="wrap_content"
