@@ -4,6 +4,7 @@ import android.annotation.SuppressLint
 import android.content.Intent
 import androidx.appcompat.app.AppCompatActivity
 import android.os.Bundle
+import android.view.View
 import android.widget.ArrayAdapter
 import android.widget.Button
 import android.widget.ListView
@@ -41,6 +42,12 @@ class EventDetails : AppCompatActivity() {
         participateButton = findViewById(R.id.participateButton)
         productsListView = findViewById(R.id.productsListView)
         remainingSpotsTextView = findViewById(R.id.remainingSpotsTextView)
+
+        // If we came from history page hide donate button
+        val fromHistory : Boolean = intent.getBooleanExtra("fromHistory", false)
+        if(fromHistory) {
+            participateButton.visibility = View.INVISIBLE
+        }
 
         // Extract event data from intent and display it
         displayEventData()
