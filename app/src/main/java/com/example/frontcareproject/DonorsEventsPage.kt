@@ -3,6 +3,7 @@ package com.example.frontcareproject
 import android.content.Intent
 import android.os.Bundle
 import android.widget.Button
+import android.widget.ImageView
 import android.widget.TableLayout
 import android.widget.TableRow
 import android.widget.TextView
@@ -58,6 +59,18 @@ class DonorsEventsPage : AppCompatActivity() {
                 e.printStackTrace()
             }
         }.start()
+
+        //making the actionBar functional:
+        //making the back icon have a back functionality:
+        val backIcon = findViewById<ImageView>(R.id.back_icon)
+        backIcon.setOnClickListener {
+            GlobalVar.navigateToPage(Intent(this, Profile::class.java))
+        }
+        // Set the callback
+        GlobalVar.navigateCallback = { intent ->
+            startActivity(intent)
+            finish()
+        }
     }
 
     private fun handleDonorsEventsResponse() {

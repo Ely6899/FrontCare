@@ -32,4 +32,9 @@ class ChecklistAdapter(private val itemList: List<ChecklistItem>) :
         val textViewItem: TextView = itemView.findViewById(R.id.textViewItem)
         val checkBoxItem: CheckBox = itemView.findViewById(R.id.checkBoxItem)
     }
+
+    // Method to retrieve checked items
+    fun getCheckedItems(): List<ChecklistItem> {
+        return itemList.filter { it.isChecked }
+    }
 }

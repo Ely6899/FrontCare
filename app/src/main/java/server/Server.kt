@@ -383,6 +383,8 @@ fun getSoldierEventsHistory(userId: String?): List<Map<String, Any>> {
                     donation_events.event_id,
                     users.firstname,
                     users.lastname,
+                    users.email_address,
+                    users.phone_number,
                     donation_events.event_date,
                     donation_events.event_location,
                     donation_events.event_address,
@@ -417,6 +419,12 @@ fun getSoldierEventsHistory(userId: String?): List<Map<String, Any>> {
                 rowMap["event_date"] = resultSet.getString("event_date")
                 rowMap["event_location"] = resultSet.getString("event_location")
                 rowMap["event_address"] = resultSet.getString("event_address")
+                rowMap["remaining_spot"] = resultSet.getInt("remaining_spot")
+                rowMap["product_name"] = resultSet.getString("product_name")
+                val emailAddress: String? = resultSet.getString("email_address")
+                rowMap["email_address"] = emailAddress ?: "Unknown"
+                val phoneNumber: String? = resultSet.getString("phone_number")
+                rowMap["phone_number"] = phoneNumber ?: "Unknown"
                 resultList.add(rowMap)
             }
         }
@@ -1009,12 +1017,11 @@ fun updateEvent(data: Map<String, String>): Boolean {
     val eventId = data["event_id"].toString()
     val eventLocation = data["event_location"]
     val eventAddress = data["event_address"]
-    val productsMap = data.filterKeys { it != "event_id" }
+    val productsMap = data.filterKeys { it != "event_id" && it != "event_location" && it != "event_address" }
         .mapKeys { it.key.toIntOrNull() ?: 0 }
         .filter { it.key > 0 && it.value.toIntOrNull() != null }
         .mapValues { it.value.toInt() }
 
-    println(productsMap)
     if (productsMap.isEmpty()) {
         // If there are no valid product quantities, return false
         return false
@@ -1036,6 +1043,8 @@ fun updateEvent(data: Map<String, String>): Boolean {
         updateStatement.setString(2, eventAddress)
         updateStatement.setInt(3, eventId.toInt())
         val updateRowsAffected = updateStatement.executeUpdate()
+        var deleteRowsAffected = 0 //initialize var
+        var insertRowsAffected = 0 //initialize var
 
         for ((productId, quantity) in productsMap) {
             if (quantity == 0) {
@@ -1046,13 +1055,8 @@ fun updateEvent(data: Map<String, String>): Boolean {
                 val deleteStatement = connection.prepareStatement(deleteProductSQL)
                 deleteStatement.setInt(1, eventId.toInt())
                 deleteStatement.setInt(2, productId)
-                val deleteRowsAffected = deleteStatement.executeUpdate()
+                deleteRowsAffected = deleteStatement.executeUpdate()
 
-                if (deleteRowsAffected <= 0) {
-                    // If no rows were affected, rollback the transaction and return false
-                    //connection.rollback()
-                    return false
-                }
             } else {
 
                 // If no rows were affected, insert the product into request_details
@@ -1062,14 +1066,15 @@ fun updateEvent(data: Map<String, String>): Boolean {
                 val insertStatement = connection.prepareStatement(insertProductSQL)
                 insertStatement.setInt(1, eventId.toInt())
                 insertStatement.setInt(2, productId)
-                val insertRowsAffected = insertStatement.executeUpdate()
+                insertRowsAffected = insertStatement.executeUpdate()
 
-                if (insertRowsAffected <= 0) {
-                    // If no rows were affected, rollback the transaction and return false
-                    // connection.rollback()
-                    return false
-                }
             }
+        }
+
+        if (deleteRowsAffected <= 0 && insertRowsAffected <= 0 && updateRowsAffected <=0) {
+            // If no rows were affected, rollback the transaction and return false
+            //connection.rollback()
+            return false
         }
 
         connection.commit() // Commit the transaction if all updates/deletes are successful

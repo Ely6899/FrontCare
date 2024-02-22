@@ -8,6 +8,7 @@ import android.view.View
 import android.widget.AdapterView
 import android.widget.ArrayAdapter
 import android.widget.Button
+import android.widget.ImageView
 import android.widget.Spinner
 import android.widget.TableLayout
 import android.widget.TableRow
@@ -68,6 +69,18 @@ class UserPostings : AppCompatActivity() {
             postingsTitle.text = getString(R.string.donations_history_button)
             nameColumn.text = getString(R.string.to_soldier_column)
             fetchHistory("donorDonationHistory")
+        }
+
+        //making the actionBar functional:
+        //making the back icon have a back functionality:
+        val backIcon = findViewById<ImageView>(R.id.back_icon)
+        backIcon.setOnClickListener {
+            GlobalVar.navigateToPage(Intent(this, Profile::class.java))
+        }
+        // Set the callback
+        GlobalVar.navigateCallback = { intent ->
+            startActivity(intent)
+            finish()
         }
     }
 
@@ -179,7 +192,7 @@ class UserPostings : AppCompatActivity() {
                             }
 
                             "Deny" -> { //Deny
-                                //handleDonationDenial(newRow)
+                                handleDonationRejection(newRow)
                             }
                         }
                     }
@@ -263,18 +276,17 @@ class UserPostings : AppCompatActivity() {
         }.start()
     }
 
-    /*
-    private fun handleDonationDenial(rowToHandle: TableRow) {
+    private fun handleDonationRejection(rowToHandle: TableRow) {
         Thread  {
             try {
-                val url = URL("http://${GlobalVar.serverIP}:8080/api/donationDenial")
+                val url = URL("http://${GlobalVar.serverIP}:8080/api/soldierRequestReject")
                 val connection = url.openConnection() as HttpURLConnection
                 connection.requestMethod = "POST"
                 connection.setRequestProperty("Content-Type", "application/json")
                 connection.doOutput = true
 
                 // Construct the JSON payload with email and password
-                val jsonInputString = """{"userId": "${GlobalVar.userId}", "requestId": "${rowToHandle.tag}"}"""
+                val jsonInputString = """{"requestId": "${rowToHandle.tag}"}"""
 
                 // Send JSON as the request body
                 val outputStream = connection.outputStream
@@ -300,7 +312,7 @@ class UserPostings : AppCompatActivity() {
                     }
 
                     //Sets relevant TextView fields after denying donation
-                    statusField!!.text = jsonNewData.optString("firstname")
+                    nameField!!.text = jsonNewData.optString("firstname")
                     statusField!!.text = jsonNewData.optString("status")
                 }
 
@@ -312,5 +324,5 @@ class UserPostings : AppCompatActivity() {
                 e.printStackTrace()
             }
         }.start()
-    } */
+    }
 }

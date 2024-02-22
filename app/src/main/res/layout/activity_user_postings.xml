@@ -5,8 +5,11 @@
     android:layout_width="match_parent"
     android:layout_height="match_parent"
     tools:context=".UserPostings">
-
+    <include
+        android:id="@+id/toolbar1"
+        layout="@layout/toolbar" />
     <TextView
+        android:layout_marginTop="80dp"
         android:id="@+id/tvPostingsTitle"
         android:layout_width="match_parent"
         android:layout_height="wrap_content"
@@ -48,7 +51,7 @@
                     <TextView
                         android:id="@+id/optionsColumn"
                         android:layout_height="match_parent"
-                        android:background="@color/white"
+                        android:background="@color/tablesBackgroundColor"
                         />
 
                     <TextView

@@ -7,6 +7,10 @@
     android:layout_height="match_parent"
     tools:context=".DonorsEventsPage">
 
+    <include
+        android:id="@+id/toolbar1"
+        layout="@layout/toolbar" />
+
     <TextView
         android:id="@+id/DonorsEventsPageTitle"
         android:layout_width="wrap_content"
@@ -15,20 +19,19 @@
         android:text="@string/donors_events_page_title"
         android:textColor="@android:color/black"
         android:textSize="18sp"
-        app:layout_constraintTop_toTopOf="parent"
         app:layout_constraintBottom_toTopOf="@+id/horizontalScrollView"
         app:layout_constraintEnd_toEndOf="parent"
-        app:layout_constraintStart_toStartOf="parent" />
+        app:layout_constraintStart_toStartOf="parent"
+        app:layout_constraintTop_toBottomOf="@+id/toolbar1" />
 
     <ScrollView
         android:id="@+id/horizontalScrollView"
-        android:layout_width="0dp"
-        android:layout_height="0dp"
+        android:layout_width="409dp"
+        android:layout_height="561dp"
         android:layout_marginLeft="1dp"
         android:layout_marginRight="1dp"
         app:layout_constraintBottom_toBottomOf="parent"
         app:layout_constraintEnd_toEndOf="parent"
-        app:layout_constraintHorizontal_bias="0.0"
         app:layout_constraintStart_toStartOf="parent"
         app:layout_constraintTop_toBottomOf="@+id/DonorsEventsPageTitle">
 
@@ -39,6 +42,7 @@
 
             <TableLayout
                 android:id="@+id/eventsTable"
+                style="@style/AppTable"
                 android:layout_width="wrap_content"
                 android:layout_height="wrap_content"
                 android:layout_marginLeft="1dp"

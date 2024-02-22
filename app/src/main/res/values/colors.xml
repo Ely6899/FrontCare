@@ -3,9 +3,10 @@
     <color name="black">#FF000000</color>
     <color name="white">#FFFFFFFF</color>
     <color name="red">#FF0000</color>
-    <color name="tablesBackgroundColor">#D3D3D3</color>
+    <color name="tablesBackgroundColor">#CAAF79</color>
     <color name="tablesOutlineColor">#000000</color>
     <color name="buttonColor">#1E4306</color>
+    <color name="spinnerColor">#B29F6121</color>
     <color name="buttonTextColor">#BBE8AC</color>
     <color name="backGroundColor">#637755</color>
 </resources>

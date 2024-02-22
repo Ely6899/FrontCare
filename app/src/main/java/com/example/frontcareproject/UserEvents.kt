@@ -9,6 +9,7 @@ import android.view.View
 import android.widget.AdapterView
 import android.widget.ArrayAdapter
 import android.widget.Button
+import android.widget.ImageView
 import android.widget.Spinner
 import android.widget.TableLayout
 import android.widget.TableRow
@@ -55,6 +56,18 @@ class UserEvents : AppCompatActivity() {
 
         if(GlobalVar.userType == 1){fetchHistory("soldierEventsHistory")}
         else {fetchHistory("donorEventsHistory")}
+
+        //making the actionBar functional:
+        //making the back icon have a back functionality:
+        val backIcon = findViewById<ImageView>(R.id.back_icon)
+        backIcon.setOnClickListener {
+            GlobalVar.navigateToPage(Intent(this, Profile::class.java))
+        }
+        // Set the callback
+        GlobalVar.navigateCallback = { intent ->
+            startActivity(intent)
+            finish()
+        }
     }
 
     private fun fetchHistory(apiRequest: String) {
@@ -90,7 +103,7 @@ class UserEvents : AppCompatActivity() {
         }.start()
     }
 
-    @SuppressLint("SimpleDateFormat")
+    @SuppressLint("SimpleDateFormat", "ResourceAsColor")
     private fun addRowToTable(jsonObject: JSONObject) {
         val eventId = jsonObject.getString("event_id")
         val existingRow = eventsTable.findViewWithTag<TableRow>(eventId)
@@ -156,6 +169,7 @@ class UserEvents : AppCompatActivity() {
             }
 
             optionsSpinner.setBackgroundResource(R.drawable.tables_outline)
+            optionsSpinner.setBackgroundColor(R.color.spinnerColor)
 
             optionsSpinner.onItemSelectedListener = object: AdapterView.OnItemSelectedListener{
                 override fun onNothingSelected(parent: AdapterView<*>?) {

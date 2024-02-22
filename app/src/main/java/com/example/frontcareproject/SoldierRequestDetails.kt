@@ -9,6 +9,7 @@ import org.json.JSONArray
 import android.view.Gravity
 import android.view.View
 import android.widget.Button
+import android.widget.ImageView
 import android.widget.TableLayout
 import android.widget.TableRow
 import androidx.lifecycle.lifecycleScope
@@ -55,6 +56,23 @@ class SoldierRequestDetails : AppCompatActivity() {
         // Add button listener
         donateButtonView.setOnClickListener{
             onDonateButtonClick()
+        }
+
+        //making the actionBar functional:
+        //making the back icon have a back functionality:
+        val backIcon = findViewById<ImageView>(R.id.back_icon)
+        backIcon.setOnClickListener {
+           if (fromHistory)
+            GlobalVar.navigateToPage(Intent(this, UserPostings::class.java))
+            else
+            {
+                GlobalVar.navigateToPage(Intent(this, SoldiersRequestsPage::class.java))
+            }
+        }
+        // Set the callback
+        GlobalVar.navigateCallback = { intent ->
+            startActivity(intent)
+            finish()
         }
     }
 

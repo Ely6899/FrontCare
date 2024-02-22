@@ -7,6 +7,7 @@ import android.text.InputType
 import android.widget.ArrayAdapter
 import android.widget.Button
 import android.widget.EditText
+import android.widget.ImageView
 import android.widget.Spinner
 import android.widget.TableLayout
 import android.widget.TableRow
@@ -172,6 +173,18 @@ class EditSoldierRequest : AppCompatActivity() {
         //Button for removing the request.
         btnRemoveRequest.setOnClickListener {
             handleRequestRemoval()
+        }
+
+        //making the actionBar functional:
+        //making the back icon have a back functionality:
+        val backIcon = findViewById<ImageView>(R.id.back_icon)
+        backIcon.setOnClickListener {
+            GlobalVar.navigateToPage(Intent(this, UserPostings::class.java))
+        }
+        // Set the callback
+        GlobalVar.navigateCallback = { intent ->
+            startActivity(intent)
+            finish()
         }
     }
 
