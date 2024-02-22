@@ -4,20 +4,21 @@
     xmlns:tools="http://schemas.android.com/tools"
     android:layout_width="match_parent"
     android:layout_height="match_parent"
-    android:orientation="vertical"
-    android:padding="16dp">
+    android:orientation="vertical">
+<!--    android:padding="16dp">-->
+    <include
+        android:id="@+id/toolbar1"
+        layout="@layout/toolbar" />
 
     <androidx.constraintlayout.widget.ConstraintLayout
         android:layout_width="match_parent"
-        android:layout_height="100dp">
-        <include
-            android:id="@+id/toolbar1"
-            layout="@layout/toolbar" />
+        android:layout_height="72dp">
+
         <TextView
-            android:layout_marginTop="50dp"
             android:id="@+id/textView2"
             android:layout_width="wrap_content"
             android:layout_height="wrap_content"
+            android:layout_marginTop="50dp"
             android:background="#2B4A22"
             android:text="Event Details"
             android:textColor="#FFFFFF"
@@ -25,9 +26,10 @@
             android:textStyle="bold"
             app:layout_constraintBottom_toBottomOf="parent"
             app:layout_constraintEnd_toEndOf="parent"
+            app:layout_constraintHorizontal_bias="0.497"
             app:layout_constraintStart_toStartOf="parent"
             app:layout_constraintTop_toTopOf="parent"
-            app:layout_constraintVertical_bias="0.506" />
+            app:layout_constraintVertical_bias="1.0" />
 
     </androidx.constraintlayout.widget.ConstraintLayout>
 
@@ -95,7 +97,7 @@
             android:layout_height="53dp"
             android:layout_marginStart="133dp"
             android:layout_marginEnd="134dp"
-            android:background="#3F51B5"
+            android:background="#2B4A22"
             android:gravity="center"
             android:text="Email: example@example.com Phone number: 0512345678"
             android:textColor="#FFFFFF"

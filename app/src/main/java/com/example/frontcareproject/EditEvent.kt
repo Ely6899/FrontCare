@@ -176,6 +176,11 @@ class EditEvent : AppCompatActivity() {
         backIcon.setOnClickListener {
             GlobalVar.navigateToPage(Intent(this, UserPostings::class.java))
         }
+        //making the home icon to have a back to profile functionality:
+        val homeIcon = findViewById<ImageView>(R.id.home_icon)
+        homeIcon.setOnClickListener {
+            GlobalVar.navigateToPage(Intent(this, Profile::class.java))
+        }
         // Set the callback
         GlobalVar.navigateCallback = { intent ->
             startActivity(intent)

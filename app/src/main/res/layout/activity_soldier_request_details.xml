@@ -4,8 +4,8 @@
     xmlns:tools="http://schemas.android.com/tools"
     android:layout_width="match_parent"
     android:layout_height="match_parent"
-    android:orientation="vertical"
-    android:padding="16dp">
+    android:orientation="vertical">
+<!--    android:padding="16dp">-->
 
     <androidx.constraintlayout.widget.ConstraintLayout
         android:layout_width="match_parent"
@@ -67,7 +67,7 @@
             android:layout_marginTop="13dp"
             android:layout_marginEnd="134dp"
             android:layout_marginBottom="15dp"
-            android:background="#3F51B5"
+            android:background="#2B4A22"
             android:gravity="center"
             android:text="Email: example@example.com Phone number: 0512345678"
             android:textColor="#FFFFFF"
