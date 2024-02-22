@@ -25,6 +25,11 @@ import utils.GlobalVar
 import com.google.gson.Gson
 import com.google.gson.reflect.TypeToken
 import okhttp3.internal.notify
+import java.io.BufferedReader
+import java.io.IOException
+import java.io.InputStreamReader
+import java.net.HttpURLConnection
+import java.net.URL
 
 class CreateSoldierRequest : AppCompatActivity() {
     private lateinit var productsSpinnerView : Spinner
@@ -51,8 +56,23 @@ class CreateSoldierRequest : AppCompatActivity() {
         productsTableView = findViewById(R.id.productsTable)
         radioGroup = findViewById(R.id.radioGroup)
 
-        // Get availableProducts from server
-        getProducts()
+        // Bind spinner adapter to its list
+        adapter = ArrayAdapter(
+            this@CreateSoldierRequest,
+            android.R.layout.simple_spinner_item,
+            adapterList
+        )
+
+        // Specify the layout to use when the list of choices appears
+        adapter.setDropDownViewResource(android.R.layout.simple_spinner_dropdown_item)
+
+        // Apply the adapter to the spinner
+        productsSpinnerView.adapter = adapter
+
+        // Get availableProducts from server and update spinner
+        Thread {
+            getProducts()
+        }.start()
 
         // Add button even listener
         addProductButton.setOnClickListener {
@@ -66,48 +86,30 @@ class CreateSoldierRequest : AppCompatActivity() {
     }
 
     private fun getProducts() {
-        val url = "http://${GlobalVar.serverIP}:8080/api/products"
-
         val gson = Gson()
         val type = object : TypeToken<MutableMap<String, String>>() {}.type
 
-        // Request in a new Coroutine that is destroyed after leaving this scope
-        lifecycleScope.launch(Dispatchers.IO) {
-            val client = OkHttpClient()
+        val url = URL("http://${GlobalVar.serverIP}:8080/api/products")
+        val connection = url.openConnection() as HttpURLConnection
+        connection.requestMethod = "GET"
+        connection.setRequestProperty("Content-Type", "application/json")
+        connection.connect()
 
-            // build the request
-            val request = Request.Builder()
-                .url(url)
-                .build()
+        // Read the response
+        val inputStream = connection.inputStream
+        val reader = BufferedReader(InputStreamReader(inputStream))
+        val response = reader.readLine()
 
-            // send request and put response in variable
-            val response = client.newCall(request).execute()
-
-            // check response code
-            if (response.isSuccessful) {
-                // need to run on new thread because we are changing the UI
-                runOnUiThread {
-                    // transform json back to map
-                    availableProducts = gson.fromJson(response.body?.string(), type)
-                    adapterList = availableProducts.values.toMutableList() // take only the names of the products.
-
-                    // use adapter to put the items in the spinner
-                    adapter = ArrayAdapter(
-                        this@CreateSoldierRequest,
-                        android.R.layout.simple_spinner_item,
-                        adapterList
-                    )
-
-                    // Specify the layout to use when the list of choices appears
-                    adapter.setDropDownViewResource(android.R.layout.simple_spinner_dropdown_item)
-
-                    // Apply the adapter to the spinner
-                    productsSpinnerView.adapter = adapter
-                }
-            } else {
-                println("Request failed with code: ${response.code}")
-            }
+        runOnUiThread {
+            // transform json back to map
+            availableProducts = gson.fromJson(response, type)
+            adapterList = availableProducts.values.toMutableList() // take only the names of the products.
+            adapter.addAll(adapterList) // Add items to spinner
+            adapter.notifyDataSetChanged()
         }
+
+        reader.close()
+        connection.disconnect()
     }
 
     private fun onCreateButtonClick() {
@@ -199,6 +201,7 @@ class CreateSoldierRequest : AppCompatActivity() {
             productsToSend[productId] = quantityInt
 
         // Remove product from the adapter list and update
+        adapter.remove(productName)
         adapterList.remove(productName)
         adapter.notifyDataSetChanged()
 

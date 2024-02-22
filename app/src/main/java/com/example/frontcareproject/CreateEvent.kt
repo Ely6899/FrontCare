@@ -24,6 +24,10 @@ import okhttp3.OkHttpClient
 import okhttp3.Request
 import okhttp3.RequestBody.Companion.toRequestBody
 import utils.GlobalVar
+import java.io.BufferedReader
+import java.io.InputStreamReader
+import java.net.HttpURLConnection
+import java.net.URL
 import java.time.LocalDate
 
 class CreateEvent : AppCompatActivity() {
@@ -35,6 +39,7 @@ class CreateEvent : AppCompatActivity() {
     private lateinit var eventAddressText : EditText
 
     private var availableProducts : MutableMap<String, String> = mutableMapOf()
+    private lateinit var adapter : ArrayAdapter<String>
 
 
     @RequiresApi(Build.VERSION_CODES.O)
@@ -47,11 +52,22 @@ class CreateEvent : AppCompatActivity() {
         createButton = findViewById(R.id.createButton)
         maximumSpotsText = findViewById(R.id.maximumSpotsText)
         datePicker = findViewById(R.id.datePicker)
-
         eventAddressText = findViewById(R.id.eventAddressText)
 
-        // Get availableProducts from server
-        getProducts()
+        // use adapter to put the items in the list
+        adapter = ArrayAdapter(
+            this@CreateEvent,
+            android.R.layout.simple_list_item_multiple_choice,
+            mutableListOf()
+        )
+
+        // Apply the adapter to the list
+        productsListView.adapter = adapter
+
+        // Get availableProducts from server and update list view
+        Thread {
+            getProducts()
+        }.start()
 
         // Create button event listener
         createButton.setOnClickListener{
@@ -59,43 +75,26 @@ class CreateEvent : AppCompatActivity() {
         }
     }
     private fun getProducts() {
-        val url = "http://${GlobalVar.serverIP}:8080/api/products"
-
         val gson = Gson()
         val type = object : TypeToken<MutableMap<String, String>>() {}.type
 
-        // Request in a new Coroutine that is destroyed after leaving this scope
-        lifecycleScope.launch(Dispatchers.IO) {
-            val client = OkHttpClient()
+        val url = URL("http://${GlobalVar.serverIP}:8080/api/products")
+        val connection = url.openConnection() as HttpURLConnection
+        connection.requestMethod = "GET"
+        connection.setRequestProperty("Content-Type", "application/json")
+        connection.connect()
 
-            // build the request
-            val request = Request.Builder()
-                .url(url)
-                .build()
+        // Read the response
+        val inputStream = connection.inputStream
+        val reader = BufferedReader(InputStreamReader(inputStream))
+        val response = reader.readLine()
 
-            // send request and put response in variable
-            val response = client.newCall(request).execute()
-
-            // check response code
-            if (response.isSuccessful) {
-                // need to run on new thread because we are changing the UI
-                runOnUiThread {
-                    // transform json back to map
-                    availableProducts = gson.fromJson(response.body?.string(), type)
-
-                    // use adapter to put the items in the list
-                    val adapter = ArrayAdapter(
-                        this@CreateEvent,
-                        android.R.layout.simple_list_item_multiple_choice,
-                        availableProducts.values.toList() // take only the names of the products.
-                    )
-
-                    // Apply the adapter to the list
-                    productsListView.adapter = adapter
-                }
-            } else {
-                Toast.makeText(this@CreateEvent, "Request failed with code: ${response.code}", Toast.LENGTH_SHORT).show()
-            }
+        // need to run on new thread because we are changing the UI
+        runOnUiThread {
+            // transform json back to map
+            availableProducts = gson.fromJson(response, type)
+            adapter.addAll(availableProducts.values.toList())
+            adapter.notifyDataSetChanged()
         }
     }
 
