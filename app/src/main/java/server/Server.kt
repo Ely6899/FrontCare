@@ -1058,6 +1058,21 @@ fun updateEvent(data: Map<String, String>): Boolean {
 
             } else {
 
+                // Check if the product and event combination already exists
+                val checkExistenceSQL = """
+                SELECT COUNT(*) FROM event_details
+                WHERE event_id = ? AND product_id = ?;
+            """.trimIndent()
+                val checkExistenceStatement = connection.prepareStatement(checkExistenceSQL)
+                checkExistenceStatement.setInt(1, eventId.toInt())
+                checkExistenceStatement.setInt(2, productId)
+                val resultSet = checkExistenceStatement.executeQuery()
+
+                if (resultSet.next() && resultSet.getInt(1) > 0) {
+                    // The combination already exists, no need to insert
+                    continue
+                }
+
                 // If no rows were affected, insert the product into request_details
                 val insertProductSQL = """
                         INSERT INTO event_details (event_id, product_id) VALUES (?, ?);
