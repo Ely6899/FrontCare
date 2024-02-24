@@ -16,7 +16,7 @@ The FrontCare application solves those problems, connects soldiers with donors, 
 ## Key Features
 
 <h1 align="center">
-  <img src="https://raw.githubusercontent.com/Ely6899/FrontCare/master/Features.PNG" width="800">
+  <img src="https://raw.githubusercontent.com/Ely6899/FrontCare/master/Features_description.PNG" width="800">
 </h1>
 
 
