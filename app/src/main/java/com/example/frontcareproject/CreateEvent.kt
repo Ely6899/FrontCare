@@ -147,8 +147,8 @@ class CreateEvent : AppCompatActivity() {
         }
 
         // Get picked date
-        val day = datePicker.dayOfMonth
-        val month = datePicker.month + 1 // Month is zero-based
+        val day = datePicker.dayOfMonth - 1
+        val month = datePicker.month
         val year = datePicker.year
 
         // Check date
