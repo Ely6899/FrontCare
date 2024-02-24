@@ -84,12 +84,20 @@ class RegisterActivity : AppCompatActivity(){
         }
 
         registerButton.setOnClickListener {
+            val newEmail: String = etEmail.text.toString()
+            val newFirstname: String = etFirstName.text.toString()
+            val newLastname: String = etLastName.text.toString()
+            val newPhone: String = etPhone.text.toString()
+            val newPassword: String = etPassword.text.toString()
             if (selectType.checkedRadioButtonId == -1) {
-                Toast.makeText(
-                    this, "Select user type for registration!",
-                    Toast.LENGTH_SHORT
-                )
-                    .show()
+                Toast.makeText(this, "Select user type for registration!", Toast.LENGTH_SHORT).show()
+            }
+            else if(newEmail.isEmpty() ||
+                    newFirstname.isEmpty() ||
+                    newLastname.isEmpty() ||
+                    newPhone.isEmpty() ||
+                    newPassword.isEmpty()){
+                Toast.makeText(this, "Invalid edit. All fields must be filled.", Toast.LENGTH_LONG).show()
             } else {
                 val selectedType = findViewById<RadioButton>(selectType.checkedRadioButtonId)
 

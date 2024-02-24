@@ -60,7 +60,15 @@ class EditProfile : AppCompatActivity() {
         fetchProfileData()
 
         btnEditProfile.setOnClickListener{
-            sendNewData()
+            val newEmail: String = etEmail.text.toString()
+            val newPhone: String = etPhone.text.toString()
+            val newUsername: String = etUsername.text.toString()
+            if(newEmail.isEmpty() || newPhone.isEmpty() || newUsername.isEmpty()){
+                Toast.makeText(this, "Invalid edit", Toast.LENGTH_LONG).show()
+            }
+            else{
+                sendNewData()
+            }
         }
 
         //making the actionBar functional:
