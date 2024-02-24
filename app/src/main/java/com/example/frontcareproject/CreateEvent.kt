@@ -81,6 +81,11 @@ class CreateEvent : AppCompatActivity() {
         backIcon.setOnClickListener {
             GlobalVar.navigateToPage(Intent(this, UserEvents::class.java))
         }
+        //making the home icon to have a back to profile functionality:
+        val homeIcon = findViewById<ImageView>(R.id.home_icon)
+        homeIcon.setOnClickListener {
+            GlobalVar.navigateToPage(Intent(this, Profile::class.java))
+        }
         // Set the callback
         GlobalVar.navigateCallback = { intent ->
             startActivity(intent)
@@ -141,7 +146,7 @@ class CreateEvent : AppCompatActivity() {
         val maximumSpots = maximumSpotsString.toInt()
 
         // Now check valid input
-        if (maximumSpots < 0 || maximumSpots > 10000) {
+        if (maximumSpots < 1 || maximumSpots > 10000) {
             Toast.makeText(this, "Maximum spots should be between 1 and 10000", Toast.LENGTH_SHORT).show()
             return
         }

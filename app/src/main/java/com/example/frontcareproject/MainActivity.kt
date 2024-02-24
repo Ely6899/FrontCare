@@ -29,8 +29,8 @@ class MainActivity : AppCompatActivity() {
         }
 
         val backIcon = findViewById<ImageView>(R.id.back_icon)
-        val sideBarIcon = findViewById<ImageView>(R.id.sidebar_icon)
+        val homeIcon = findViewById<ImageView>(R.id.home_icon)
         backIcon.visibility = View.INVISIBLE
-        sideBarIcon.visibility = View.INVISIBLE
+        homeIcon.visibility = View.INVISIBLE
     }
 }

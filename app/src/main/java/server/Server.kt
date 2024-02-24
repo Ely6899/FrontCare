@@ -232,10 +232,9 @@ fun getSoldiersRequests(): List<Map<String, Any>> {
  */
 fun getDonorsEvents(donorId: String?): List<Map<String, Any>> {
     val resultList = mutableListOf<Map<String, Any>>()
-    var sqlFiller =
-        "WHERE donation_events.event_date >= CURRENT_DATE();" // var that will be added to the sql query to determine if its for events history or donors events
-    //if donorid = 0 ,it means we want to get all the events for the events page , otherwise we only want to receive the events of a specific donor.
+    var sqlFiller = "WHERE donation_events.event_date >= CURRENT_DATE() AND remaining_spot > 0;" // var that will be added to the sql query to determine if its for events history or donors events
 
+    //if donorid = 0 ,it means we want to get all the events for the events page , otherwise we only want to receive the events of a specific donor.
     if (donorId != "0") {
         sqlFiller = "WHERE donation_events.donor_id = $donorId;"
     }

@@ -155,8 +155,8 @@ class RegisterActivity : AppCompatActivity(){
         //making the actionBar functional:
         //making the back icon have a back functionality:
         val backIcon = findViewById<ImageView>(R.id.back_icon)
-        val sideBarIcon = findViewById<ImageView>(R.id.sidebar_icon)
-        sideBarIcon.visibility = View.INVISIBLE
+        val homeIcon = findViewById<ImageView>(R.id.home_icon)
+        homeIcon.visibility = View.INVISIBLE
         backIcon.setOnClickListener {
             GlobalVar.navigateToPage(Intent(this, MainActivity::class.java))
         }
