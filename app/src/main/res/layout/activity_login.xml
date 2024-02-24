@@ -81,15 +81,13 @@
         android:layout_width="wrap_content"
         android:layout_height="wrap_content"
         android:text=""
-        tools:layout_editor_absoluteX="175dp"
-        tools:layout_editor_absoluteY="338dp"
-        android:textColor="@color/black"
         android:textAlignment="center"
+        android:textColor="@color/black"
         android:textSize="25sp"
         android:textStyle="bold"
-        app:layout_constraintTop_toBottomOf="@+id/etLoginPassword"
-        app:layout_constraintStart_toStartOf="@+id/etLoginPassword"
-        />
+        app:layout_constraintEnd_toEndOf="parent"
+        app:layout_constraintStart_toStartOf="parent"
+        app:layout_constraintTop_toBottomOf="@+id/etLoginPassword" />
 
 
 </androidx.constraintlayout.widget.ConstraintLayout>

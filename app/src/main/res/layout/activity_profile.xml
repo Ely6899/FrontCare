@@ -126,7 +126,7 @@
                 android:layout_height="wrap_content"
 
                 android:text=""
-                android:textAlignment="center"
+                android:textAlignment="textStart"
                 android:textColor="@color/black"
                 android:textSize="25sp">
 
@@ -227,12 +227,12 @@
         android:id="@+id/btnDonorsList"
         android:layout_width="wrap_content"
         android:layout_height="wrap_content"
-        android:layout_marginTop="12dp"
-        android:text="Go to DonorList Page"
+        android:layout_marginTop="28dp"
+        android:text="Go to Donors Events List Page"
         app:layout_constraintEnd_toEndOf="parent"
-        app:layout_constraintHorizontal_bias="0.497"
+        app:layout_constraintHorizontal_bias="0.519"
         app:layout_constraintStart_toStartOf="parent"
-        app:layout_constraintTop_toBottomOf="@+id/btnSoldiersRequests" />
+        app:layout_constraintTop_toBottomOf="@+id/btnGoToEdit" />
 
     <Button
         android:id="@+id/btnPostingsHistory"
