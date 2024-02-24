@@ -206,7 +206,7 @@ class CreateSoldierRequest : AppCompatActivity() {
         val quantityInt = quantityString.toInt()
 
         // Now check valid input
-        if (quantityInt < 0 || quantityInt > 100000) {
+        if (quantityInt < 1 || quantityInt > 100000) {
             Toast.makeText(this, "Quantity should be between 1 and 100000", Toast.LENGTH_SHORT).show()
             return
         }
