@@ -77,8 +77,9 @@
             android:layout_width="match_parent"
             android:layout_height="wrap_content"
             android:layout_marginTop="25dp"
+            android:background="#637755"
+            android:backgroundTint="#637755"
             android:stretchColumns="*"
-
             app:layout_constraintTop_toBottomOf="@+id/btnAddItem">
 
             <!-- Header row -->
@@ -89,9 +90,9 @@
                 <TextView
                     android:id="@+id/tvProductsSpinnerColumn"
                     android:gravity="center"
-                    android:text="Products"
-                    android:padding="8dp"
                     android:maxLines="1"
+                    android:padding="8dp"
+                    android:text="Products"
                     android:textAlignment="center" />
 
                 <TextView

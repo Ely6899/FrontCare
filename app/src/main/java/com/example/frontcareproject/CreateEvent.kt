@@ -146,7 +146,7 @@ class CreateEvent : AppCompatActivity() {
         val maximumSpots = maximumSpotsString.toInt()
 
         // Now check valid input
-        if (maximumSpots < 0 || maximumSpots > 10000) {
+        if (maximumSpots < 1 || maximumSpots > 10000) {
             Toast.makeText(this, "Maximum spots should be between 1 and 10000", Toast.LENGTH_SHORT).show()
             return
         }
